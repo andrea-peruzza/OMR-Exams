@@ -26,6 +26,53 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# temporary repository
+tmp/
+
+# Mantain the directories, but remove the content
+scans/*
+!scans/.gitkeep
+sorted/*
+!sorted/.gitkeep
+students/*
+!students/.gitkeep
+questions/*
+!questions/.gitkeep
+
+# Local database and temporary files
+exam*.json
+*.tmp
+*.json.tmp
+
+# Excel sheets
+studenti*.xlsx
+marks*.xlsx
+report*.xlsx
+esito_*.xlsx
+
+# program generated PDF
+exam-*.pdf
+test*.pdf
+corrected*.pdf
+
+# LaTeX temporary files
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.xdv
+*.toc
+*.synctex.gz
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
 # PyInstaller
 #   Usually these files are written by a python script from a template
 #   before PyInstaller builds the exe, so as to inject date/other infos into it.
