@@ -39,13 +39,14 @@ class Correct:
     This class will operate on a directory with a set of pages and perform the correction 
     according to the information stored in the qrcodes
     """
-    def __init__(self, sorted, corrected, data_filename, resolution, compression, use_page_answers=False):
+    def __init__(self, sorted, corrected, data_filename, resolution, compression, use_page_answers=False, progress_callback=None):
         self.sorted = sorted
         self.corrected = corrected
         self.data_filename = data_filename
         self.resolution = resolution
         self.compression = compression
         self.use_page_answers = use_page_answers
+        self.progress_callback = progress_callback
 
     def correct(self):
         logger.info('Creating and preparing tmp directory')
@@ -78,6 +79,8 @@ class Correct:
                 self.results_mutex.acquire()
                 self.task_done.wait_for(lambda: prev <= self.results.value)
                 bar.update(self.results.value - prev)
+                if self.progress_callback:
+                    self.progress_callback(self.results.value, files, 'Correcting')
                 prev = self.results.value
                 self.results_mutex.release()
         click.secho('Correction finished', fg='red', underline=True)
@@ -112,6 +115,8 @@ class Correct:
                     else:
                         output_pdf.append(PdfReader(f, strict=False))
                 bar.update(1)
+                if self.progress_callback:
+                    self.progress_callback(i + 1, len(files), "Merging corrections")
         click.secho("Writing pdf file", fg="green")
         with open(self.corrected, 'wb') as f:
             output_pdf.write(f)

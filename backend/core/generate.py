@@ -67,10 +67,11 @@ class Generate:
     or an overall testing document for checking the questions and their answers.
     """    
 
-    def __init__(self, config, questions, output_prefix, test=False, paper='A4', students=None, exam_date=dt.now(), seed=42, split=None, folded=True, rotated=False):
+    def __init__(self, config, questions, output_prefix, test=False, paper='A4', students=None, exam_date=dt.now(), seed=42, split=None, folded=True, rotated=False, progress_callback=None):
         self.config = config
         self.questions_path = questions
         self.output_prefix = output_prefix
+        self.progress_callback = progress_callback
         self.test = test
         self.paper = paper.upper()
         if self.paper not in ('A4', 'A3'):
@@ -162,6 +163,8 @@ class Generate:
                 self.results_mutex.acquire()
                 self.generate_task_done.wait_for(lambda: prev <= self.results.value)
                 bar.update(self.results.value - prev)
+                if self.progress_callback:
+                    self.progress_callback(self.results.value, len(self.students), 'Generating exams')
                 prev = self.results.value
                 self.results_mutex.release()
 
@@ -180,17 +183,21 @@ class Generate:
                                bar_template='%(label)s |%(bar)s| %(info)s',
                                fill_char=click.style(u'█', fg='cyan'),
                                empty_char=' ', show_pos=True) as bar:  
+                current_chunk = 0
                 for _ in pool.imap_unordered(partial(_collate_star, paper=self.paper, rotated=self.rotated, folded=self.folded), tasks, chunksize=chunksize):
                     bar.update(1)
+                    current_chunk += 1
+                    if self.progress_callback:
+                        self.progress_callback(current_chunk, num_chunks, 'Chunks of exam files')
         else:
             with click.progressbar(length=len(pdf_files), label='Exam files',
                                bar_template='%(label)s |%(bar)s| %(info)s',
                                fill_char=click.style(u'█', fg='cyan'),
                                empty_char=' ', show_pos=True) as bar:  
                 if self.paper == 'A4':
-                    Generate.collate_exams_a4(f"{self.output_prefix}.pdf", pdf_files, bar=bar)
+                    Generate.collate_exams_a4(f"{self.output_prefix}.pdf", pdf_files, bar=bar, progress_callback=self.progress_callback)
                 else:
-                    Generate.collate_exams_a3(f"{self.output_prefix}.pdf", pdf_files, bar=bar, folded=self.folded, rotated=self.rotated)
+                    Generate.collate_exams_a3(f"{self.output_prefix}.pdf", pdf_files, bar=bar, folded=self.folded, rotated=self.rotated, progress_callback=self.progress_callback)
         
 
         if not self.error.value:
@@ -261,7 +268,7 @@ class Generate:
 
 
     @staticmethod
-    def collate_exams_a4(filename, pdf_files, bar=None):
+    def collate_exams_a4(filename, pdf_files, bar=None, progress_callback=None):
         # This is for A4 management            
         merger = PdfWriter()
         _blank = PdfWriter()
@@ -271,6 +278,7 @@ class Generate:
         
         opened_files = [] # Track opened files
         
+        current_file = 0
         for exam in pdf_files:
             f = open(exam, 'rb')
             opened_files.append(f) # Save the file reference
@@ -280,6 +288,9 @@ class Generate:
                 merger.append(blank)
             if bar:
                 bar.update(1)
+            current_file += 1
+            if progress_callback:
+                progress_callback(current_file, len(pdf_files), 'Collating exams (A4)')
                 
         with open(filename, 'wb') as f:
             merger.write(f)
@@ -289,13 +300,14 @@ class Generate:
             f.close()
 
     @staticmethod
-    def collate_exams_a3(filename, pdf_files, folded=True, rotated=False, bar=None):
+    def collate_exams_a3(filename, pdf_files, folded=True, rotated=False, bar=None, progress_callback=None):
         # This is for A3 management
         writer = PdfWriter()
         a3page = None
         
         opened_files = [] # Track opened files
         
+        current_file = 0
         for exam in pdf_files:
             f = open(exam, 'rb')
             opened_files.append(f) # Save the file reference
@@ -349,6 +361,9 @@ class Generate:
 
             if bar:
                 bar.update(1)
+            current_file += 1
+            if progress_callback:
+                progress_callback(current_file, len(pdf_files), 'Collating exams (A3)')
                 
         with open(filename, 'wb') as f:
             writer.write(f)
