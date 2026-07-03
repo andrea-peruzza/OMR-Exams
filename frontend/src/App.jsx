@@ -6,9 +6,9 @@ function App() {
 
   useEffect(() => {
     // Il frontend chiama l'API esposta sulla porta 5000 dal backend
-    axios.get('http://localhost:5000/')
+    axios.get('/api/dashboard/status')
       .then(response => {
-        setMessaggio(response.data.message)
+        setMessaggio(response.data.status)
       })
       .catch(error => {
         setMessaggio("Errore di connessione: " + error.message)
