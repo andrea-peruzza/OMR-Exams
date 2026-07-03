@@ -1,0 +1,50 @@
+services:
+
+  # ============================================================
+  # BACKEND — FastAPI + codice OMRExams + dipendenze di sistema
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: omrexams-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      # La cartella data/ sulla macchina dell'utente viene montata
+      # dentro il container: i file generati (esami, scansioni, risultati)
+      # persistono anche dopo il riavvio dei container
+      - ./data:/app/data
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - omrexams-network
+
+  # ============================================================
+  # FRONTEND — React compilato da Vite, servito da nginx
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: omrexams-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - omrexams-network
+
+# ============================================================
+# RETE INTERNA tra i container
+# ============================================================
+# I due container comunicano tra loro tramite questa rete virtuale.
+# All'interno di essa, il frontend può raggiungere il backend
+# usando il nome del servizio come hostname: http://backend:5000
+# Questo nome va usato in nginx.conf per il proxy, NON localhost.
+networks:
+  omrexams-network:
+    driver: bridge

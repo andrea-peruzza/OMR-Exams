@@ -2,7 +2,7 @@
 # FASE 1: Costruzione (Build) con Node.js
 # ==========================================
 # Usiamo Node 20 (la versione LTS attuale, ottima per Vite)
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 # Impostiamo la cartella di lavoro nel container
 WORKDIR /app
@@ -10,7 +10,7 @@ WORKDIR /app
 # Copiamo PRIMA solo i file delle dipendenze. 
 # Questo è un trucco Docker: se non cambi i pacchetti, Docker userà la cache 
 # e salterà questa fase lunghissima nei build successivi!
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
 # Installiamo le librerie di React/Vite
 RUN npm install

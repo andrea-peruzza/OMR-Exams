@@ -18,19 +18,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-latex-extra \
     texlive-lang-italian \
     latexmk \
+    libzbar0 \
+    libzxing3 \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Copiamo tutto il resto del codice del nostro progetto dentro il container
-COPY . /app
+# corregge la policy di ImageMagick che blocca i PDF
+RUN find /etc/ImageMagick-* -name "policy.xml" -exec \
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' {} \;
+
+# 5. Copio prima le dipendenze python
+COPY requirements.txt .
 
 # 6. Installiamo il progetto stesso!
 # Il punto "." dice a pip di leggere il pyproject.toml nella cartella corrente
 # e installare tutte le librerie elencate lì dentro.
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir -r requirements.txt
+
+#e poi importo il codice
+COPY . /app
 
 # 7. Diciamo a Docker quale porta esporre (es. 5000 se usi Flask)
 EXPOSE 5000
 
 # 8. Il comando che verrà lanciato quando accendiamo il container
 # (Sostituisci "app.py" con il nome del file principale del tuo backend web)
-CMD ["uvicorn", "main.py", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
