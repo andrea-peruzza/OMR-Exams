@@ -1,15 +1,31 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+#  MOCK CLICK BLOCCANTI 
+# Deve stare PRIMA di qualsiasi import da core/
+# Impedisce che click.prompt() e click.confirm() blocchino il server
+# aspettando input dall'utente che in un contesto API non arriverà mai
+import click
+click.prompt = lambda *args, **kwargs: kwargs.get('default', 'y')
+click.confirm = lambda *args, **kwargs: True
+
+# Solo DOPO il mock importo i router (che a loro volta importano core/)
+from api import dashboard#, generate, scan, correct, mark, report, moodle
+
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-@app.get("/api/dashboard/status")
-def status():
-    return {"status": "ok"}
+app.include_router(dashboard.router, prefix="/api/dashboard")
+#app.include_router(generate.router, prefix="/api/generate")
+##app.include_router(scan.router, prefix="/api/scan")
+#app.include_router(correct.router, prefix="/api/correct")
+#app.include_router(mark.router, prefix="/api/mark")
+#app.include_router(report.router, prefix="/api/report")
+#app.include_router(moodle.router, prefix="/api/moodle")
+
