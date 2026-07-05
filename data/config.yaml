@@ -1,0 +1,20 @@
+exam:
+  name: Fondamenti di Informatica
+  language: it
+  shuffle_questions: true
+  shuffle_answers: true
+paper: A4
+packages: {}
+commands: {}
+header: 'Data: \thedate \newline Candidato: \thestudent \newline Matricola: \thematriculationno'
+footer: \thepage
+preamble: '\textbf{Esame di Informatica} \newline Istruzioni: rispondi a tutte le domande annerendo completamente la casella.'
+excel:
+  fields:
+    id: "id"
+    name: "name"
+    surname: "surname"
+    email: "email"
+questions:
+  - from: "programmazione.md"
+    draw: 2
