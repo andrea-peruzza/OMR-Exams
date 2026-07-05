@@ -18,6 +18,7 @@ services:
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
+      - DATA_DIR=/app/data
     restart: unless-stopped
     networks:
       - omrexams-network
