@@ -1,26 +1,21 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
 
 function App() {
-  const [messaggio, setMessaggio] = useState("In attesa del backend...")
-
-  useEffect(() => {
-    // Il frontend chiama l'API esposta sulla porta 5000 dal backend
-    axios.get('/api/dashboard/status')
-      .then(response => {
-        setMessaggio(response.data.status)
-      })
-      .catch(error => {
-        setMessaggio("Errore di connessione: " + error.message)
-      })
-  }, [])
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'sans-serif' }}>
-      <h1>OMRExams - Tirocinio</h1>
-      <p>Stato Backend: <strong style={{ color: 'blue' }}>{messaggio}</strong></p>
-    </div>
-  )
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-50 text-gray-900">
+        <Routes>
+          {/* Rotta principale della Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Redirect dalla root alla dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
