@@ -29,6 +29,9 @@ MANIFEST
 # temporary repository
 tmp/
 
+# Node.js/Frontend dependencies
+node_modules/
+
 # Mantain the directories, but remove the content
 scans/*
 !scans/.gitkeep
