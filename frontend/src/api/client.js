@@ -16,4 +16,35 @@ export const dashboardAPI = {
   }
 };
 
+export const generateAPI = {
+  getConfig: async () => {
+    const response = await apiClient.get('/api/generate/config');
+    return response.data;
+  },
+  getFiles: async () => {
+    const response = await apiClient.get('/api/generate/files');
+    return response.data;
+  },
+  uploadQuestion: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/generate/upload/question', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+  uploadStudent: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/generate/upload/student', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+  startGeneration: async (requestData) => {
+    const response = await apiClient.post('/api/generate/start', requestData);
+    return response.data;
+  }
+};
+
 export default apiClient;
