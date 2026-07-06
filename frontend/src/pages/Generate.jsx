@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import PDFPreview from '../components/PDFPreview';
 
 export default function Generate() {
+  const navigate = useNavigate();
   const [config, setConfig] = useState({
     exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: 2 },
     choices: { circled: false, usesf: false },
     paper: 'A4',
     dyslexia: false,
-    header: 'Data: \\thedate \\newline Candidato: \\thestudent \\newline Matricola: \\thematriculationno',
-    footer: '\\thepage',
+    header: "Data dell'esame\nNome del candidato\nMatricola",
+    footer: 'Numero di pagina',
     preamble: '',
     excel: {
-      data_marker: { skip_until: '', on_column: 0 },
+      data_marker: { skip_until: '', on_column: 0, skip_rows: 0 },
       fields: { id: 'id', name: 'name', surname: 'surname', email: '' }
     },
     questions: []
@@ -35,6 +38,7 @@ export default function Generate() {
   const [taskId, setTaskId] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState(null);
+  const [dataDir, setDataDir] = useState('');
 
   useEffect(() => {
     loadFiles();
@@ -100,8 +104,25 @@ export default function Generate() {
     setError(null);
     setProgress(null);
     
+    // Funzione helper per tradurre linguaggio naturale in LaTeX
+    const translateToLatex = (text) => {
+      if (!text) return text;
+      let latex = text;
+      latex = latex.replace(/Numero di pagina/gi, '\\thepage');
+      latex = latex.replace(/Data dell'esame/gi, '\\thedate');
+      latex = latex.replace(/Nome del candidato/gi, '\\thestudent');
+      latex = latex.replace(/Matricola/gi, '\\thematriculationno');
+      latex = latex.replace(/Esame di Informatica/gi, '\\textbf{Esame di Informatica}');
+      latex = latex.replace(/\n/g, ' \\newline ');
+      return latex;
+    };
+
     // Clean up config before sending
     const payloadConfig = { ...config };
+    payloadConfig.header = translateToLatex(payloadConfig.header);
+    payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
+    payloadConfig.footer = translateToLatex(payloadConfig.footer);
+
     if (!payloadConfig.exam.max_questions) delete payloadConfig.exam.max_questions;
     if (!payloadConfig.exam.max_open_questions) delete payloadConfig.exam.max_open_questions;
     
@@ -129,6 +150,7 @@ export default function Generate() {
     try {
       const res = await generateAPI.startGeneration(reqData);
       setTaskId(res.task_id);
+      setDataDir(res.data_dir);
     } catch (e) {
       setError(e.response?.data?.detail || e.message);
     }
@@ -143,19 +165,7 @@ export default function Generate() {
         </button>
       </div>
 
-      {taskId && progress && (
-        <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-100">
-          <h2 className="text-xl font-bold text-blue-800 mb-2">Stato Generazione</h2>
-          <div className="w-full bg-blue-200 rounded-full h-4 mb-2">
-            <div className="bg-blue-600 h-4 rounded-full transition-all duration-500" style={{ width: `${(progress.progress / progress.total) * 100}%` }}></div>
-          </div>
-          <p className="text-blue-700">{progress.message} ({progress.progress} / {progress.total})</p>
-          {progress.completed && !progress.error && <p className="text-green-600 font-bold mt-2"><CheckCircle2 className="inline mr-1" /> Generazione Completata!</p>}
-          {progress.error && <p className="text-red-600 font-bold mt-2"><AlertCircle className="inline mr-1" /> Errore: {progress.error}</p>}
-        </div>
-      )}
 
-      {error && <div className="p-4 mb-6 bg-red-100 text-red-700 rounded-lg">{error}</div>}
 
       <div className="space-y-8">
         {/* Sezione Runtime */}
@@ -213,6 +223,13 @@ export default function Generate() {
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Colonna Matricola</label>
                 <input type="text" className="w-full border p-2 rounded" value={config.excel.fields.id} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, id: e.target.value}}})} />
+              </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <label className="block text-sm text-gray-600 mb-1">Righe vuote/intestazioni da saltare all'inizio del file</label>
+              <div className="flex items-center gap-2">
+                <input type="number" min="0" className="w-32 border p-2 rounded text-sm" value={config.excel.data_marker.skip_rows} onChange={e => setConfig({...config, excel: {...config.excel, data_marker: {...config.excel.data_marker, skip_rows: parseInt(e.target.value) || 0}}})} />
+                <span className="text-xs text-gray-500">Es: se i nomi delle colonne ("Nome", "Cognome") si trovano alla riga 2, scrivi 1.</span>
               </div>
             </div>
           </section>
@@ -291,6 +308,34 @@ export default function Generate() {
           </div>
         </section>
 
+        {/* Testi Personalizzati */}
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Testi Personalizzati</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Header</label>
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, header: "Data dell'esame\nNome del candidato\nMatricola"})}>Usa standard: "Data, nome e matricola"</button>
+              </div>
+              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.header} onChange={e => setConfig({...config, header: e.target.value})} placeholder="Es. Data dell'esame"></textarea>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Preamble</label>
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Esame di Informatica\nIstruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
+              </div>
+              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.preamble} onChange={e => setConfig({...config, preamble: e.target.value})} placeholder="Testo libero introdotto prima delle domande"></textarea>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Footer</label>
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, footer: 'Numero di pagina'})}>Usa standard: "Numero di pagina"</button>
+              </div>
+              <input type="text" className="w-full border p-2 rounded text-sm" value={config.footer} onChange={e => setConfig({...config, footer: e.target.value})} placeholder="Es. Numero di pagina" />
+            </div>
+          </div>
+        </section>
+
         {/* Submit */}
         <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl border border-gray-200">
           <div className="flex items-center">
@@ -305,6 +350,42 @@ export default function Generate() {
             <Play size={20} /> Avvia Generazione
           </button>
         </div>
+
+        {/* Barra di Avanzamento, Errori e Preview */}
+        {error && <div className="p-4 mt-6 bg-red-100 text-red-700 rounded-lg">{error}</div>}
+        
+        {taskId && progress && (
+          <div className="mt-6 p-6 bg-blue-50 rounded-xl border border-blue-100">
+            <h2 className="text-xl font-bold text-blue-800 mb-2">Stato Generazione</h2>
+            <div className="w-full bg-blue-200 rounded-full h-4 mb-2">
+              <div className="bg-blue-600 h-4 rounded-full transition-all duration-500" style={{ width: `${(progress.progress / progress.total) * 100}%` }}></div>
+            </div>
+            <p className="text-blue-700">{progress.message} ({progress.progress} / {progress.total})</p>
+            {progress.completed && !progress.error && (
+              <div className="mt-4">
+                <p className="text-green-600 font-bold mb-4"><CheckCircle2 className="inline mr-1" /> Generazione Completata!</p>
+                <p className="text-gray-800 mb-4 bg-white p-3 rounded border border-gray-200 shadow-sm">
+                  Il file pdf degli esami è stato generato ed è presente nella cartella:<br />
+                  <span className="font-mono text-sm text-blue-600">{dataDir}</span>
+                </p>
+                
+                {/* PDF Preview */}
+                <PDFPreview url={`http://localhost:5000/api/data/${runtime.output_prefix}.pdf`} />
+                
+                {/* Ritorno Dashboard */}
+                <div className="mt-6 flex justify-center">
+                  <button 
+                    onClick={() => navigate('/dashboard')}
+                    className="flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-900"
+                  >
+                    <ArrowLeft size={20} /> Torna alla Dashboard
+                  </button>
+                </div>
+              </div>
+            )}
+            {progress.error && <p className="text-red-600 font-bold mt-2"><AlertCircle className="inline mr-1" /> Errore: {progress.error}</p>}
+          </div>
+        )}
 
       </div>
     </div>
