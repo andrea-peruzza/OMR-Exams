@@ -46,6 +46,7 @@ questions/*
 exam*.json
 *.tmp
 *.json.tmp
+config.yaml
 
 # Excel sheets
 studenti*.xlsx
