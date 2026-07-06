@@ -138,7 +138,7 @@ class Generate:
         if os.path.exists('tmp'):
             rmtree('tmp')
         os.mkdir('tmp')        
-        with pkg_resources.path("omrexams.texmf", "omrexam.cls") as template_path:
+        with pkg_resources.path("core.texmf", "omrexam.cls") as template_path:
             # Copy the file to the temporary directory
             click.secho(f'Copying omrexam.cls to tmp', fg='yellow')
             copy2(template_path, 'tmp')
@@ -521,7 +521,7 @@ class Generate:
         logger.info('Creating and preparing tmp directory')
         if not os.path.exists('tmp'):
            os.mkdir('tmp')
-        with pkg_resources.path("omrexams.texmf", "omrexam.cls") as template_path:
+        with pkg_resources.path("core.texmf", "omrexam.cls") as template_path:
             # Copy the file to the temporary directory
             click.secho(f'Copying omrexam.cls to tmp', fg='yellow')
             copy2(template_path, 'tmp')
