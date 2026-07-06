@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 #  MOCK CLICK BLOCCANTI 
 # Deve stare PRIMA di qualsiasi import da core/
@@ -24,6 +26,12 @@ app.add_middleware(
 app.include_router(dashboard.router, prefix="/api/dashboard")
 app.include_router(generate.router, prefix="/api/generate")
 app.include_router(sse.router, prefix="/api/sse")
+
+# Mount della cartella data per permettere al frontend di accedere ai PDF
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+app.mount("/api/data", StaticFiles(directory=DATA_DIR), name="data")
 ##app.include_router(scan.router, prefix="/api/scan")
 #app.include_router(correct.router, prefix="/api/correct")
 #app.include_router(mark.router, prefix="/api/mark")

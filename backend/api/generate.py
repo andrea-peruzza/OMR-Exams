@@ -81,22 +81,41 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             
             import pandas as pd
             skip_rows = 0
-            if 'excel' in config_dict and 'data_marker' in config_dict['excel'] and config_dict['excel']['data_marker']:
+            if 'excel' in config_dict and 'data_marker' in config_dict['excel']:
                 marker = config_dict['excel']['data_marker'].get('skip_until')
                 column = config_dict['excel']['data_marker'].get('on_column', 0)
+                skip_rows_config = config_dict['excel']['data_marker'].get('skip_rows', 0)
                 if marker:
                     df_marker = pd.read_excel(excel_path, header=None)
                     for i, row in df_marker.iterrows():
                         if str(row[column]).strip() == marker:
                             skip_rows = i + 1
                             break
+                elif skip_rows_config:
+                    skip_rows = skip_rows_config
             
             df = pd.read_excel(excel_path, skiprows=skip_rows)
-            df.columns = map(str.lower, df.columns)
+            
+            # Auto-rilevamento intelligente: salta le righe finché non trova vere intestazioni
+            attempts = 0
+            while df.columns.astype(str).str.startswith('Unnamed:').all() and attempts < 10:
+                skip_rows += 1
+                df = pd.read_excel(excel_path, skiprows=skip_rows)
+                attempts += 1
+                
+            df.columns = [str(c).lower().strip() for c in df.columns]
             fields = config_dict['excel']['fields']
-            name_col = fields['name'].lower()
-            surname_col = fields['surname'].lower()
-            id_col = fields['id'].lower()
+            name_col = str(fields.get('name', 'name')).lower().strip()
+            surname_col = str(fields.get('surname', 'surname')).lower().strip()
+            id_col = str(fields.get('id', 'id')).lower().strip()
+            
+            missing_cols = []
+            if name_col not in df.columns: missing_cols.append(f"Nome ({name_col})")
+            if surname_col not in df.columns: missing_cols.append(f"Cognome ({surname_col})")
+            if id_col not in df.columns: missing_cols.append(f"Matricola ({id_col})")
+            
+            if missing_cols:
+                raise Exception(f"Errore: Colonne non trovate nel file Excel: {', '.join(missing_cols)}. Colonne rilevate: {', '.join(df.columns)}")
             
             for idx, row in df.iterrows():
                 fullname = f"{row[name_col]} {row[surname_col]}"
@@ -139,4 +158,4 @@ def run_generate_task(task_id: str, req: GenerateRequest):
 def start_generation(req: GenerateRequest, background_tasks: BackgroundTasks):
     task_id = task_manager.create_task()
     background_tasks.add_task(run_generate_task, task_id, req)
-    return {"task_id": task_id}
+    return {"task_id": task_id, "data_dir": DATA_DIR}

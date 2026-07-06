@@ -4,6 +4,7 @@ from typing import Optional, List, Dict, Any, Union
 class DataMarker(BaseModel):
     skip_until: Optional[str] = None
     on_column: Optional[int] = 0
+    skip_rows: Optional[int] = 0
 
 class ExcelFields(BaseModel):
     id: str
