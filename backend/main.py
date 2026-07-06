@@ -10,7 +10,7 @@ click.prompt = lambda *args, **kwargs: kwargs.get('default', 'y')
 click.confirm = lambda *args, **kwargs: True
 
 # Solo DOPO il mock importo i router (che a loro volta importano core/)
-from api import dashboard#, generate, scan, correct, mark, report, moodle
+from api import dashboard, generate, sse#, scan, correct, mark, report, moodle
 
 app = FastAPI()
 
@@ -22,7 +22,8 @@ app.add_middleware(
 )
 
 app.include_router(dashboard.router, prefix="/api/dashboard")
-#app.include_router(generate.router, prefix="/api/generate")
+app.include_router(generate.router, prefix="/api/generate")
+app.include_router(sse.router, prefix="/api/sse")
 ##app.include_router(scan.router, prefix="/api/scan")
 #app.include_router(correct.router, prefix="/api/correct")
 #app.include_router(mark.router, prefix="/api/mark")
