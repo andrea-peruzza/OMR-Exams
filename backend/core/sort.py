@@ -23,11 +23,12 @@ class Sort:
     This class is responsible of dispatching the scanned exams from a PDF into
     a set of files, one for each single student, to be further processed later.
     """
-    def __init__(self, scanned, sorted, doublecheck):
+    def __init__(self, scanned, sorted, doublecheck, progress_callback=None):
         self.scanned = scanned
         self.sorted = sorted
         self.offset = 10 # cropping offset, TODO: become a parameter
         self.doublecheck = doublecheck
+        self.progress_callback = progress_callback
 
     def sort(self, resolution, paper="A4"):
         if not os.path.exists(self.sorted):
@@ -82,6 +83,8 @@ class Sort:
                 with self.results_mutex:
                     self.task_done.wait_for(lambda: prev <= self.results.value)
                     bar.update(self.results.value - prev)
+                    if self.progress_callback:
+                        self.progress_callback(self.results.value, pages, 'Dispatching scanned exams')
                     prev = self.results.value
         with self.results_mutex:
             if not self.page_leftovers.empty():
