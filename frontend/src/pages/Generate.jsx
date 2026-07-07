@@ -11,8 +11,8 @@ export default function Generate() {
     choices: { circled: false, usesf: false },
     paper: 'A4',
     dyslexia: false,
-    header: "Data dell'esame\nNome del candidato\nMatricola",
-    footer: 'Numero di pagina',
+    header: '',
+    footer: '',
     preamble: '',
     excel: {
       data_marker: { skip_until: '', on_column: 0, skip_rows: 0 },
@@ -109,10 +109,9 @@ export default function Generate() {
       if (!text) return text;
       let latex = text;
       latex = latex.replace(/Numero di pagina/gi, '\\thepage');
-      latex = latex.replace(/Data dell'esame/gi, '\\thedate');
-      latex = latex.replace(/Nome del candidato/gi, '\\thestudent');
-      latex = latex.replace(/Matricola/gi, '\\thematriculationno');
-      latex = latex.replace(/Esame di Informatica/gi, '\\textbf{Esame di Informatica}');
+      latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
+      latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
+      latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
       latex = latex.replace(/\n/g, ' \\newline ');
       return latex;
     };
@@ -169,7 +168,7 @@ export default function Generate() {
 
       <div className="space-y-8">
         {/* Sezione Runtime */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Avvio</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -209,34 +208,41 @@ export default function Generate() {
 
         {/* Sezione Excel Fields (se non anonimo) */}
         {!runtime.is_anonymous && (
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
             <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Mappatura Colonne Excel</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Colonna Nome</label>
-                <input type="text" className="w-full border p-2 rounded" value={config.excel.fields.name} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, name: e.target.value}}})} />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Colonna Cognome</label>
-                <input type="text" className="w-full border p-2 rounded" value={config.excel.fields.surname} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, surname: e.target.value}}})} />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Colonna Matricola</label>
-                <input type="text" className="w-full border p-2 rounded" value={config.excel.fields.id} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, id: e.target.value}}})} />
-              </div>
+              {Object.entries(config.excel.fields).map(([key, value]) => {
+                const isMandatory = ['name', 'surname', 'id'].includes(key);
+                return (
+                  <div key={key}>
+                    <label className="block text-sm text-gray-600 mb-1 capitalize">Colonna {key === 'id' ? 'Matricola' : key}</label>
+                    <div className="flex gap-2">
+                      <input type="text" className="flex-1 border p-2 rounded" value={value} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [key]: e.target.value}}})} />
+                      {!isMandatory && (
+                        <button className="text-red-500 hover:bg-red-50 px-2 rounded font-bold" onClick={() => {
+                          const newFields = {...config.excel.fields};
+                          delete newFields[key];
+                          setConfig({...config, excel: {...config.excel, fields: newFields}});
+                        }}>X</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <label className="block text-sm text-gray-600 mb-1">Righe vuote/intestazioni da saltare all'inizio del file</label>
-              <div className="flex items-center gap-2">
-                <input type="number" min="0" className="w-32 border p-2 rounded text-sm" value={config.excel.data_marker.skip_rows} onChange={e => setConfig({...config, excel: {...config.excel, data_marker: {...config.excel.data_marker, skip_rows: parseInt(e.target.value) || 0}}})} />
-                <span className="text-xs text-gray-500">Es: se i nomi delle colonne ("Nome", "Cognome") si trovano alla riga 2, scrivi 1.</span>
-              </div>
-            </div>
+            <button className="text-sm text-blue-600 hover:underline mt-4 inline-block" onClick={() => {
+              const newKey = prompt("Inserisci il nome del nuovo parametro (es. email):");
+              if (newKey && !config.excel.fields[newKey.toLowerCase()]) {
+                setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [newKey.toLowerCase()]: newKey}}});
+              }
+            }}>
+              + Aggiungi colonna personalizzata
+            </button>
           </section>
         )}
 
         {/* Sezione Domande (Questions) */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
             <h2 className="text-xl font-semibold text-gray-700">Database Domande</h2>
             <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
@@ -272,7 +278,7 @@ export default function Generate() {
         </section>
 
         {/* Sezione Parametri Esame */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Esame</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -309,7 +315,7 @@ export default function Generate() {
         </section>
 
         {/* Testi Personalizzati */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Testi Personalizzati</h2>
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -317,12 +323,12 @@ export default function Generate() {
                 <label className="text-sm font-medium text-gray-700">Header</label>
                 <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, header: "Data dell'esame\nNome del candidato\nMatricola"})}>Usa standard: "Data, nome e matricola"</button>
               </div>
-              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.header} onChange={e => setConfig({...config, header: e.target.value})} placeholder="Es. Data dell'esame"></textarea>
+              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.header} onChange={e => setConfig({...config, header: e.target.value})} placeholder="Testata dell'esame"></textarea>
             </div>
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-sm font-medium text-gray-700">Preamble</label>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Esame di Informatica\nIstruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Esame\nIstruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
               </div>
               <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.preamble} onChange={e => setConfig({...config, preamble: e.target.value})} placeholder="Testo libero introdotto prima delle domande"></textarea>
             </div>
@@ -331,7 +337,7 @@ export default function Generate() {
                 <label className="text-sm font-medium text-gray-700">Footer</label>
                 <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, footer: 'Numero di pagina'})}>Usa standard: "Numero di pagina"</button>
               </div>
-              <input type="text" className="w-full border p-2 rounded text-sm" value={config.footer} onChange={e => setConfig({...config, footer: e.target.value})} placeholder="Es. Numero di pagina" />
+              <input type="text" className="w-full border p-2 rounded text-sm" value={config.footer} onChange={e => setConfig({...config, footer: e.target.value})} placeholder="Piè di pagina dell'esame" />
             </div>
           </div>
         </section>
