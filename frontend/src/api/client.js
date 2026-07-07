@@ -46,5 +46,23 @@ export const generateAPI = {
     return response.data;
   }
 };
+export const sortAPI = {
+  getStatus: async () => {
+    const response = await apiClient.get('/api/sort/status');
+    return response.data;
+  },
+  uploadScan: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/sort/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+  startSort: async (requestData) => {
+    const response = await apiClient.post('/api/sort/start', requestData);
+    return response.data;
+  }
+};
 
 export default apiClient;
