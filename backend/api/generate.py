@@ -73,7 +73,8 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_dict, f, allow_unicode=True)
 
-        student_list = {}
+        # Costruisce la lista studenti: lista di tuple (matricola, fullname) come si aspetta il core
+        student_list = []
         if not req.is_anonymous and req.selected_student_file:
             excel_path = os.path.join(DATA_DIR, "students", req.selected_student_file)
             if not os.path.exists(excel_path):
@@ -120,11 +121,11 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             for idx, row in df.iterrows():
                 fullname = f"{row[name_col]} {row[surname_col]}"
                 matricola = str(row[id_col])
-                student_list[fullname] = matricola
+                student_list.append((matricola, fullname))
         else:
             count = req.num_anonymous_exams or 1
             for i in range(count):
-                student_list[f"Candidato {i+1}"] = "Anonimo"
+                student_list.append((str(i+1), "Anonimo"))
 
         questions_dir = os.path.join(DATA_DIR, "questions")
         
