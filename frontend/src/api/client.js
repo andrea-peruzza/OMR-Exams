@@ -64,5 +64,15 @@ export const sortAPI = {
     return response.data;
   }
 };
+export const correctAPI = {
+  getStatus: async () => {
+    const response = await apiClient.get('/api/correct/status');
+    return response.data;
+  },
+  startCorrection: async (requestData) => {
+    const response = await apiClient.post('/api/correct/start', requestData);
+    return response.data;
+  }
+};
 
 export default apiClient;

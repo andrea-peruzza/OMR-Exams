@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
 import Sort from './pages/Sort';
+import Correct from './pages/Correct';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/generate" element={<Generate />} />
           <Route path="/sort" element={<Sort />} />
+          <Route path="/correct" element={<Correct />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
