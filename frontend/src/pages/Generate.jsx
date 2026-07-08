@@ -39,10 +39,26 @@ export default function Generate() {
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState(null);
   const [dataDir, setDataDir] = useState('');
+  const [configPresent, setConfigPresent] = useState(false);
 
   useEffect(() => {
     loadFiles();
+    checkConfigStatus();
   }, []);
+
+  const checkConfigStatus = async () => {
+    try {
+      const savedConfig = await generateAPI.getConfig();
+      if (savedConfig && Object.keys(savedConfig).length > 0) {
+        setConfigPresent(true);
+      } else {
+        setConfigPresent(false);
+      }
+    } catch (e) {
+      console.error(e);
+      setConfigPresent(false);
+    }
+  };
 
   useEffect(() => {
     if (!taskId) return;
@@ -156,19 +172,32 @@ export default function Generate() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-8 font-sans">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Genera Esami</h1>
-        <button onClick={loadConfig} className="bg-white border border-gray-300 px-4 py-2 rounded shadow-sm hover:bg-gray-50">
-          Carica da config.yaml
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-white to-white">
+      <div className="max-w-5xl mx-auto p-8 font-sans">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Genera Esami</h1>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur rounded-lg shadow-sm border border-gray-100">
+              <span className={`w-3 h-3 rounded-full ${configPresent ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span className="text-sm font-medium text-gray-700">
+                {configPresent ? 'Config. presente' : 'Nessun config.yaml'}
+              </span>
+            </div>
+            <button 
+              onClick={loadConfig} 
+              disabled={!configPresent}
+              className="bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Precompila con configurazione
+            </button>
+          </div>
+        </div>
 
 
 
       <div className="space-y-8">
         {/* Sezione Runtime */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Avvio</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -208,7 +237,7 @@ export default function Generate() {
 
         {/* Sezione Excel Fields (se non anonimo) */}
         {!runtime.is_anonymous && (
-          <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
+          <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
             <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Mappatura Colonne Excel</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {Object.entries(config.excel.fields).map(([key, value]) => {
@@ -242,7 +271,7 @@ export default function Generate() {
         )}
 
         {/* Sezione Domande (Questions) */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
             <h2 className="text-xl font-semibold text-gray-700">Database Domande</h2>
             <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
@@ -273,12 +302,12 @@ export default function Generate() {
             </div>
           ))}
           <button className="text-sm text-blue-600 hover:underline mt-2" onClick={() => setConfig({...config, questions: [...config.questions, {from: '', draw: 1}]})}>
-            + Aggiungi regola di estrazione
+            + Aggiungi file delle domande
           </button>
         </section>
 
         {/* Sezione Parametri Esame */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Esame</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -315,7 +344,7 @@ export default function Generate() {
         </section>
 
         {/* Testi Personalizzati */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-blue-500">
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Testi Personalizzati</h2>
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -394,6 +423,7 @@ export default function Generate() {
         )}
 
       </div>
+    </div>
     </div>
   );
 }
