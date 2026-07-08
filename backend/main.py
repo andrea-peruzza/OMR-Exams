@@ -11,7 +11,7 @@ import click
 click.prompt = lambda *args, **kwargs: kwargs.get('default', 'y')
 click.confirm = lambda *args, **kwargs: True
 
-from api import dashboard, generate, sse, sort#, scan, correct, mark, report, moodle
+from api import dashboard, generate, sse, sort, correct#, scan, mark, report, moodle
 
 app = FastAPI()
 
@@ -26,6 +26,7 @@ app.include_router(dashboard.router, prefix="/api/dashboard")
 app.include_router(generate.router, prefix="/api/generate")
 app.include_router(sse.router, prefix="/api/sse")
 app.include_router(sort.router, prefix="/api/sort")
+app.include_router(correct.router, prefix="/api/correct")
 
 # Mount della cartella data per permettere al frontend di accedere ai PDF
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))

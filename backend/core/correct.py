@@ -95,6 +95,7 @@ class Correct:
                 filename = os.path.basename(w[0])
                 filename = os.path.join('tmp', ".".join(filename.split(".")[:-1]) + ".jpg")
                 click.secho(f'\t{filename} {w[1]}', fg='yellow')   
+        self.watch_results = watch
         # Collecting all corrected exams into a single pdf file
         click.secho("Collecting all corrected exams into a single pdf file", fg="green")
         files = sorted(glob.glob(os.path.join('tmp', "*.jpg")))
