@@ -108,146 +108,147 @@ function Sort() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Smistamento Scansioni (Sort)</h1>
-        <p className="text-gray-600 mt-2">Smista i PDF scansionati suddividendoli per studente, usando il file dati generato.</p>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-purple-300 via-white to-white">
+      <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Smistamento Scansioni (Sort)</h1>
+          <p className="text-gray-600 mt-2">Smista i PDF scansionati suddividendoli per studente, usando il file dati generato.</p>
+        </header>
 
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm">
-          {error}
-        </div>
-      )}
-
-      {/* STATUS & UPLOAD SEZIONE */}
-      <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Stato Scansioni</h2>
-        <div className="flex items-center gap-4 mb-4">
-          <div className={`w-4 h-4 rounded-full ${status.has_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <span className="text-gray-700 font-medium">
-            {status.has_scans 
-              ? `${status.scans_count} file di scansioni presenti nella cartella (data/scans/)` 
-              : 'Nessun file di scansioni presente in data/scans/'}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <input 
-            type="file" 
-            accept=".pdf" 
-            className="hidden" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
-          />
-          <button 
-            onClick={() => fileInputRef.current.click()}
-            disabled={uploading || generating}
-            className="px-4 py-2 bg-purple-50 text-purple-600 rounded font-medium hover:bg-purple-100 disabled:opacity-50"
-          >
-            {uploading ? 'Caricamento in corso...' : 'Carica nuovo file PDF'}
-          </button>
-        </div>
-      </section>
-
-      {/* IMPOSTAZIONI SEZIONE */}
-      <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Smistamento</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">File dati Json (Datafile)</label>
-            <select 
-              className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
-              value={config.datafile}
-              onChange={(e) => setConfig({...config, datafile: e.target.value})}
-              disabled={generating}
-            >
-              <option value="">Seleziona...</option>
-              {status.data_files && status.data_files.map((file, idx) => (
-                <option key={idx} value={file}>{file}</option>
-              ))}
-            </select>
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm">
+            {error}
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Formato Carta</label>
-            <select 
-              className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
-              value={config.paper}
-              onChange={(e) => setConfig({...config, paper: e.target.value})}
-              disabled={generating}
-            >
-              <option value="A4">A4</option>
-              <option value="A3">A3</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Risoluzione (DPI)</label>
-            <select 
-              className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
-              value={config.resolution}
-              onChange={(e) => setConfig({...config, resolution: parseInt(e.target.value) || 300})}
-              disabled={generating}
-            >
-              <option value="150">150</option>
-              <option value="200">200</option>
-              <option value="300">300 (Predefinito)</option>
-              <option value="600">600</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* AZIONE E PROGRESSO */}
-      <div className="mt-8 flex flex-col items-center">
-        {!generating && (
-          <button
-            onClick={startSort}
-            disabled={!status.has_scans || !config.datafile}
-            className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold shadow hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Avvia smistamento scansioni
-          </button>
         )}
 
-        {generating && (
-          <div className="w-full max-w-2xl mt-4">
-            <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
-              <div 
-                className="bg-blue-600 h-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              ></div>
+        {/* STATUS & UPLOAD SEZIONE */}
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Stato Scansioni</h2>
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`w-4 h-4 rounded-full ${status.has_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-gray-700 font-medium">
+              {status.has_scans 
+                ? `${status.scans_count} file di scansioni presenti nella cartella (data/scans/)` 
+                : 'Nessun file di scansioni presente in data/scans/'}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <input 
+              type="file" 
+              accept=".pdf" 
+              className="hidden" 
+              ref={fileInputRef} 
+              onChange={handleFileUpload} 
+            />
+            <button 
+              onClick={() => fileInputRef.current.click()}
+              disabled={uploading || generating}
+              className="px-4 py-2 bg-blue-50 text-blue-600 rounded font-medium hover:bg-blue-100 disabled:opacity-50"
+            >
+              {uploading ? 'Caricamento in corso...' : 'Carica nuovo file PDF'}
+            </button>
+          </div>
+        </section>
+
+        {/* IMPOSTAZIONI SEZIONE */}
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Smistamento</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">File dati Json (Datafile)</label>
+              <select 
+                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
+                value={config.datafile}
+                onChange={(e) => setConfig({...config, datafile: e.target.value})}
+                disabled={generating}
+              >
+                <option value="">Seleziona...</option>
+                {status.data_files && status.data_files.map((file, idx) => (
+                  <option key={idx} value={file}>{file}</option>
+                ))}
+              </select>
             </div>
-            <p className="text-center mt-2 text-sm text-gray-600 font-medium">
-              {progressMessage} ({Math.round(progress)}%)
-            </p>
-          </div>
-        )}
 
-        {success && (
-          <div className="mt-8 text-center bg-green-50 text-green-700 p-6 rounded-xl border border-green-200 w-full shadow-sm">
-            <h3 className="text-xl font-bold mb-2">Completato con successo!</h3>
-            <p className="mb-4">{success}</p>
-            <div className="flex justify-center gap-4">
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-900"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Formato Carta</label>
+              <select 
+                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
+                value={config.paper}
+                onChange={(e) => setConfig({...config, paper: e.target.value})}
+                disabled={generating}
               >
-                Ritorna alla Dashboard
-              </button>
-              <button 
-                onClick={() => navigate('/correct')}
-                className="px-6 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 transition-colors"
+                <option value="A4">A4</option>
+                <option value="A3">A3</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Risoluzione (DPI)</label>
+              <select 
+                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
+                value={config.resolution}
+                onChange={(e) => setConfig({...config, resolution: parseInt(e.target.value) || 300})}
+                disabled={generating}
               >
-                Procedi con la correzione
-              </button>
+                <option value="150">150</option>
+                <option value="200">200</option>
+                <option value="300">300 (Predefinito)</option>
+                <option value="600">600</option>
+              </select>
             </div>
           </div>
-        )}
+        </section>
+
+        {/* AZIONE E PROGRESSO */}
+        <div className="mt-8 flex flex-col items-center">
+          {!generating && (
+            <button
+              onClick={startSort}
+              disabled={!status.has_scans || !config.datafile}
+              className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold shadow hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Avvia smistamento scansioni
+            </button>
+          )}
+
+          {generating && (
+            <div className="w-full max-w-2xl mt-4">
+              <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
+                <div 
+                  className="bg-blue-600 h-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <p className="text-center mt-2 text-sm text-gray-600 font-medium">
+                {progressMessage} ({Math.round(progress)}%)
+              </p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mt-8 text-center bg-green-50 text-green-700 p-6 rounded-xl border border-green-200 w-full shadow-sm">
+              <h3 className="text-xl font-bold mb-2">Completato con successo!</h3>
+              <p className="mb-4">{success}</p>
+              <div className="flex justify-center gap-4">
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-900"
+                >
+                  Ritorna alla Dashboard
+                </button>
+                <button 
+                  onClick={() => navigate('/correct')}
+                  className="px-6 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 transition-colors"
+                >
+                  Procedi con la correzione
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-
     </div>
   );
 }
