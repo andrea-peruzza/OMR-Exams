@@ -24,12 +24,14 @@ class TaskManager:
             self.tasks[task_id]["total"] = total
             self.tasks[task_id]["message"] = message
 
-    def complete_task(self, task_id: str):
+    def complete_task(self, task_id: str, result_data: Dict[str, Any] = None):
         if task_id in self.tasks:
             self.tasks[task_id]["progress"] = self.tasks[task_id]["total"]
             self.tasks[task_id]["completed"] = True
             self.tasks[task_id]["status"] = "Completed"
             self.tasks[task_id]["message"] = "Completato"
+            if result_data:
+                self.tasks[task_id]["result_data"] = result_data
 
     def fail_task(self, task_id: str, error: str):
         if task_id in self.tasks:
