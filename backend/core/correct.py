@@ -224,6 +224,7 @@ class Correct:
                     self.results_mutex.release()
             except Exception as e:
                 click.secho(f"\nIn file {filename}\n" + str(e), fg="yellow")
+                self.watch_queue.put((filename, -1))
             finally:
                 self.results_mutex.acquire()
                 self.results.value += 1
