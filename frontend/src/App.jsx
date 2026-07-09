@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
 import Sort from './pages/Sort';
 import Correct from './pages/Correct';
+import ManualCorrection from './pages/ManualCorrection';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/generate" element={<Generate />} />
           <Route path="/sort" element={<Sort />} />
           <Route path="/correct" element={<Correct />} />
+          <Route path="/manual_correction" element={<ManualCorrection />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

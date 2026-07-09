@@ -75,4 +75,27 @@ export const correctAPI = {
   }
 };
 
+export const manualAPI = {
+  getScans: async () => {
+    const response = await apiClient.get('/api/manual/scans');
+    return response.data;
+  },
+  getMissing: async (datafile) => {
+    const response = await apiClient.get(`/api/manual/missing?datafile=${datafile}`);
+    return response.data;
+  },
+  getStudentData: async (datafile, studentId) => {
+    const response = await apiClient.get(`/api/manual/student_data?datafile=${datafile}&student_id=${studentId}`);
+    return response.data;
+  },
+  forceAnswer: async (requestData) => {
+    const response = await apiClient.post('/api/manual/force_answer', requestData);
+    return response.data;
+  },
+  forceAnswers: async (requestData) => {
+    const response = await apiClient.post('/api/manual/force_answers', requestData);
+    return response.data;
+  }
+};
+
 export default apiClient;
