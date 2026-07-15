@@ -98,4 +98,35 @@ export const manualAPI = {
   }
 };
 
+export const markAPI = {
+  getQuestionsList: async (datafile) => {
+    const response = await apiClient.get(`/api/mark/questions_list?datafile=${datafile}`);
+    return response.data;
+  },
+  calculateMark: async (requestData) => {
+    const response = await apiClient.post('/api/mark/calculate', requestData);
+    return response.data;
+  },
+  generateReport: async (requestData) => {
+    const response = await apiClient.post('/api/mark/report', requestData);
+    return response.data;
+  },
+  reviewQuestion: async (datafile, questionFile, questionIndex, exportFormat, outputFilename) => {
+    let url = `/api/mark/review_question?datafile=${datafile}&question_file=${questionFile}&question=${questionIndex}`;
+    if (exportFormat && outputFilename) {
+      url += `&export_format=${exportFormat}&output_filename=${outputFilename}`;
+    }
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  studentsWithQuestion: async (datafile, questionFile, questionIndex, exportFormat, outputFilename) => {
+    let url = `/api/mark/students_with_question?datafile=${datafile}&question_file=${questionFile}&question=${questionIndex}`;
+    if (exportFormat && outputFilename) {
+      url += `&export_format=${exportFormat}&output_filename=${outputFilename}`;
+    }
+    const response = await apiClient.get(url);
+    return response.data;
+  }
+};
+
 export default apiClient;

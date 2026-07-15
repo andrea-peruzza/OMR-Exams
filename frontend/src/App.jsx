@@ -5,6 +5,7 @@ import Generate from './pages/Generate';
 import Sort from './pages/Sort';
 import Correct from './pages/Correct';
 import ManualCorrection from './pages/ManualCorrection';
+import Mark from './pages/Mark';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/sort" element={<Sort />} />
           <Route path="/correct" element={<Correct />} />
           <Route path="/manual_correction" element={<ManualCorrection />} />
+          <Route path="/mark" element={<Mark />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
