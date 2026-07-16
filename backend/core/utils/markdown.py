@@ -524,7 +524,7 @@ class MoodleRenderer(BaseRenderer):
         if token.level == 1:            
             return ''        
         inner = self.render_inner(token).strip()
-        if token.level > 2:  
+        if token.level > 3:  
             return f'{inner}\n'
 
         self.questions[-1]['question'] = inner

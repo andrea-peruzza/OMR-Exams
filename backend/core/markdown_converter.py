@@ -43,12 +43,29 @@ class MarkdownConverter:
             text = markdownify(text)
         if qtype != 'essay':
             single = question.find('single').text == 'true'
-            answers = [MarkdownConverter.dispatch_answer(a) for a in question.findall('answer')]
+            
+            # Leggiamo tutte le risposte
+            raw_answers = []
+            for a in question.findall('answer'):
+                text_ans, _ = MarkdownConverter.dispatch_answer(a)
+                fract = float(a.get('fraction'))
+                raw_answers.append((text_ans, fract))
+                
+            if not raw_answers:
+                # Fallback per i file XML esportati con il vecchio bug che codificava
+                # le domande aperte come multichoice vuote.
+                return (text, False, None)
+                
             if single:
+                max_fraction = max(a[1] for a in raw_answers)
+                answers = [(a[0], a[1] == max_fraction and max_fraction > 0) for a in raw_answers]
                 if sum(a[1] for a in answers) != 1:
                     message = f'Question is supposed to have a single correct answer (question {text})'
                     logging.error(message)
                     raise ValueError(message)
+            else:
+                answers = [(a[0], a[1] > 0) for a in raw_answers]
+                
             shuffle = question.find('shuffleanswers').text == 'true'
             return (text, shuffle, answers)
         else:
@@ -79,7 +96,9 @@ class MarkdownConverter:
             try:
                 question = MarkdownConverter.dispatch_question(q)
                 questions.append(question)
-            except:                
+            except Exception as e:                
+                import traceback
+                traceback.print_exc()
                 continue
         with open(self.file_name, 'w') as f:
             f.write('# ' + self.category.replace("\n", " ") + '\n')
