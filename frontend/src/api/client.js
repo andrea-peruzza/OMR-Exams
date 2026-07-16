@@ -129,4 +129,31 @@ export const markAPI = {
   }
 };
 
+export const moodleAPI = {
+  getQuestionsFiles: async () => {
+    const response = await apiClient.get('/api/moodle/questions');
+    return response.data;
+  },
+  getXmlFiles: async () => {
+    const response = await apiClient.get('/api/moodle/xml_files');
+    return response.data;
+  },
+  exportToMoodle: async (requestData) => {
+    const response = await apiClient.post('/api/moodle/export', requestData);
+    return response.data;
+  },
+  importFromMoodle: async (requestData) => {
+    const response = await apiClient.post('/api/moodle/import', requestData);
+    return response.data;
+  },
+  uploadXml: async (formData) => {
+    const response = await apiClient.post('/api/moodle/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+};
+
 export default apiClient;
