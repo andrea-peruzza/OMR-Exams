@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
@@ -95,6 +95,9 @@ export default function Generate() {
       const savedConfig = await generateAPI.getConfig();
       if (savedConfig && Object.keys(savedConfig).length > 0) {
         setConfig(prev => ({ ...prev, ...savedConfig }));
+        if (savedConfig.students) {
+          setRuntime(prev => ({ ...prev, is_anonymous: false, selected_student_file: savedConfig.students }));
+        }
       } else {
         alert("Nessun config.yaml trovato.");
       }
@@ -176,8 +179,16 @@ export default function Generate() {
     <div className="min-h-screen relative bg-gradient-to-br from-blue-200 via-white to-white">
       <BackButton />
       <div className="max-w-5xl mx-auto p-8 font-sans">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Genera esami</h1>
+        <header className="flex justify-between items-center mb-8 border-b pb-4">
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-full text-blue-700">
+              <FilePlus size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Genera esami</h1>
+              <p className="text-gray-600 mt-1">Genera esami in base alla configurazione fornita.</p>
+            </div>
+          </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur rounded-lg shadow-sm border border-gray-100">
               <span className={`w-3 h-3 rounded-full ${configPresent ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -193,89 +204,114 @@ export default function Generate() {
               Precompila con la configurazione già presente
             </button>
           </div>
-        </div>
+        </header>
 
 
 
       <div className="space-y-8">
-        {/* Sezione Runtime */}
+        {/* Sezione Impostazioni esame */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni avvio</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni esame</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data esame (obbligatoria)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Titolo esame</label>
+              <input type="text" className="w-full border p-2 rounded" value={config.exam.name} onChange={e => setConfig({...config, exam: {...config.exam, name: e.target.value}})} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Lingua</label>
+              <select className="w-full border p-2 rounded" value={config.exam.language} onChange={e => setConfig({...config, exam: {...config.exam, language: e.target.value}})}>
+                <option value="it">Italiano</option>
+                <option value="en">Inglese</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Data esame</label>
               <input type="date" className="w-full border p-2 rounded" value={runtime.date} onChange={e => setRuntime({...runtime, date: e.target.value})} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Prefisso output file</label>
               <input type="text" className="w-full border p-2 rounded" value={runtime.output_prefix} onChange={e => setRuntime({...runtime, output_prefix: e.target.value})} />
             </div>
-            <div className="flex items-center mt-4">
-              <input type="checkbox" className="mr-2 h-4 w-4" checked={runtime.is_anonymous} onChange={e => setRuntime({...runtime, is_anonymous: e.target.checked})} />
-              <label className="text-sm font-medium text-gray-700">Generazione anonima (senza lista studenti)</label>
-            </div>
+          </div>
+        </section>
+
+        {/* Sezione Impostazioni studenti */}
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni studenti</h2>
+          
+          <div className="flex gap-6 mb-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="student_mode" checked={runtime.is_anonymous} onChange={() => setRuntime({...runtime, is_anonymous: true})} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+              <span className="text-sm font-medium text-gray-700">Generazione anonima</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="student_mode" checked={!runtime.is_anonymous} onChange={() => setRuntime({...runtime, is_anonymous: false})} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+              <span className="text-sm font-medium text-gray-700">Utilizza file studenti</span>
+            </label>
+          </div>
+
+          <div className="mt-2">
             {runtime.is_anonymous ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Numero esami</label>
+              <div className="max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Numero esami da generare</label>
                 <input type="number" min="1" className="w-full border p-2 rounded" value={runtime.num_anonymous_exams} onChange={e => setRuntime({...runtime, num_anonymous_exams: e.target.value})} />
               </div>
             ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file excel studenti</label>
-                <div className="flex gap-2">
-                  <select className="flex-1 border p-2 rounded" value={runtime.selected_student_file} onChange={e => setRuntime({...runtime, selected_student_file: e.target.value})}>
-                    <option value="">-- Seleziona --</option>
-                    {availableFiles.students.map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
-                  <label className="bg-gray-100 border p-2 rounded cursor-pointer hover:bg-gray-200">
-                    <Upload size={20} />
-                    <input type="file" accept=".xls,.xlsx" className="hidden" onChange={handleUploadStudent} />
-                  </label>
+              <div className="space-y-6">
+                <div className="max-w-md">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file excel studenti</label>
+                  <div className="flex gap-2">
+                    <select className="flex-1 border p-2 rounded" value={runtime.selected_student_file} onChange={e => setRuntime({...runtime, selected_student_file: e.target.value})}>
+                      <option value="">-- Seleziona --</option>
+                      {availableFiles.students.map(f => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                    <label className="bg-gray-100 border p-2 rounded cursor-pointer hover:bg-gray-200 flex items-center justify-center w-10">
+                      <Upload size={20} />
+                      <input type="file" accept=".xls,.xlsx" className="hidden" onChange={handleUploadStudent} />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Mappatura colonne Excel</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {Object.entries(config.excel.fields).map(([key, value]) => {
+                      const isMandatory = ['name', 'surname', 'id'].includes(key);
+                      return (
+                        <div key={key}>
+                          <label className="block text-xs text-gray-600 mb-1 capitalize">Colonna {key === 'id' ? 'Matricola' : key}</label>
+                          <div className="flex gap-2">
+                            <input type="text" className="flex-1 border p-2 rounded text-sm" value={value} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [key]: e.target.value}}})} />
+                            {!isMandatory && (
+                              <button className="text-red-500 hover:bg-red-50 px-2 rounded font-bold text-sm" onClick={() => {
+                                const newFields = {...config.excel.fields};
+                                delete newFields[key];
+                                setConfig({...config, excel: {...config.excel, fields: newFields}});
+                              }}>X</button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button className="text-sm text-blue-600 hover:underline mt-4 inline-block text-left" onClick={() => {
+                    const newKey = prompt("Inserisci il nome del nuovo parametro (es. email):");
+                    if (newKey && !config.excel.fields[newKey.toLowerCase()]) {
+                      setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [newKey.toLowerCase()]: newKey}}});
+                    }
+                  }}>
+                    + Aggiungi colonna personalizzata
+                  </button>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        {/* Sezione Excel Fields (se non anonimo) */}
-        {!runtime.is_anonymous && (
-          <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Mappatura colonne excel</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {Object.entries(config.excel.fields).map(([key, value]) => {
-                const isMandatory = ['name', 'surname', 'id'].includes(key);
-                return (
-                  <div key={key}>
-                    <label className="block text-sm text-gray-600 mb-1 capitalize">Colonna {key === 'id' ? 'Matricola' : key}</label>
-                    <div className="flex gap-2">
-                      <input type="text" className="flex-1 border p-2 rounded" value={value} onChange={e => setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [key]: e.target.value}}})} />
-                      {!isMandatory && (
-                        <button className="text-red-500 hover:bg-red-50 px-2 rounded font-bold" onClick={() => {
-                          const newFields = {...config.excel.fields};
-                          delete newFields[key];
-                          setConfig({...config, excel: {...config.excel, fields: newFields}});
-                        }}>X</button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <button className="text-sm text-blue-600 hover:underline mt-4 inline-block" onClick={() => {
-              const newKey = prompt("Inserisci il nome del nuovo parametro (es. email):");
-              if (newKey && !config.excel.fields[newKey.toLowerCase()]) {
-                setConfig({...config, excel: {...config.excel, fields: {...config.excel.fields, [newKey.toLowerCase()]: newKey}}});
-              }
-            }}>
-              + Aggiungi colonna personalizzata
-            </button>
-          </section>
-        )}
-
-        {/* Sezione Domande (Questions) */}
+        {/* Sezione Impostazioni domande */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Database domande</h2>
+            <h2 className="text-xl font-semibold text-gray-700">Impostazioni domande</h2>
             <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
               <Upload size={16} /> Carica file .md
               <input type="file" accept=".md" className="hidden" onChange={handleUploadQuestion} />
@@ -303,41 +339,64 @@ export default function Generate() {
               }}>X</button>
             </div>
           ))}
-          <button className="text-sm text-blue-600 hover:underline mt-2" onClick={() => setConfig({...config, questions: [...config.questions, {from: '', draw: 1}]})}>
+          <button className="text-sm text-blue-600 hover:underline mt-2 inline-block text-left" onClick={() => setConfig({...config, questions: [...config.questions, {from: '', draw: 1}]})}>
             + Aggiungi file delle domande
           </button>
         </section>
 
-        {/* Sezione Parametri Esame */}
+        {/* Sezione Impostazioni aggiuntive */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni esame</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni aggiuntive</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Titolo</label>
-              <input type="text" className="w-full border p-2 rounded" value={config.exam.name} onChange={e => setConfig({...config, exam: {...config.exam, name: e.target.value}})} />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Lingua</label>
-              <select className="w-full border p-2 rounded" value={config.exam.language} onChange={e => setConfig({...config, exam: {...config.exam, language: e.target.value}})}>
-                <option value="it">Italiano</option>
-                <option value="en">Inglese</option>
-              </select>
-            </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.exam.shuffle_questions} onChange={e => setConfig({...config, exam: {...config.exam, shuffle_questions: e.target.checked}})} />
-              <label className="text-sm text-gray-600">Rimescola domande</label>
+              <label className="text-sm text-gray-600">Mescola domande</label>
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.exam.shuffle_answers} onChange={e => setConfig({...config, exam: {...config.exam, shuffle_answers: e.target.checked}})} />
-              <label className="text-sm text-gray-600">Rimescola risposte</label>
+              <label className="text-sm text-gray-600">Mescola risposte</label>
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.dyslexia} onChange={e => setConfig({...config, dyslexia: e.target.checked})} />
               <label className="text-sm text-gray-600">Modalità dislessia</label>
             </div>
-            <div>
+            
+            <div className="flex items-center gap-2">
+              <input type="checkbox" className="mr-2" checked={config.exam.max_questions !== '' && config.exam.max_questions !== undefined} onChange={e => {
+                if(e.target.checked) setConfig({...config, exam: {...config.exam, max_questions: 10}});
+                else setConfig({...config, exam: {...config.exam, max_questions: ''}});
+              }} />
+              <label className="text-sm text-gray-600">Numero max domande chiuse</label>
+              {(config.exam.max_questions !== '' && config.exam.max_questions !== undefined) && (
+                <input type="number" min="1" className="w-20 border p-1 rounded text-sm ml-auto" value={config.exam.max_questions} onChange={e => setConfig({...config, exam: {...config.exam, max_questions: e.target.value}})} />
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input type="checkbox" className="mr-2" checked={config.exam.max_open_questions !== '' && config.exam.max_open_questions !== undefined} onChange={e => {
+                if(e.target.checked) setConfig({...config, exam: {...config.exam, max_open_questions: 5}});
+                else setConfig({...config, exam: {...config.exam, max_open_questions: ''}});
+              }} />
+              <label className="text-sm text-gray-600">Numero max domande aperte</label>
+              {(config.exam.max_open_questions !== '' && config.exam.max_open_questions !== undefined) && (
+                <input type="number" min="1" className="w-20 border p-1 rounded text-sm ml-auto" value={config.exam.max_open_questions} onChange={e => setConfig({...config, exam: {...config.exam, max_open_questions: e.target.value}})} />
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input type="checkbox" className="mr-2" checked={config.exam.page_limits !== '' && config.exam.page_limits !== undefined} onChange={e => {
+                if(e.target.checked) setConfig({...config, exam: {...config.exam, page_limits: 2}});
+                else setConfig({...config, exam: {...config.exam, page_limits: ''}});
+              }} />
+              <label className="text-sm text-gray-600">Numero max pagine pdf</label>
+              {(config.exam.page_limits !== '' && config.exam.page_limits !== undefined) && (
+                <input type="number" min="1" className="w-20 border p-1 rounded text-sm ml-auto" value={config.exam.page_limits} onChange={e => setConfig({...config, exam: {...config.exam, page_limits: e.target.value}})} />
+              )}
+            </div>
+
+            <div className="mt-2 md:col-span-2">
               <label className="block text-sm text-gray-600 mb-1">Formato carta</label>
-              <select className="w-full border p-2 rounded" value={config.paper} onChange={e => setConfig({...config, paper: e.target.value})}>
+              <select className="w-full md:w-1/2 border p-2 rounded" value={config.paper} onChange={e => setConfig({...config, paper: e.target.value})}>
                 <option value="A4">A4</option>
                 <option value="A3">A3</option>
               </select>
@@ -345,7 +404,7 @@ export default function Generate() {
           </div>
         </section>
 
-        {/* Testi Personalizzati */}
+        {/* Parti personalizzate */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Parti personalizzate</h2>
           <div className="grid grid-cols-1 gap-4">
@@ -402,9 +461,13 @@ export default function Generate() {
             {progress.completed && !progress.error && (
               <div className="mt-4">
                 <p className="text-green-600 font-bold mb-4"><CheckCircle2 className="inline mr-1" /> Generazione Completata!</p>
-                <p className="text-gray-800 mb-4 bg-white p-3 rounded border border-gray-200 shadow-sm">
+                <p className="text-gray-800 mb-4 bg-white p-4 rounded border border-gray-200 shadow-sm">
                   Il file pdf degli esami è stato generato ed è presente nella cartella:<br />
-                  <span className="font-mono text-sm text-blue-600">{dataDir}</span>
+                  <span className="font-mono text-sm text-blue-600 block mb-3">{dataDir}</span>
+                  <span className="text-sm text-orange-600 font-medium flex items-center gap-1">
+                    <AlertCircle size={16} />
+                    Non spostare il file <strong className="font-mono">{runtime.output_prefix}.json</strong> per poter svolgere in seguito la correzione di questi esami.
+                  </span>
                 </p>
                 
                 {/* PDF Preview */}
