@@ -102,17 +102,17 @@ class Generate:
         return rules_expanded
 
     def load_questions(self, filename):
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             questions = list(filter(lambda q: not TITLE_RE.match(q) and not OPEN_QUESTION_RE.match(q), QUESTION_MARKER_RE.split(f.read())))
             return questions
 
     def load_open_questions(self, filename):
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             questions = list(filter(lambda q: OPEN_QUESTION_RE.match(q), QUESTION_MARKER_RE.split(f.read())))
             return questions
     
     def load_topics(self, filename):
-        with open(filename, 'r') as f:            
+        with open(filename, 'r', encoding='utf-8') as f:            
             questions_with_topics = filter(lambda q: TOPIC_RE.match(q), QUESTION_MARKER_RE.split(f.read()))
             topics = set()
             for q in questions_with_topics:
@@ -279,25 +279,26 @@ class Generate:
         opened_files = [] # Track opened files
         
         current_file = 0
-        for exam in pdf_files:
-            f = open(exam, 'rb')
-            opened_files.append(f) # Save the file reference
-            pdf = PdfReader(f, strict=False)  
-            merger.append(pdf)
-            if len(pdf.pages) % 2 == 1:
-                merger.append(blank)
-            if bar:
-                bar.update(1)
-            current_file += 1
-            if progress_callback:
-                progress_callback(current_file, len(pdf_files), 'Collating exams (A4)')
-                
-        with open(filename, 'wb') as f:
-            merger.write(f)
-            
-        # FILE CLOSURE: Tell the OS to unlock the files
-        for f in opened_files:
-            f.close()
+        try:
+            for exam in pdf_files:
+                f = open(exam, 'rb')
+                opened_files.append(f) # Save the file reference
+                pdf = PdfReader(f, strict=False)  
+                merger.append(pdf)
+                if len(pdf.pages) % 2 == 1:
+                    merger.append(blank)
+                if bar:
+                    bar.update(1)
+                current_file += 1
+                if progress_callback:
+                    progress_callback(current_file, len(pdf_files), 'Collating exams (A4)')
+                    
+            with open(filename, 'wb') as f:
+                merger.write(f)
+        finally:
+            # FILE CLOSURE: Tell the OS to unlock the files
+            for f in opened_files:
+                f.close()
 
     @staticmethod
     def collate_exams_a3(filename, pdf_files, folded=True, rotated=False, bar=None, progress_callback=None):
@@ -308,70 +309,71 @@ class Generate:
         opened_files = [] # Track opened files
         
         current_file = 0
-        for exam in pdf_files:
-            f = open(exam, 'rb')
-            opened_files.append(f) # Save the file reference
-            pdf = PdfReader(f, strict=False)
-            a3page = PageObject.create_blank_page(**A3SIZE)        
-            rotate = False            
-            if folded:
-                # Create a booklet
-                sheets = math.ceil(len(pdf.pages) / 4) 
-                booklet = next(make_book(range(1, len(pdf.pages) + 1), sheets * 4))
-                left = True
-                for p in booklet:
-                    if p is not None:
-                        page = pdf.pages[p - 1]
-                    else:
-                        page = PageObject.create_blank_page(**A4SIZE)
-                    if left:
-                        # page left
-                        if rotated and rotate:
-                            transformation = Transformation().rotate(180).translate(A3SIZE['width'] / 2,  A3SIZE['height'])
+        try:
+            for exam in pdf_files:
+                f = open(exam, 'rb')
+                opened_files.append(f) # Save the file reference
+                pdf = PdfReader(f, strict=False)
+                a3page = PageObject.create_blank_page(**A3SIZE)        
+                rotate = False            
+                if folded:
+                    # Create a booklet
+                    sheets = math.ceil(len(pdf.pages) / 4) 
+                    booklet = next(make_book(range(1, len(pdf.pages) + 1), sheets * 4))
+                    left = True
+                    for p in booklet:
+                        if p is not None:
+                            page = pdf.pages[p - 1]
                         else:
+                            page = PageObject.create_blank_page(**A4SIZE)
+                        if left:
+                            # page left
+                            if rotated and rotate:
+                                transformation = Transformation().rotate(180).translate(A3SIZE['width'] / 2,  A3SIZE['height'])
+                            else:
+                                transformation = Transformation().translate(0, 0)
+                            left = False
+                        else:
+                            # page right
+                            if rotated and rotate:
+                                transformation = Transformation().rotate(180).translate(A3SIZE['width'], A3SIZE['height'])
+                            else:
+                                transformation = Transformation().translate(A3SIZE['width'] / 2, 0)
+                            left = True
+                        a3page.merge_transformed_page(page, transformation, expand=False) 
+                        if left:
+                            # add page 
+                            writer.add_page(a3page)
+                            a3page = PageObject.create_blank_page(**A3SIZE)  
+                            rotate = not rotate
+                else:
+                    # normal A3, two A4 per A3
+                    for p, page in enumerate(pdf.pages):
+                        if p % 2 == 0:
+                            # page left
                             transformation = Transformation().translate(0, 0)
-                        left = False
-                    else:
-                        # page right
-                        if rotated and rotate:
-                            transformation = Transformation().rotate(180).translate(A3SIZE['width'], A3SIZE['height'])
+                            a3page.merge_transformed_page(page, transformation, expand=False) 
                         else:
+                            # page right
                             transformation = Transformation().translate(A3SIZE['width'] / 2, 0)
-                        left = True
-                    a3page.merge_transformed_page(page, transformation, expand=False) 
-                    if left:
-                        # add page 
-                        writer.add_page(a3page)
-                        a3page = PageObject.create_blank_page(**A3SIZE)  
-                        rotate = not rotate
-            else:
-                # normal A3, two A4 per A3
-                for p, page in enumerate(pdf.pages):
-                    if p % 2 == 0:
-                        # page left
-                        transformation = Transformation().translate(0, 0)
-                        a3page.merge_transformed_page(page, transformation, expand=False) 
-                    else:
-                        # page right
-                        transformation = Transformation().translate(A3SIZE['width'] / 2, 0)
-                        a3page.merge_transformed_page(page, transformation, expand=False) 
-                        # add page 
-                        writer.add_page(a3page)
-                        a3page = PageObject.create_blank_page(**A3SIZE)  
+                            a3page.merge_transformed_page(page, transformation, expand=False) 
+                            # add page 
+                            writer.add_page(a3page)
+                            a3page = PageObject.create_blank_page(**A3SIZE)  
 
-            if bar:
-                bar.update(1)
-            current_file += 1
-            if progress_callback:
-                progress_callback(current_file, len(pdf_files), 'Collating exams (A3)')
+                if bar:
+                    bar.update(1)
+                current_file += 1
+                if progress_callback:
+                    progress_callback(current_file, len(pdf_files), 'Collating exams (A3)')
+                    
+            with open(filename, 'wb') as f:
+                writer.write(f)
                 
-        with open(filename, 'wb') as f:
-            writer.write(f)
-            
-        # FILE CLOSURE: Release all source files
-        for f in opened_files:
-            f.close()
-
+        finally:
+            # FILE CLOSURE: Release all source files
+            for f in opened_files:
+                f.close()
         
     def draw_questions(self, Q):
         questions = []
@@ -502,7 +504,7 @@ class Generate:
         questions = ""
         for r in sorted(rules.keys()):
             click.secho(f'Testing {os.path.basename(r)}', fg='cyan')
-            with open(r, 'r') as f:
+            with open(r, 'r', encoding='utf-8') as f:
                 current_questions = f.read()
             with QuestionRenderer(language=self.config['exam'].get('language'), 
                               date=dt.now(), 
