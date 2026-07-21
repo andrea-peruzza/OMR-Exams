@@ -26,7 +26,7 @@ class MoodleConverter:
                 document.write(output_file + '-open.xml', xml_declaration=True, encoding='utf-8')
 
     def load_questions(self, filename):
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             content = f.read()
 
         # this is to prevent having same-topic same content questions in the output file
@@ -46,7 +46,7 @@ class MoodleConverter:
         return questions.values()
     
     def load_open_questions(self, filename):
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             questions = list(filter(lambda q: OPEN_QUESTION_RE.match(q), QUESTION_MARKER_RE.split(f.read())))
             return questions
         return []

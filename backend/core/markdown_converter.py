@@ -100,7 +100,7 @@ class MarkdownConverter:
                 import traceback
                 traceback.print_exc()
                 continue
-        with open(self.file_name, 'w') as f:
+        with open(self.file_name, 'w', encoding='utf-8') as f:
             f.write('# ' + self.category.replace("\n", " ") + '\n')
             for q in questions:
                 f.write('\n---\n\n')
