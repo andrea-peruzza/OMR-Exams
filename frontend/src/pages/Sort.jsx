@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sortAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 function Sort() {
   const navigate = useNavigate();
@@ -108,10 +109,11 @@ function Sort() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-300 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-purple-300 via-white to-white">
+      <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Smistamento Scansioni (Sort)</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Smistamento scansioni</h1>
           <p className="text-gray-600 mt-2">Smista i PDF scansionati suddividendoli per studente, usando il file dati generato.</p>
         </header>
 
@@ -123,7 +125,7 @@ function Sort() {
 
         {/* STATUS & UPLOAD SEZIONE */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Stato Scansioni</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Stato scansioni</h2>
           <div className="flex items-center gap-4 mb-4">
             <div className={`w-4 h-4 rounded-full ${status.has_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <span className="text-gray-700 font-medium">
@@ -152,8 +154,10 @@ function Sort() {
         </section>
 
         {/* IMPOSTAZIONI SEZIONE */}
-        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Smistamento</h2>
+        {status.has_scans && (
+          <>
+            <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
+              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni smistamento</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -172,7 +176,7 @@ function Sort() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Formato Carta</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Formato carta</label>
               <select 
                 className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
                 value={config.paper}
@@ -248,6 +252,8 @@ function Sort() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

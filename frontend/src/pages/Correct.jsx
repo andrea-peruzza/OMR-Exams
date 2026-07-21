@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { correctAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 function Correct() {
   const navigate = useNavigate();
@@ -99,11 +100,12 @@ function Correct() {
   const isReady = status.has_datafile && status.has_sorted_scans;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-emerald-200 via-white to-white">
+      <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Correzione Automatica (Correct)</h1>
-          <p className="text-gray-600 mt-2">Analizza i PDF smistati, rileva le risposte tramite OpenCV e verifica la correttezza rispetto alle soluzioni.</p>
+          <h1 className="text-3xl font-bold text-gray-800">Correzione automatica</h1>
+          <p className="text-gray-600 mt-2">Analizza i PDF smistati, rileva le risposte e verifica la correttezza rispetto alle soluzioni.</p>
         </header>
 
         {error && (
@@ -114,7 +116,7 @@ function Correct() {
 
         {/* STATUS SEZIONE */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-green-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Verifica Preliminare</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Verifica preliminare</h2>
           <div className="space-y-3">
             <div className="flex items-center gap-4">
               <div className={`w-4 h-4 rounded-full ${status.has_datafile ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -137,12 +139,14 @@ function Correct() {
         </section>
 
         {/* IMPOSTAZIONI SEZIONE */}
-        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-green-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Correzione</h2>
+        {isReady && (
+          <>
+            <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-green-400 hover:shadow-md transition-all flex flex-col">
+              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni correzione</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona File Json</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file Json</label>
               <select 
                 className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-emerald-500"
                 value={config.datafile}
@@ -167,7 +171,7 @@ function Correct() {
                 onChange={(e) => setConfig({...config, produce_pdf: e.target.checked})}
                 disabled={generating}
               />
-              <label htmlFor="produce_pdf" className="font-medium text-gray-700">Produci il file PDF visivo corretto</label>
+              <label htmlFor="produce_pdf" className="font-medium text-gray-700">Produci il file PDF con le correzioni</label>
             </div>
             
             {config.produce_pdf && (
@@ -250,12 +254,14 @@ function Correct() {
                   onClick={() => navigate('/mark')}
                   className="px-6 py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 transition-colors font-medium"
                 >
-                  Procedi con l'Assegnazione Voti
+                  Procedi con l'assegnazione Voti
                 </button>
               </div>
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );
