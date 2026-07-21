@@ -3,6 +3,7 @@ import { generateAPI } from '../api/client';
 import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
+import BackButton from '../components/BackButton';
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -172,10 +173,11 @@ export default function Generate() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-blue-200 via-white to-white">
+      <BackButton />
       <div className="max-w-5xl mx-auto p-8 font-sans">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Genera Esami</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Genera esami</h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur rounded-lg shadow-sm border border-gray-100">
               <span className={`w-3 h-3 rounded-full ${configPresent ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -188,7 +190,7 @@ export default function Generate() {
               disabled={!configPresent}
               className="bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Precompila con configurazione
+              Precompila con la configurazione già presente
             </button>
           </div>
         </div>
@@ -198,28 +200,28 @@ export default function Generate() {
       <div className="space-y-8">
         {/* Sezione Runtime */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Avvio</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni avvio</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data Esame (obbligatoria)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Data esame (obbligatoria)</label>
               <input type="date" className="w-full border p-2 rounded" value={runtime.date} onChange={e => setRuntime({...runtime, date: e.target.value})} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Prefisso Output File</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Prefisso output file</label>
               <input type="text" className="w-full border p-2 rounded" value={runtime.output_prefix} onChange={e => setRuntime({...runtime, output_prefix: e.target.value})} />
             </div>
             <div className="flex items-center mt-4">
               <input type="checkbox" className="mr-2 h-4 w-4" checked={runtime.is_anonymous} onChange={e => setRuntime({...runtime, is_anonymous: e.target.checked})} />
-              <label className="text-sm font-medium text-gray-700">Generazione Anonima (senza lista studenti)</label>
+              <label className="text-sm font-medium text-gray-700">Generazione anonima (senza lista studenti)</label>
             </div>
             {runtime.is_anonymous ? (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Numero Esami</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Numero esami</label>
                 <input type="number" min="1" className="w-full border p-2 rounded" value={runtime.num_anonymous_exams} onChange={e => setRuntime({...runtime, num_anonymous_exams: e.target.value})} />
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona File Excel Studenti</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file excel studenti</label>
                 <div className="flex gap-2">
                   <select className="flex-1 border p-2 rounded" value={runtime.selected_student_file} onChange={e => setRuntime({...runtime, selected_student_file: e.target.value})}>
                     <option value="">-- Seleziona --</option>
@@ -238,7 +240,7 @@ export default function Generate() {
         {/* Sezione Excel Fields (se non anonimo) */}
         {!runtime.is_anonymous && (
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Mappatura Colonne Excel</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Mappatura colonne excel</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {Object.entries(config.excel.fields).map(([key, value]) => {
                 const isMandatory = ['name', 'surname', 'id'].includes(key);
@@ -273,9 +275,9 @@ export default function Generate() {
         {/* Sezione Domande (Questions) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Database Domande</h2>
+            <h2 className="text-xl font-semibold text-gray-700">Database domande</h2>
             <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
-              <Upload size={16} /> Carica .md
+              <Upload size={16} /> Carica file .md
               <input type="file" accept=".md" className="hidden" onChange={handleUploadQuestion} />
             </label>
           </div>
@@ -287,7 +289,7 @@ export default function Generate() {
                 newQ[idx].from = e.target.value;
                 setConfig({...config, questions: newQ});
               }}>
-                <option value="">-- Seleziona File Markdown --</option>
+                <option value="">-- Seleziona file markdown --</option>
                 {availableFiles.questions.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
               <input type="number" placeholder="Quante estrarne?" className="w-48 border p-2 rounded" value={q.draw || ''} onChange={e => {
@@ -308,10 +310,10 @@ export default function Generate() {
 
         {/* Sezione Parametri Esame */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni Esame</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni esame</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Titolo (Name)</label>
+              <label className="block text-sm text-gray-600 mb-1">Titolo</label>
               <input type="text" className="w-full border p-2 rounded" value={config.exam.name} onChange={e => setConfig({...config, exam: {...config.exam, name: e.target.value}})} />
             </div>
             <div>
@@ -323,18 +325,18 @@ export default function Generate() {
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.exam.shuffle_questions} onChange={e => setConfig({...config, exam: {...config.exam, shuffle_questions: e.target.checked}})} />
-              <label className="text-sm text-gray-600">Rimescola Domande</label>
+              <label className="text-sm text-gray-600">Rimescola domande</label>
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.exam.shuffle_answers} onChange={e => setConfig({...config, exam: {...config.exam, shuffle_answers: e.target.checked}})} />
-              <label className="text-sm text-gray-600">Rimescola Risposte</label>
+              <label className="text-sm text-gray-600">Rimescola risposte</label>
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.dyslexia} onChange={e => setConfig({...config, dyslexia: e.target.checked})} />
-              <label className="text-sm text-gray-600">Modalità Dislessia (OpenDyslexic)</label>
+              <label className="text-sm text-gray-600">Modalità dislessia</label>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Formato Carta</label>
+              <label className="block text-sm text-gray-600 mb-1">Formato carta</label>
               <select className="w-full border p-2 rounded" value={config.paper} onChange={e => setConfig({...config, paper: e.target.value})}>
                 <option value="A4">A4</option>
                 <option value="A3">A3</option>
@@ -345,7 +347,7 @@ export default function Generate() {
 
         {/* Testi Personalizzati */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Testi Personalizzati</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Parti personalizzate</h2>
           <div className="grid grid-cols-1 gap-4">
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -372,19 +374,20 @@ export default function Generate() {
         </section>
 
         {/* Submit */}
-        <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl border border-gray-200">
-          <div className="flex items-center">
-            <input type="checkbox" className="mr-2 h-5 w-5" checked={runtime.save_config} onChange={e => setRuntime({...runtime, save_config: e.target.checked})} />
-            <label className="font-medium text-gray-700">Salva in config.yaml</label>
+        {(!taskId || (progress && (progress.completed || progress.error)) || error) && (
+          <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl border border-gray-200">
+            <div className="flex items-center">
+              <input type="checkbox" className="mr-2 h-5 w-5" checked={runtime.save_config} onChange={e => setRuntime({...runtime, save_config: e.target.checked})} />
+              <label className="font-medium text-gray-700">Salva in config.yaml</label>
+            </div>
+            <button 
+              onClick={handleStart}
+              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
+            >
+              <Play size={20} /> Avvia generazione
+            </button>
           </div>
-          <button 
-            onClick={handleStart}
-            disabled={!!taskId && (!progress || !progress.completed)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50"
-          >
-            <Play size={20} /> Avvia Generazione
-          </button>
-        </div>
+        )}
 
         {/* Barra di Avanzamento, Errori e Preview */}
         {error && <div className="p-4 mt-6 bg-red-100 text-red-700 rounded-lg">{error}</div>}
