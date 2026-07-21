@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { manualAPI, correctAPI } from '../api/client';
 import PDFPreview from '../components/PDFPreview';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 export default function ManualCorrection() {
   const [dataFiles, setDataFiles] = useState([]);
@@ -111,17 +112,18 @@ export default function ManualCorrection() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-yellow-200 via-white to-white">
+      <BackButton />
       <div className="max-w-6xl mx-auto p-6 space-y-6 pb-20">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Verifica Manuale</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Verifica manuale</h1>
           <p className="text-gray-600 mt-2">Gestisci gli esami dubbi e correggi le risposte manualmente.</p>
         </header>
 
 
         {/* SELEZIONE DATAFILE */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
-          <label className="font-semibold text-gray-700">Database JSON Attivo:</label>
+          <label className="font-semibold text-gray-700">Database JSON attivo:</label>
           <select 
             className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-orange-500 w-64"
             value={datafile}
@@ -138,7 +140,7 @@ export default function ManualCorrection() {
             onClick={loadScans}
             className={`p-6 rounded-xl border-2 transition-all ${mode === 'scans' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 bg-white shadow-sm'}`}
           >
-            <h3 className="text-xl font-bold text-blue-800 mb-2">Tutti gli esami (Scans PDF)</h3>
+            <h3 className="text-xl font-bold text-blue-800 mb-2">Tutti gli esami</h3>
             <p className="text-sm text-gray-600">Visualizza i PDF completi originali scansionati.</p>
           </button>
           
@@ -146,7 +148,7 @@ export default function ManualCorrection() {
             onClick={loadMissing}
             className={`p-6 rounded-xl border-2 transition-all ${mode === 'missing' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300 bg-white shadow-sm'}`}
           >
-            <h3 className="text-xl font-bold text-orange-800 mb-2">Esami Dubbi (Da Verificare)</h3>
+            <h3 className="text-xl font-bold text-orange-800 mb-2">Esami dubbi (da verificare)</h3>
             <p className="text-sm text-gray-600">Visualizza solo i fogli che il sistema non è riuscito a leggere in automatico.</p>
           </button>
         </div>
@@ -224,7 +226,7 @@ export default function ManualCorrection() {
 
         {/* STRUMENTI DI CORREZIONE (Visibile in entrambe le modalità se c'è un file caricato e inseriamo manuale) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Pannello Correzione Manuale</h2>
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Pannello correzione manuale</h2>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm flex justify-between">
@@ -255,7 +257,7 @@ export default function ManualCorrection() {
               onClick={() => handleStudentSelect(currentStudentId)}
               className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
             >
-              Carica Maschera
+              Carica maschera esame
             </button>
           </div>
 
@@ -264,7 +266,7 @@ export default function ManualCorrection() {
               
               {/* Tabella Get Answers / Correction Mask */}
               <div className="space-y-4">
-                <h3 className="font-bold text-gray-800">Stato Risposte Attuale (Get Answers)</h3>
+                <h3 className="font-bold text-gray-800">Stato risposte attuale</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left border">
                     <thead className="bg-gray-100">
@@ -291,10 +293,10 @@ export default function ManualCorrection() {
 
               {/* Form Force Answer */}
               <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4">Forza Risposta (Force Answer)</h3>
+                <h3 className="font-bold text-gray-800 mb-4">Forza risposta</h3>
                 <form onSubmit={handleForceAnswer} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">N. Domanda</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">N. domanda</label>
                     <input 
                       name="question"
                       type="number" 
@@ -317,7 +319,7 @@ export default function ManualCorrection() {
                     type="submit"
                     className="w-full py-2 bg-yellow-500 text-white font-bold rounded shadow hover:bg-yellow-600"
                   >
-                    Applica Modifica
+                    Applica modifica
                   </button>
                 </form>
               </div>
