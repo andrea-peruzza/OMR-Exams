@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { moodleAPI } from '../api/client';
 import { Library, Upload, Download, CheckCircle, FileCode2 } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 export default function Moodle() {
   const [tab, setTab] = useState('export'); // 'export' or 'import'
@@ -127,7 +128,8 @@ export default function Moodle() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-indigo-200 via-white to-white">
+      <BackButton />
       <div className="max-w-4xl mx-auto p-6 space-y-8 pb-20">
         <header className="flex items-center gap-4 border-b pb-4">
           <div className="bg-indigo-100 p-3 rounded-full text-indigo-700">
@@ -135,7 +137,7 @@ export default function Moodle() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Convertitore Moodle</h1>
-            <p className="text-gray-600 mt-1">Esporta le domande di OMR in XML per Moodle o importa XML per usarli nel generatore.</p>
+            <p className="text-gray-600 mt-1">Esporta le domande da Markdown a XML per Moodle o importa XML per usarli nel generatore.</p>
           </div>
         </header>
 
@@ -191,11 +193,11 @@ export default function Moodle() {
                     onChange={(e) => setSingle(e.target.checked)} 
                     className="rounded text-indigo-600 focus:ring-indigo-500" 
                   />
-                  Singola risposta corretta (--single)
+                  Singola risposta corretta
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Penalità % (--penalty)</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Penalità %</label>
                 <input 
                   type="number" 
                   value={penalty} 
@@ -270,7 +272,7 @@ export default function Moodle() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 text-center">Seleziona un file XML già presente sul server</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 text-center">Seleziona un file XML già presente nella cartella</label>
                   <select 
                     value={selectedXml} 
                     onChange={(e) => setSelectedXml(e.target.value)} 
@@ -312,7 +314,7 @@ export default function Moodle() {
 
         {/* Ritorno alla Dashboard */}
         <div className="flex justify-center mt-12">
-          <Link to="/dashboard" className="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow hover:bg-gray-300 transition-colors">
+          <Link to="/dashboard" className="px-6 py-2 bg-gray-800 text-white rounded shadow hover:bg-gray-900 transition-colors">
             Torna alla Dashboard
           </Link>
         </div>

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, DownloadIcon, FileCode2, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 import { correctAPI, markAPI } from '../api/client';
 import XlsxPreview from '../components/XlsxPreview';
 
@@ -7,7 +10,7 @@ export default function Mark() {
   const [dataFiles, setDataFiles] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  // Calcolo Voti
+  // Calcolo voti
   const [markDatafile, setMarkDatafile] = useState('');
   const [markOutput, setMarkOutput] = useState('voti.xlsx');
   const [markResult, setMarkResult] = useState(null);
@@ -131,10 +134,11 @@ export default function Mark() {
   if (loadingInitial) return <div className="p-8 text-center animate-pulse">Caricamento stato...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-orange-200 via-white to-white">
+      <BackButton />
       <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
         <header>
-          <h1 className="text-3xl font-bold text-gray-800">Assegnazione Voti (Mark)</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Assegnazione voti</h1>
           <p className="text-gray-600 mt-2">Calcola i voti, genera report statistici ed esplora i dati sulle singole domande.</p>
         </header>
 
@@ -142,7 +146,7 @@ export default function Mark() {
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex items-center gap-4">
           <div className={`w-4 h-4 rounded-full ${dataFiles.length > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`}></div>
           <div>
-            <h3 className="font-semibold text-gray-800">Stato Database JSON</h3>
+            <h3 className="font-semibold text-gray-800">Stato database JSON</h3>
             <p className="text-sm text-gray-500">
               {dataFiles.length > 0 ? `${dataFiles.length} file JSON trovati nella cartella data/.` : 'Nessun file JSON trovato. Esegui prima le fasi precedenti.'}
             </p>
@@ -154,7 +158,7 @@ export default function Mark() {
             
             {/* Calcolo Voti */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Calcolo Voti</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Calcolo voti</h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
@@ -187,7 +191,7 @@ export default function Mark() {
 
             {/* Report Statistico */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Generazione Report</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Generazione report</h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
@@ -220,7 +224,7 @@ export default function Mark() {
 
             {/* Analisi Domande */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Analisi Domanda Specifica</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Analisi domanda specifica</h2>
               <div className="flex flex-col md:flex-row gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1 w-full">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
@@ -229,7 +233,7 @@ export default function Mark() {
                   </select>
                 </div>
                 <div className="flex-1 w-full">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona Domanda:</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona domanda:</label>
                   <select value={selectedQuestion} onChange={(e) => setSelectedQuestion(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500">
                     {questionsList.map((q, idx) => (
                       <option key={idx} value={JSON.stringify(q)}>{q.file} (Indice: {q.index})</option>
@@ -249,7 +253,7 @@ export default function Mark() {
                     disabled={analysisLoading}
                     className="px-4 py-2 bg-orange-700 text-white rounded shadow hover:bg-orange-800 disabled:opacity-50 whitespace-nowrap"
                   >
-                    Revisione Domanda
+                    Revisione domanda
                   </button>
                 </div>
               </div>
@@ -323,7 +327,7 @@ export default function Mark() {
 
         {/* Ritorno alla Dashboard */}
         <div className="flex justify-center mt-12">
-          <Link to="/dashboard" className="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow hover:bg-gray-300 transition-colors">
+          <Link to="/dashboard" className="px-6 py-2 bg-gray-800 text-white rounded shadow hover:bg-gray-900 transition-colors">
             Torna alla Dashboard
           </Link>
         </div>
