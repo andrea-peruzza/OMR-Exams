@@ -144,6 +144,7 @@ export default function Generate() {
 
     if (!payloadConfig.exam.max_questions) delete payloadConfig.exam.max_questions;
     if (!payloadConfig.exam.max_open_questions) delete payloadConfig.exam.max_open_questions;
+    if (!payloadConfig.exam.page_limits) delete payloadConfig.exam.page_limits;
     
     // Process questions mapping
     const mappedQuestions = payloadConfig.questions.filter(q => q.from && q.draw).map(q => ({
@@ -171,7 +172,13 @@ export default function Generate() {
       setTaskId(res.task_id);
       setDataDir(res.data_dir);
     } catch (e) {
-      setError(e.response?.data?.detail || e.message);
+      let errorMsg = e.message;
+      if (e.response?.data?.detail) {
+        errorMsg = typeof e.response.data.detail === 'string' 
+          ? e.response.data.detail 
+          : JSON.stringify(e.response.data.detail);
+      }
+      setError(errorMsg);
     }
   };
 
