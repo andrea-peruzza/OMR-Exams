@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, DownloadIcon, FileCode2, Home } from 'lucide-react';
+import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, DownloadIcon, FileCode2, Home, FileOutput } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import { correctAPI, markAPI } from '../api/client';
@@ -137,9 +137,14 @@ export default function Mark() {
     <div className="min-h-screen relative bg-gradient-to-br from-orange-200 via-white to-white">
       <BackButton />
       <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
-        <header>
-          <h1 className="text-3xl font-bold text-gray-800">Assegnazione voti</h1>
-          <p className="text-gray-600 mt-2">Calcola i voti, genera report statistici ed esplora i dati sulle singole domande.</p>
+        <header className="flex items-center gap-4 border-b pb-4 mb-8">
+          <div className="bg-orange-100 p-3 rounded-full text-orange-700">
+            <FileOutput size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Assegnazione voti</h1>
+            <p className="text-gray-600 mt-1">Calcola i voti, genera report statistici ed esplora i dati sulle singole domande.</p>
+          </div>
         </header>
 
         {/* Semaforo */}

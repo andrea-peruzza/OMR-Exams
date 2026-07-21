@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ClipboardEdit } from 'lucide-react';
 import { manualAPI, correctAPI } from '../api/client';
 import PDFPreview from '../components/PDFPreview';
 import { useNavigate } from 'react-router-dom';
@@ -115,9 +116,14 @@ export default function ManualCorrection() {
     <div className="min-h-screen relative bg-gradient-to-br from-yellow-200 via-white to-white">
       <BackButton />
       <div className="max-w-6xl mx-auto p-6 space-y-6 pb-20">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Verifica manuale</h1>
-          <p className="text-gray-600 mt-2">Gestisci gli esami dubbi e correggi le risposte manualmente.</p>
+        <header className="flex items-center gap-4 border-b pb-4 mb-8">
+          <div className="bg-yellow-100 p-3 rounded-full text-yellow-700">
+            <ClipboardEdit size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Verifica manuale</h1>
+            <p className="text-gray-600 mt-1">Gestisci gli esami dubbi e correggi le risposte manualmente.</p>
+          </div>
         </header>
 
 

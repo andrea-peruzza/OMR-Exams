@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ScanText } from 'lucide-react';
 import { sortAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
@@ -112,9 +113,14 @@ function Sort() {
     <div className="min-h-screen relative bg-gradient-to-br from-purple-300 via-white to-white">
       <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Smistamento scansioni</h1>
-          <p className="text-gray-600 mt-2">Smista i PDF scansionati suddividendoli per studente, usando il file dati generato.</p>
+        <header className="flex items-center gap-4 border-b pb-4 mb-8">
+          <div className="bg-purple-100 p-3 rounded-full text-purple-700">
+            <ScanText size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Smistamento scansioni (Sort)</h1>
+            <p className="text-gray-600 mt-1">Smista i PDF scansionati suddividendoli per studente, usando il file dati generato.</p>
+          </div>
         </header>
 
         {error && (

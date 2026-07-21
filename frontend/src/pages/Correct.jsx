@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircle } from 'lucide-react';
 import { correctAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
@@ -103,9 +104,14 @@ function Correct() {
     <div className="min-h-screen relative bg-gradient-to-br from-emerald-200 via-white to-white">
       <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Correzione automatica</h1>
-          <p className="text-gray-600 mt-2">Analizza i PDF smistati, rileva le risposte e verifica la correttezza rispetto alle soluzioni.</p>
+        <header className="flex items-center gap-4 border-b pb-4 mb-8">
+          <div className="bg-emerald-100 p-3 rounded-full text-emerald-700">
+            <CheckCircle size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Correzione automatica</h1>
+            <p className="text-gray-600 mt-1">Analizza i PDF smistati, rileva le risposte e verifica la correttezza rispetto alle soluzioni.</p>
+          </div>
         </header>
 
         {error && (
