@@ -286,7 +286,20 @@ rectangle/.default={0.2cm}}
 \DeclareOption{circled}{
   \renewcommand{\choicelabel}{\blacksquared{\sffamily\footnotesize\thechoice}}
 }
-\DeclareOption{dyslexia}{\setallmainfonts{OpenDyslexic}\setmonofont{OpenDyslexicMono}\setsansfont{OpenDyslexic}}
+\DeclareOption{dyslexia}{%
+  \IfFontExistsTF{OpenDyslexic}{%
+    \setallmainfonts{OpenDyslexic}
+    \setsansfont{OpenDyslexic}
+  }{%
+    \setallmainfonts{Comic Sans MS}
+    \setsansfont{Comic Sans MS}
+  }%
+  \IfFontExistsTF{OpenDyslexicMono}{%
+    \setmonofont{OpenDyslexicMono}
+  }{%
+    \setmonofont{Consolas}
+  }%
+}
 \newboolean{testing}
 %\setboolean{testing}{false}
 \DeclareOption{testing}{\setboolean{testing}{true}}

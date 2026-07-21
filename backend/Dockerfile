@@ -26,6 +26,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN find /etc/ImageMagick-* -name "policy.xml" -exec \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' {} \;
 
+# 4bis. Installiamo il font OpenDyslexic (necessario per xetex/fontspec)
+# fontconfig serve per registrare i font di sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# I file .otf devono trovarsi in ./fonts/ nel repo (stessa cartella del Dockerfile)
+# Copio la cartella su questo indirizzo perché fontconfig scansiona /usr/share/fonts/ e sottocartelle alla ricerca di font
+COPY fonts/ /usr/share/fonts/truetype/opendyslexic/
+RUN fc-cache -f -v
+
 # 5. Copio prima le dipendenze python
 COPY requirements.txt .
 
