@@ -152,7 +152,7 @@ function Correct() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file Json</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file JSON</label>
               <select 
                 className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-emerald-500"
                 value={config.datafile}
