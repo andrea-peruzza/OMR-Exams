@@ -3,6 +3,7 @@ import { CheckCircle } from 'lucide-react';
 import { correctAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 
 function Correct() {
   const navigate = useNavigate();
@@ -148,7 +149,16 @@ function Correct() {
         {isReady && (
           <>
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-green-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni correzione</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
+                Impostazioni correzione
+                <HelpButton title="Fase di correzione ottica">
+                  <p className="mb-3">In questa fase il sistema analizza otticamente gli esami smistati per tutti gli studenti.</p>
+                  <p className="mb-3">Il file JSON selezionato verrà ampliato aggiungendo i dati reali appena acquisiti, ovvero calcolando esattamente quali risposte sono state date, omesse o sbagliate da ciascuno studente, in modo da procedere successivamente alla fase di assegnazione dei voti.</p>
+                  <div className="bg-indigo-50 border border-indigo-100 p-3 rounded mt-4">
+                    <p className="text-sm text-indigo-800">Selezionando l'apposita spunta, il sistema genererà un file PDF visivo di riepilogo che mostra graficamente i segni rilevati e le correzioni.</p>
+                  </div>
+                </HelpButton>
+              </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

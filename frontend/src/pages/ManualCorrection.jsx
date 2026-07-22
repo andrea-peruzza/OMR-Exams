@@ -4,6 +4,7 @@ import { manualAPI, correctAPI } from '../api/client';
 import PDFPreview from '../components/PDFPreview';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 
 export default function ManualCorrection() {
   const [dataFiles, setDataFiles] = useState([]);
@@ -232,7 +233,16 @@ export default function ManualCorrection() {
 
         {/* STRUMENTI DI CORREZIONE (Visibile in entrambe le modalità se c'è un file caricato e inseriamo manuale) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Pannello correzione manuale</h2>
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 flex items-center">
+            Pannello correzione manuale
+            <HelpButton title="Revisione e modifica manuale">
+              <p className="mb-3">In questa sezione puoi visualizzare lo stato delle risposte rilevate otticamente per un preciso studente.</p>
+              <p className="mb-3">Se noti un'imprecisione nel rilevamento, c'è la possibilità di modificare manualmente le singole risposte.</p>
+              <div className="bg-yellow-50 border border-yellow-100 p-3 rounded mt-4">
+                <p className="text-sm text-yellow-800">Le modifiche manuali effettuate qui sovrascriveranno anche i dati rilevati dal sistema per quel determinato studente nel file JSON.</p>
+              </div>
+            </HelpButton>
+          </h2>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm flex justify-between">

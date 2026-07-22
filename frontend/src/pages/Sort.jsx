@@ -3,6 +3,7 @@ import { ScanText } from 'lucide-react';
 import { sortAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 
 function Sort() {
   const navigate = useNavigate();
@@ -136,8 +137,8 @@ function Sort() {
             <div className={`w-4 h-4 rounded-full ${status.has_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <span className="text-gray-700 font-medium">
               {status.has_scans 
-                ? `${status.scans_count} file di scansioni presenti nella cartella (data/scans/)` 
-                : 'Nessun file di scansioni presente in data/scans/'}
+                ? `${status.scans_count} file di scansioni presenti nella cartella data/scans/` 
+                : 'Nessun file di scansioni presente in data/scans/. Scansiona gli esami svolti e carica il file pdf con il pulsante sottostante'}
             </span>
           </div>
           
@@ -163,7 +164,14 @@ function Sort() {
         {status.has_scans && (
           <>
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni smistamento</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
+                Impostazioni smistamento
+                <HelpButton title="Come funziona lo smistamento">
+                  <p className="mb-3">Avverrà lo smistamento degli esami caricati.</p>
+                  <p className="mb-3">Il sistema si occuperà di separare i singoli esami e convertirli in immagini PNG, che verranno salvate all'interno della cartella <span className="bg-gray-100 px-1.5 py-0.5 rounded text-grey-600 font-medium">data/sorted/</span>.</p>
+                  <p>Questa separazione dei fogli è una fase preliminare necessaria per poter successivamente avviare la correzione automatica degli esami.</p>
+                </HelpButton>
+              </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

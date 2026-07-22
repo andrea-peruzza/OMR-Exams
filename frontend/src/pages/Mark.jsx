@@ -217,9 +217,9 @@ export default function Mark() {
                   <p className="mb-3">Viene generato un file Excel contenente le statistiche per ogni singola domanda presente negli esami.</p>
                   <p className="mb-2 font-medium">Informazioni calcolate per ogni domanda:</p>
                   <ul className="list-disc pl-5 mb-4 space-y-2">
-                    <li>Statistiche sui successi (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">count, sum, mean, std</code>)</li>
-                    <li>Statistiche sulle risposte omesse nel caso ci siano più risposte corrette (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">mean, std</code>)</li>
-                    <li>Statistiche sugli errori (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">mean, std</code>)</li>
+                    <li>Statistiche sui successi (<code className="bg-gray-100 px-1 rounded text-grey-700 font-mono">count, sum, mean, std</code>)</li>
+                    <li>Statistiche sulle risposte omesse nel caso ci siano più risposte corrette (<code className="bg-gray-100 px-1 rounded text-grey-700 font-mono">mean, std</code>)</li>
+                    <li>Statistiche sugli errori (<code className="bg-gray-100 px-1 rounded text-grey-700 font-mono">mean, std</code>)</li>
                     <li>Numero di opzioni di risposta alle domande</li>
                     <li>Numero di risposte corrette per quella domanda (1 o più)</li>
                   </ul>

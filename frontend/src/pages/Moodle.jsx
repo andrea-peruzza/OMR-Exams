@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { moodleAPI } from '../api/client';
 import { Library, Upload, Download, CheckCircle, FileCode2 } from 'lucide-react';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 
 export default function Moodle() {
   const [tab, setTab] = useState('export'); // 'export' or 'import'
@@ -163,6 +164,15 @@ export default function Moodle() {
           <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-indigo-400 hover:shadow-md space-y-6">
             <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center gap-2">
               <Upload size={20} className="text-indigo-600" /> Esporta XML
+              <HelpButton title="Esportazione verso Moodle">
+                <p className="mb-3">Questa sezione permette di convertire le domande in Markdown in formato XML, direttamente importabile nella piattaforma Moodle.</p>
+                <p className="mb-3">Al termine della procedura verranno generati due file XML separati:</p>
+                <ul className="list-disc pl-5 mb-4 space-y-1">
+                  <li>Un file XML dedicato alle domande chiuse.</li>
+                  <li>Un file XML dedicato alle domande aperte.</li>
+                </ul>
+                <p className="mb-3">È possibile stabilire una penalità percentuale per le risposte sbagliate. Ad esempio, digitando <strong>25</strong>, il sistema istruirà Moodle a sottrarre il 25% del punteggio assegnato alla domanda per ogni risposta errata inserita dallo studente.</p>
+              </HelpButton>
             </h2>
             
             <div>
@@ -248,6 +258,10 @@ export default function Moodle() {
           <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-indigo-400 hover:shadow-md space-y-6">
             <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center gap-2">
               <Download size={20} className="text-indigo-600" /> Importa Markdown
+              <HelpButton title="Importazione da Moodle">
+                <p className="mb-2">Questa sezione esegue l'operazione inversa dell'esportazione.</p>
+                <p>Permette di prendere un file di domande (in formato XML) scaricato direttamente dalla piattaforma Moodle e di convertirlo automaticamente in un file Markdown (.md), utilizzabile all'interno di OMRExams per la generazione degli esami.</p>
+              </HelpButton>
             </h2>
             
             <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 flex flex-col items-center justify-center space-y-4">
