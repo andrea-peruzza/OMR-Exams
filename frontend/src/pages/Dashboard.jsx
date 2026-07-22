@@ -6,7 +6,7 @@ export default function Dashboard() {
   return (
     <div className="p-8 max-w-5xl mx-auto font-sans text-center">
       <div className="mb-6 inline-block">
-        <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 drop-shadow-sm pb-2">
+        <h1 className="text-5xl font-extrabold text-blue-900 drop-shadow-sm pb-2">
           OMRExams
         </h1>
       </div>
