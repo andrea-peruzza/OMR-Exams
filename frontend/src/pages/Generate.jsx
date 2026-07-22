@@ -4,6 +4,7 @@ import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus } from 'lu
 import { useNavigate } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -266,7 +267,19 @@ export default function Generate() {
             ) : (
               <div className="space-y-6">
                 <div className="max-w-md">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file excel studenti</label>
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
+                    Seleziona file excel studenti
+                    <HelpButton title="Come preparare il file Excel">
+                      <p className="mb-3">Il file Excel deve avere la prima riga dedicata alle <strong>intestazioni delle colonne</strong>.</p>
+                      <p className="mb-2">Per funzionare correttamente, il sistema deve poter estrapolare questi tre dati per ogni riga:</p>
+                      <ul className="list-disc pl-5 mb-4 space-y-1">
+                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">id</code> (la matricola o identificativo)</li>
+                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">name</code> (il nome)</li>
+                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">surname</code> (il cognome)</li>
+                      </ul>
+                      <p>Se il tuo file usa parole diverse per le intestazioni (ad esempio "Matricola", "NomeStudente", "CognomeStudente") o presenta colonne aggiuntive basterà specificarlo nella sezione <strong>Mappatura colonne Excel</strong> sottostante</p>
+                    </HelpButton>
+                  </label>
                   <div className="flex gap-2">
                     <select className="flex-1 border p-2 rounded" value={runtime.selected_student_file} onChange={e => setRuntime({...runtime, selected_student_file: e.target.value})}>
                       <option value="">-- Seleziona --</option>
@@ -318,13 +331,60 @@ export default function Generate() {
         {/* Sezione Impostazioni domande */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Impostazioni domande</h2>
+            <h2 className="text-xl font-semibold text-gray-700 flex items-center">
+              Impostazioni domande
+              <HelpButton title="Sintassi Markdown delle domande">
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-semibold text-gray-800 mb-2">Esempio pratico:</p>
+                    <pre className="bg-slate-800 text-gray-100 p-3 rounded-lg overflow-x-auto text-sm font-mono leading-relaxed">
+{`---
+## Quale linguaggio viene eseguito nel browser?
+
+- [ ] Java
+- [x] JavaScript
+- [ ] Python
+- [ ] C`}
+                    </pre>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800 mb-2">Convenzioni strutturali:</p>
+                    <ul className="list-disc pl-5 space-y-2">
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">[x]</code> indica la risposta corretta</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">[ ]</code> indica una risposta errata</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">---</code> funge da separatore tra una domanda e l'altra</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">##</code> definisce una domanda chiusa (a scelta multipla)</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">###</code> definisce una domanda aperta</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">{'{'}lines:2cm{'}'}</code> definisce lo spazio da lasciare per rispondere ad una domanda aperta</li>
+                      <li>È possibile avere domande con più risposte corrette</li>
+                    </ul>
+                  </div>
+                </div>
+              </HelpButton>
+            </h2>
             <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
               <Upload size={16} /> Carica file .md
               <input type="file" accept=".md" className="hidden" onChange={handleUploadQuestion} />
             </label>
           </div>
           
+          {config.questions.length > 0 && (
+            <div className="flex gap-4 mb-2 px-1">
+              <label className="flex-1 text-sm font-medium text-gray-700">File delle domande</label>
+              <label className="w-48 text-sm font-medium text-gray-700 flex items-center">
+                Domande da estrarre
+                <HelpButton title="Estrazione delle domande">
+                  <p className="mb-3">Il numero di domande indicato si riferisce <strong>esclusivamente alle domande a scelta multipla</strong>.</p>
+                  <p className="mb-3">Tutte le <strong>domande aperte</strong> presenti nel file verranno inserite in blocco alla fine dell'esame, a meno che non venga impostato un limite massimo tramite la casella "Numero max domande aperte" nella sezione delle <strong>impostazioni aggiuntive</strong>sottostante.</p>
+                  <div className="bg-blue-50 border border-blue-100 p-3 rounded mt-2">
+                    <p className="text-sm text-blue-800">Per un controllo più preciso, suggerisco di tenere le domande chiuse e quelle aperte separate in due file <code>.md</code> distinti.</p>
+                  </div>
+                </HelpButton>
+              </label>
+              <div className="w-8"></div>
+            </div>
+          )}
+
           {config.questions.map((q, idx) => (
             <div key={idx} className="flex gap-4 mb-2 items-center">
               <select className="flex-1 border p-2 rounded" value={q.from} onChange={e => {
@@ -366,6 +426,10 @@ export default function Generate() {
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.dyslexia} onChange={e => setConfig({...config, dyslexia: e.target.checked})} />
               <label className="text-sm text-gray-600">Modalità dislessia</label>
+            </div>
+            <div className="flex items-center">
+              <input type="checkbox" className="mr-2" checked={config.choices?.circled || false} onChange={e => setConfig({...config, choices: {...(config.choices || {}), circled: e.target.checked}})} />
+              <label className="text-sm text-gray-600">Cerchia opzioni di risposta</label>
             </div>
             
             <div className="flex items-center gap-2">
@@ -413,7 +477,24 @@ export default function Generate() {
 
         {/* Parti personalizzate */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Parti personalizzate</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
+            Parti personalizzate
+            <HelpButton title="Formattazione in LaTeX">
+              <p className="mb-3">In questi campi puoi scrivere in linguaggio naturale ed eventualmente utilizzare i comandi base di LaTeX per impaginare a piacimento l'intestazione, il preambolo e il piè di pagina.</p>
+              <p className="mb-2 font-medium text-gray-800">Comandi che potrebbero essere utili:</p>
+              <ul className="list-disc pl-5 mb-4 space-y-2">
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\newline</code> per andare a capo alla riga successiva</li>
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thedate</code> stampa la data impostata</li>
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thestudent</code> stampa nome e cognome dello studente estratto</li>
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thematriculationno</code> stampa il numero di matricola/id dello studente</li>
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thepage</code> stampa il numero della pagina corrente</li>
+                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\textbf&#123;testo&#125;</code> per fare il <span className="font-bold">testo in grassetto</span></li>
+              </ul>
+              <div className="bg-blue-50 border border-blue-100 p-3 rounded mt-5">
+                <p className="text-sm text-blue-800">Eventualmente possono anche essere utilizzati dei template precompilati standard presenti sulla destra.</p>
+              </div>
+            </HelpButton>
+          </h2>
           <div className="grid grid-cols-1 gap-4">
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -425,7 +506,7 @@ export default function Generate() {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-sm font-medium text-gray-700">Preamble</label>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Esame\nIstruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
+                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Istruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
               </div>
               <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.preamble} onChange={e => setConfig({...config, preamble: e.target.value})} placeholder="Testo libero introdotto prima delle domande"></textarea>
             </div>
@@ -473,7 +554,7 @@ export default function Generate() {
                   <span className="font-mono text-sm text-blue-600 block mb-3">{dataDir}</span>
                   <span className="text-sm text-orange-600 font-medium flex items-center gap-1">
                     <AlertCircle size={16} />
-                    Non spostare il file <strong className="font-mono">{runtime.output_prefix}.json</strong> per poter svolgere in seguito la correzione di questi esami.
+                    Non spostare il file <strong className="font-mono">{runtime.output_prefix}.json</strong> per poter svolgere in seguito la correzione di questi esami dato che contiene le informazioni sulla generazione degli esami
                   </span>
                 </p>
                 
