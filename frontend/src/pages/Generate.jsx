@@ -273,9 +273,9 @@ export default function Generate() {
                       <p className="mb-3">Il file Excel deve avere la prima riga dedicata alle <strong>intestazioni delle colonne</strong>.</p>
                       <p className="mb-2">Per funzionare correttamente, il sistema deve poter estrapolare questi tre dati per ogni riga:</p>
                       <ul className="list-disc pl-5 mb-4 space-y-1">
-                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">id</code> (la matricola o identificativo)</li>
-                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">name</code> (il nome)</li>
-                        <li><code className="bg-gray-100 px-1 rounded text-pink-600">surname</code> (il cognome)</li>
+                        <li><code className="bg-gray-100 px-1 rounded text-grey-900">id</code> (la matricola o identificativo)</li>
+                        <li><code className="bg-gray-100 px-1 rounded text-grey-900">name</code> (il nome)</li>
+                        <li><code className="bg-gray-100 px-1 rounded text-grey-900">surname</code> (il cognome)</li>
                       </ul>
                       <p>Se il tuo file usa parole diverse per le intestazioni (ad esempio "Matricola", "NomeStudente", "CognomeStudente") o presenta colonne aggiuntive basterà specificarlo nella sezione <strong>Mappatura colonne Excel</strong> sottostante</p>
                     </HelpButton>
@@ -552,10 +552,12 @@ export default function Generate() {
                 <p className="text-gray-800 mb-4 bg-white p-4 rounded border border-gray-200 shadow-sm">
                   Il file pdf degli esami è stato generato ed è presente nella cartella:<br />
                   <span className="font-mono text-sm text-blue-600 block mb-3">{dataDir}</span>
-                  <span className="text-sm text-orange-600 font-medium flex items-center gap-1">
-                    <AlertCircle size={16} />
-                    Non spostare il file <strong className="font-mono">{runtime.output_prefix}.json</strong> per poter svolgere in seguito la correzione di questi esami dato che contiene le informazioni sulla generazione degli esami
-                  </span>
+                  <div className="text-sm text-orange-600 font-medium flex items-start gap-1.5 bg-orange-50 p-3 rounded border border-orange-100">
+                    <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                    <span>
+                      Non spostare il file <strong className="font-mono">{runtime.output_prefix}.json</strong> per poter svolgere in seguito la correzione di questi esami dato che contiene le informazioni sugli esami generati.
+                    </span>
+                  </div>
                 </p>
                 
                 {/* PDF Preview */}
