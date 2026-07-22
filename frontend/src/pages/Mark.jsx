@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, DownloadIcon, FileCode2, Home, FileOutput } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HelpButton from '../components/HelpButton';
 import { correctAPI, markAPI } from '../api/client';
 import XlsxPreview from '../components/XlsxPreview';
 
@@ -163,7 +164,21 @@ export default function Mark() {
             
             {/* Calcolo Voti */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Calcolo voti</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
+                Calcolo voti
+                <HelpButton title="Lettura del file dei voti">
+                  <p className="mb-3">Viene generato un foglio Excel contenente per ogni studente e per ogni domanda sottoposta all'esame le seguenti informazioni:</p>
+                  <ul className="list-disc pl-5 mb-4 space-y-2">
+                    <li>Risposte corrette</li>
+                    <li>Risposte corrette mancanti (nel caso ci siano più risposte corrette)</li>
+                    <li>Risposte errate</li>
+                    <li>Numero di opzioni di risposta</li>
+                    <li>Indice della domanda (all'interno del file markdown originale)</li>
+                    <li>Punti totali dello studente</li>
+                    <li>Voto proposto (calcolato)</li>
+                  </ul>
+                </HelpButton>
+              </h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
@@ -196,7 +211,20 @@ export default function Mark() {
 
             {/* Report Statistico */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Generazione report</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
+                Generazione report
+                <HelpButton title="Report Statistico dell'esame">
+                  <p className="mb-3">Viene generato un file Excel contenente le statistiche per ogni singola domanda presente negli esami.</p>
+                  <p className="mb-2 font-medium">Informazioni calcolate per ogni domanda:</p>
+                  <ul className="list-disc pl-5 mb-4 space-y-2">
+                    <li>Statistiche sui successi (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">count, sum, mean, std</code>)</li>
+                    <li>Statistiche sulle risposte omesse nel caso ci siano più risposte corrette (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">mean, std</code>)</li>
+                    <li>Statistiche sugli errori (<code className="bg-gray-100 px-1 rounded text-purple-700 font-mono">mean, std</code>)</li>
+                    <li>Numero di opzioni di risposta alle domande</li>
+                    <li>Numero di risposte corrette per quella domanda (1 o più)</li>
+                  </ul>
+                </HelpButton>
+              </h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
@@ -229,7 +257,15 @@ export default function Mark() {
 
             {/* Analisi Domande */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-2">Analisi domanda specifica</h2>
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
+                Analisi domanda specifica
+                <HelpButton title="Analisi di una singola domanda">
+                  <p className="mb-3">Questa sezione permette di estrarre e approfondire l'andamento statistico di una <strong>precisa domanda</strong> tra tutte quelle somministrate, fornendo il suo indice all'interno del file delle domande.</p>
+                  <div className="bg-emerald-50 border border-emerald-200 p-3 rounded mt-4">
+                    <p className="text-sm text-grey-400">Le statistiche calcolate in questa sezione sono esportabili sia in formato <strong>Excel (.xlsx)</strong> che in <strong>Markdown (.md)</strong>.</p>
+                  </div>
+                </HelpButton>
+              </h2>
               <div className="flex flex-col md:flex-row gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1 w-full">
                   <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
