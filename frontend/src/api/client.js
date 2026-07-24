@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crea un'istanza base di axios centralizzata
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5000', // Modifica con variabili d'ambiente se necessario
+  baseURL: '', // Modifica con variabili d'ambiente se necessario
   headers: {
     'Content-Type': 'application/json',
   },

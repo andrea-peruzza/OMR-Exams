@@ -15,7 +15,7 @@ export default function XlsxPreview({ filename, headerRows = 1 }) {
         setLoading(true);
         setError(null);
         // Fetch dal mount point statico di FastAPI
-        const response = await fetch(`http://localhost:5000/api/data/${filename}`);
+        const response = await fetch(`/api/data/${filename}`);
         if (!response.ok) {
           throw new Error('Errore nel caricamento del file Excel');
         }
