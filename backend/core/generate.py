@@ -85,6 +85,7 @@ class Generate:
             self.seed = seed
             with TinyDB(self.output_list_filename) as db:
                 db.drop_table('metadata')
+                db.drop_table('exams')
                 db.table('metadata').insert({ 'seed': self.seed, 'generation_date': dt.now().strftime("%F") })
             self.folded = folded
             self.rotated = rotated
@@ -244,12 +245,13 @@ class Generate:
                     # TODO: it should be done also in terms of the qrcode, number of questions, coherence of answers
                     with open(f"{filename}.pdf", 'rb') as f:
                         pdf_file = PdfReader(f, strict=False)
-                        if len(pdf_file.pages) <= self.config['exam'].get('page_limits', 2):
+                        limit = self.config['exam'].get('page_limits')
+                        if not limit or len(pdf_file.pages) <= int(limit):
                             done = True
                             break                     
                 if not done:
-                    click.secho(f"Couldn't get an exam with at most {self.config['exam'].get('page_limits', 2)} pages for student {student[0]} {student[1]}", fg='red', blink=True)
-                    logger.warning(f"Couldn't get an exam with at most {self.config['exam'].get('page_limits', 2)} pages for student {student[0]} {student[1]}")                        
+                    click.secho(f"Couldn't get an exam with at most {limit} pages for student {student[0]} {student[1]}", fg='red', blink=True)
+                    logger.warning(f"Couldn't get an exam with at most {limit} pages for student {student[0]} {student[1]}")                        
             except Exception as e:
                 raise e
                 print(e)
