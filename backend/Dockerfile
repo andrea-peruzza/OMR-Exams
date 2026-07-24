@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-xetex \
     texlive-latex-extra \
     texlive-lang-italian \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    texlive-pstricks \
+    lmodern \
     latexmk \
     libzbar0 \
     libzxing3 \
