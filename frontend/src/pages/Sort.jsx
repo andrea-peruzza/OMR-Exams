@@ -77,7 +77,7 @@ function Sort() {
       const response = await sortAPI.startSort(config);
       const dataDir = response.data_dir;
       
-      const eventSource = new EventSource(`http://localhost:5000/api/sse/stream/${response.task_id}`);
+      const eventSource = new EventSource(`/api/sse/stream/${response.task_id}`);
 
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
@@ -87,7 +87,7 @@ function Sort() {
         } else if (data.status === 'Completed' || data.status === 'completed') {
           setProgress(100);
           setProgressMessage('Smistamento completato!');
-          setSuccess(`I pdf smistati per studente delle scansioni sono presenti nella cartella ${dataDir}`);
+          setSuccess(`I pdf smistati per studente delle scansioni sono presenti nella cartella data/sorted/ del progetto`);
           setGenerating(false);
           eventSource.close();
         } else if (data.status === 'Failed' || data.status === 'failed') {

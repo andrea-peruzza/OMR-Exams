@@ -203,7 +203,7 @@ export default function Mark() {
               
               {markResult && (
                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-emerald-800">
-                  <p className="font-semibold">Calcolo dei voti completato e file excel presente nella cartella {markResult.path}</p>
+                  <p className="font-semibold">Calcolo dei voti completato e file excel presente nella cartella data/ del progetto</p>
                   <XlsxPreview filename={markResult.file} />
                 </div>
               )}
@@ -249,7 +249,7 @@ export default function Mark() {
               
               {reportResult && (
                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-emerald-800">
-                  <p className="font-semibold">Generazione report completata e file excel presente nella cartella {reportResult.path}</p>
+                  <p className="font-semibold">Generazione report completata e file excel presente nella cartella data/ del progetto</p>
                   <XlsxPreview filename={reportResult.file} headerRows={2} />
                 </div>
               )}
@@ -303,7 +303,7 @@ export default function Mark() {
               
               {analysisResult && analysisResult.exported && (
                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-emerald-800">
-                  <p className="font-semibold">Analisi esportata con successo come <strong>{analysisResult.exported}</strong> nella cartella {analysisResult.path}.</p>
+                  <p className="font-semibold">Analisi esportata con successo come <strong>{analysisResult.exported}</strong> nella cartella data/ del progetto.</p>
                 </div>
               )}
 

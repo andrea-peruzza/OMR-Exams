@@ -175,7 +175,7 @@ export default function ManualCorrection() {
             </div>
             <div className="border border-gray-200 rounded overflow-hidden">
               {selectedScan ? (
-                <PDFPreview url={`http://localhost:5000/api/data/scans/${selectedScan}`} />
+                <PDFPreview url={`/api/data/scans/${selectedScan}`} />
               ) : (
                 <p className="p-4 text-gray-500">Nessun file selezionato</p>
               )}
@@ -219,7 +219,7 @@ export default function ManualCorrection() {
               {missingList[currentMissingIndex].images.map(img => (
                 <img 
                   key={img} 
-                  src={`http://localhost:5000/api/data/sorted/${img}`} 
+                  src={`/api/data/sorted/${img}`} 
                   alt="Exam Page" 
                   className="max-h-[600px] object-contain border bg-white shadow-sm"
                 />

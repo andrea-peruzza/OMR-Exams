@@ -63,7 +63,7 @@ function Correct() {
 
       const response = await correctAPI.startCorrection(config);
       
-      const eventSource = new EventSource(`http://localhost:5000/api/sse/stream/${response.task_id}`);
+      const eventSource = new EventSource(`/api/sse/stream/${response.task_id}`);
 
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
@@ -240,7 +240,7 @@ function Correct() {
                 {config.produce_pdf && (
                   <p className="mt-2 text-sm">
                     Il file pdf con gli esami corretti è presente nella seguente cartella: <br/>
-                    <span className="font-mono text-emerald-900 bg-emerald-100 px-2 py-1 rounded">C:\Users\user\Desktop\universita\TIROCINIO\project-OMR\data\</span>
+                    <span className="font-mono text-emerald-900 bg-emerald-100 px-2 py-1 rounded">cartella data/ del progetto</span>
                   </p>
                 )}
               </div>

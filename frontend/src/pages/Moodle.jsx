@@ -243,7 +243,7 @@ export default function Moodle() {
                 <div>
                   <p className="font-semibold text-lg">{exportResult.message}</p>
                   <p className="mt-1">
-                    File generati presenti nella cartella <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">{exportResult.path}</span>:
+                    File generati presenti nella cartella <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">data/ del progetto</span>:
                   </p>
                   <ul className="list-disc ml-5 mt-2 font-mono text-sm">
                     {exportResult.files.map(f => <li key={f}>{f}</li>)}
@@ -318,7 +318,7 @@ export default function Moodle() {
                 <div>
                   <p className="font-semibold text-lg">{importResult.message}</p>
                   <p className="mt-1">
-                    Il file <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">{importResult.file}</span> è stato generato e posizionato nella cartella <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">{importResult.path}</span>.
+                    Il file <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">{importResult.file}</span> è stato generato e posizionato nella cartella <span className="font-mono bg-emerald-100 px-2 py-0.5 rounded">data/ del progetto</span>.
                   </p>
                 </div>
               </div>
