@@ -8,7 +8,7 @@ from api.sse import task_manager
 
 router = APIRouter()
 
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))
 SORTED_DIR = os.path.join(DATA_DIR, "sorted")
 
 class CorrectProgressCallback:

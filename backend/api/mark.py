@@ -10,7 +10,7 @@ from schemas.mark import CalculateRequest, ReportRequest
 from core.mark import Mark, custom_correction
 
 router = APIRouter()
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))
 
 @router.get("/questions_list")
 async def get_questions_list(datafile: str):
@@ -153,6 +153,7 @@ async def students_with_question(datafile: str, question_file: str, question: in
                     if q[0] == question_file and q[1] == question:
                         students.append(e['student_id'])
                         break
+        
         
         if export_format and output_filename:
             out_path = os.path.join(DATA_DIR, output_filename)
