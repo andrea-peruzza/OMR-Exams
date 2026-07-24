@@ -64,7 +64,7 @@ export default function Generate() {
 
   useEffect(() => {
     if (!taskId) return;
-    const sse = new EventSource(`http://localhost:5000/api/sse/stream/${taskId}`);
+    const sse = new EventSource(`/api/sse/stream/${taskId}`);
     sse.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.error) {
@@ -129,10 +129,10 @@ export default function Generate() {
     const translateToLatex = (text) => {
       if (!text) return text;
       let latex = text;
-      latex = latex.replace(/Numero di pagina/gi, '\\thepage');
-      latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
-      latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
-      latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
+      if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
+      if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
+      if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
+      if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
       latex = latex.replace(/\n/g, ' \\newline ');
       return latex;
     };
@@ -551,7 +551,7 @@ export default function Generate() {
                 <p className="text-green-600 font-bold mb-4"><CheckCircle2 className="inline mr-1" /> Generazione Completata!</p>
                 <p className="text-gray-800 mb-4 bg-white p-4 rounded border border-gray-200 shadow-sm">
                   Il file pdf degli esami è stato generato ed è presente nella cartella:<br />
-                  <span className="font-mono text-sm text-blue-600 block mb-3">{dataDir}</span>
+                  <span className="font-mono text-sm text-blue-600 block mb-3">cartella data/ del progetto</span>
                   <div className="text-sm text-orange-600 font-medium flex items-start gap-1.5 bg-orange-50 p-3 rounded border border-orange-100">
                     <AlertCircle size={16} className="mt-0.5 shrink-0" />
                     <span>
@@ -561,7 +561,7 @@ export default function Generate() {
                 </p>
                 
                 {/* PDF Preview */}
-                <PDFPreview url={`http://localhost:5000/api/data/${runtime.output_prefix}.pdf`} />
+                <PDFPreview url={`/api/data/${runtime.output_prefix}.pdf`} />
                 
                 {/* Ritorno Dashboard */}
                 <div className="mt-6 flex justify-center">
