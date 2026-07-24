@@ -297,7 +297,7 @@ rectangle/.default={0.2cm}}
   \IfFontExistsTF{OpenDyslexicMono}{%
     \setmonofont{OpenDyslexicMono}
   }{%
-    \setmonofont{Consolas}
+   \setmonofont{Consolas}
   }%
 }
 \newboolean{testing}
