@@ -32,7 +32,7 @@ app.include_router(mark.router, prefix="/api/mark")
 app.include_router(moodle.router, prefix="/api/moodle")
 
 # Mount della cartella data per permettere al frontend di accedere ai PDF
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data")))
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 app.mount("/api/data", StaticFiles(directory=DATA_DIR), name="data")
