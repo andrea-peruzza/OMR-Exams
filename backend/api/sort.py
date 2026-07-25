@@ -24,6 +24,13 @@ def run_sort_task(task_id: str, req: SortRequest):
     try:
         task_manager.update_task(task_id, 0, 100, 'Inizializzazione sort...')
         
+        if req.clean_sorted:
+            for f in glob.glob(os.path.join(SORTED_DIR, "*.png")):
+                try:
+                    os.remove(f)
+                except:
+                    pass
+        
         # Recupera tutti i pdf in data/scans/
         scanned_files = glob.glob(os.path.join(SCANS_DIR, "*.pdf"))
         if not scanned_files:
@@ -60,11 +67,13 @@ def get_status():
         
     scans_files = glob.glob(os.path.join(SCANS_DIR, "*.pdf"))
     data_files = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.json"))]
+    sorted_pngs = glob.glob(os.path.join(SORTED_DIR, "*.png"))
     
     return {
         "has_scans": len(scans_files) > 0,
         "scans_count": len(scans_files),
-        "data_files": data_files
+        "data_files": data_files,
+        "sorted_png_count": len(sorted_pngs)
     }
 
 @router.post("/upload")

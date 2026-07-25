@@ -66,11 +66,18 @@ def get_status():
         
     sorted_files = glob.glob(os.path.join(SORTED_DIR, "*.png"))
     data_files = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.json"))]
+    pdf_files = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.pdf"))]
+    
+    all_files = []
+    if os.path.exists(DATA_DIR):
+        all_files = [f for f in os.listdir(DATA_DIR) if os.path.isfile(os.path.join(DATA_DIR, f))]
     
     return {
         "has_datafile": len(data_files) > 0,
         "has_sorted_scans": len(sorted_files) > 0,
-        "data_files": data_files
+        "data_files": data_files,
+        "pdf_files": pdf_files,
+        "all_files": all_files
     }
 
 @router.post("/start")

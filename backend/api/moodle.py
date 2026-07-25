@@ -92,7 +92,7 @@ async def import_from_moodle(req: MoodleImportRequest):
         if not os.path.exists(QUESTIONS_DIR):
             os.makedirs(QUESTIONS_DIR)
             
-        converter = MarkdownConverter(moodle_file, QUESTIONS_DIR)
+        converter = MarkdownConverter(moodle_file, QUESTIONS_DIR, req.output_name)
         
         # Eliminiamo il file se già esiste per sovrascriverlo, come fa la cli
         if os.path.exists(converter.file_name):

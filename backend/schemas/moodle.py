@@ -9,3 +9,4 @@ class MoodleExportRequest(BaseModel):
 
 class MoodleImportRequest(BaseModel):
     xml_file: str
+    output_name: Optional[str] = None
