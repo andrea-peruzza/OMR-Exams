@@ -33,7 +33,8 @@ export default function Generate() {
     seed: 42,
     rotated: false,
     save_config: false,
-    config_output_name: ''
+    config_output_name: '',
+    dyslexia_count: ''
   });
 
   const [availableFiles, setAvailableFiles] = useState({ questions: [], students: [], configs: [], jsons: [] });
@@ -173,7 +174,8 @@ export default function Generate() {
       split: runtime.split ? parseInt(runtime.split, 10) : undefined,
       seed: parseInt(runtime.seed, 10),
       folded: runtime.folded,
-      rotated: runtime.rotated
+      rotated: runtime.rotated,
+      dyslexia_count: runtime.dyslexia_count ? parseInt(runtime.dyslexia_count, 10) : undefined
     };
 
     try {
@@ -441,7 +443,10 @@ export default function Generate() {
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.dyslexia} onChange={e => setConfig({...config, dyslexia: e.target.checked})} />
-              <label className="text-sm text-gray-600">Modalità dislessia</label>
+              <label className="text-sm text-gray-600 mr-2">Modalità dislessia</label>
+              {config.dyslexia && (
+                <input type="number" min="1" placeholder="Quanti esami? (vuoto = tutti)" className="w-48 border p-1 rounded text-sm" value={runtime.dyslexia_count} onChange={e => setRuntime({...runtime, dyslexia_count: e.target.value})} />
+              )}
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.choices?.circled || false} onChange={e => setConfig({...config, choices: {...(config.choices || {}), circled: e.target.checked}})} />
