@@ -7,11 +7,14 @@ import logging
 logger = logging.getLogger("omrexams")
 
 class MarkdownConverter:
-    def __init__(self, moodle_file, questions_dir):
+    def __init__(self, moodle_file, questions_dir, output_name=None):
         self.tree = ET.parse(moodle_file)
         self.root = self.tree.getroot()
         self.category = MarkdownConverter.dispatch_category(self.root.find("question[@type='category']"))
-        self.file_name = os.path.join(questions_dir, re.sub(r'\s', r'_', self.category.lower()) + '.md')
+        if output_name:
+            self.file_name = os.path.join(questions_dir, output_name)
+        else:
+            self.file_name = os.path.join(questions_dir, re.sub(r'\s', r'_', self.category.lower()) + '.md')
 
     @staticmethod
     def dispatch_category(category):
