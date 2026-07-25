@@ -61,3 +61,4 @@ class GenerateRequest(BaseModel):
     seed: Optional[int] = 42
     folded: Optional[bool] = True
     rotated: Optional[bool] = False
+    dyslexia_count: Optional[int] = None

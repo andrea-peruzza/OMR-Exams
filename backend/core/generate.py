@@ -67,11 +67,12 @@ class Generate:
     or an overall testing document for checking the questions and their answers.
     """    
 
-    def __init__(self, config, questions, output_prefix, test=False, paper='A4', students=None, exam_date=dt.now(), seed=42, split=None, folded=True, rotated=False, progress_callback=None):
+    def __init__(self, config, questions, output_prefix, test=False, paper='A4', students=None, exam_date=dt.now(), seed=42, split=None, folded=True, rotated=False, dyslexia_count=None, progress_callback=None):
         self.config = config
         self.questions_path = questions
         self.output_prefix = output_prefix
         self.progress_callback = progress_callback
+        self.dyslexia_count = dyslexia_count
         self.test = test
         self.paper = paper.upper()
         if self.paper not in ('A4', 'A3'):
@@ -154,9 +155,13 @@ class Generate:
             self.results = mp.Value('i', 0, lock=self.results_mutex)
             self.error = mp.Value('b', False, lock=self.results_mutex)
             for i, student in enumerate(self.students):
-                self.generate_tasks_queue.put((i, student))
+                is_dyslexic = False
+                if self.config.get('dyslexia', False):
+                    if self.dyslexia_count is None or i < self.dyslexia_count:
+                        is_dyslexic = True
+                self.generate_tasks_queue.put((i, student, is_dyslexic))
             for _ in range(mp.cpu_count()):
-                self.generate_tasks_queue.put((None, None))
+                self.generate_tasks_queue.put((None, None, None))
             pool = mp.Pool(mp.cpu_count(), self.worker_main_generate)
             pool.close()
             prev = 0
@@ -217,7 +222,7 @@ class Generate:
 
     def worker_main_generate(self):
         while True:
-            task, student = self.generate_tasks_queue.get()
+            task, student, is_dyslexic = self.generate_tasks_queue.get()
             if task is None:
                 break
             logger.info(f'Started processing student {student[0]} {student[1]}')
@@ -231,7 +236,7 @@ class Generate:
             done = False
             try:
                 for _ in range(50):
-                    document, questions, answers = self.create_exam(student)
+                    document, questions, answers = self.create_exam(student, is_dyslexic)
                     digits = math.ceil(math.log10(len(self.students)))
                     f = f'{{:0{digits}d}}-{{}}-{{}}'
                     filename = os.path.join('tmp', f"{task:0{digits}d}-{student[0]}-{student[1].replace(' ', '_')}")
@@ -406,7 +411,7 @@ class Generate:
         return questions
 
 
-    def create_exam(self, student):     
+    def create_exam(self, student, is_dyslexic=False):     
         def code_answer(answers):
                 current = ""
                 for i in range(len(answers)):
@@ -453,7 +458,7 @@ class Generate:
                               packages=self.config.get('packages', {}),
                               commands=self.config.get('commands', {}),
                               shuffle=self.config['exam'].get('shuffle_answers', True),
-                              dyslexia=self.config.get('dyslexia', False),
+                              dyslexia=is_dyslexic,
                               circled=self.config.get('choices', {}).get('circled', False),
                               usesf=self.config.get('choices', {}).get('usesf', False),
                               basedir=os.path.realpath(self.questions_path)) as renderer:

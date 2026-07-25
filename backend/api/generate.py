@@ -152,6 +152,7 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             split=req.split,
             folded=req.folded,
             rotated=req.rotated,
+            dyslexia_count=req.dyslexia_count,
             progress_callback=ProgressCallback(task_id)
         )
         
