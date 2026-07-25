@@ -55,7 +55,7 @@ class Mark:
                     correct_answers = questions_correct_answers
                 given_answers = list(map(set, exam['given_answers']))
                 p = np.array([0.0, 0.0])
-                current = pd.DataFrame([{ 'student_id': exam['student_id'] }])
+                current = pd.DataFrame([{ ('student', '', 'student_id'): exam['student_id'] }])
                 if len(correct_answers) != len(given_answers):
                     raise RuntimeWarning(f"It seems that something went wrong, the number of correct answers and given answers do not match for student {exam['student_id']}")
                 for i in range(len(correct_answers)):
@@ -64,23 +64,28 @@ class Mark:
                     c = marking_function(correct, marked, missing, wrong, q_size) 
                     p += c * weights.get(question_source[i], 1.0)
                     n = 1
-                    while f'{question_source[i]}_{n:02d} A correct' in current.columns:
+                    file_source = question_source[i]
+                    while (file_source, f'question_{n:02d}', 'correct') in current.columns:
                         n += 1
-                    source = f'{question_source[i]}_{n:02d}'                       
-                    current[f'{source} A correct'] = len(correct)
-                    current[f'{source} B missing'] = len(missing)
-                    current[f'{source} C wrong'] = len(wrong)
-                    current[f'{source} D size'] = q_size
-                    current[f'{source} E question'] = e['questions'][i][1]
-                current = current[sorted(current.columns)]
-                current['A total_points'] = p[0]
-                current['B tentative_mark'] = p[0] / p[1]
+                    q_id = f'question_{n:02d}'
+                    current[(file_source, q_id, 'correct')] = len(correct)
+                    current[(file_source, q_id, 'missing')] = len(missing)
+                    current[(file_source, q_id, 'wrong')] = len(wrong)
+                    current[(file_source, q_id, 'size')] = q_size
+                    current[(file_source, q_id, 'index')] = e['questions'][i][1]
+                
+                # Le colonne sono già nell'ordine in cui sono state inserite
+                current[('', 'summary', 'total_points')] = p[0]
+                current[('', 'summary', 'tentative_mark')] = p[0] / p[1]
                 df = pd.concat([df, current])
             if include_missing:
                 for exam in db.table('exams').all():
                     e = db.table('correction').get(Exam.student_id == exam['student_id'])
                     if not e:
-                        pd.concat([df, pd.DataFrame([{ 'student_id': exam['student_id'], 'total_points': 'ASS', 'tentative_mark': 'ASS' }]) ])
-            df = df.sort_values('student_id')
-            df = df.rename({'A total_points': 'total_points', 'B tentative_mark': 'tentative_mark'}, axis="columns")
-            df.set_index('student_id').to_excel(self.outputfile)
+                        missing_df = pd.DataFrame([{ ('student', '', 'student_id'): exam['student_id'], ('', 'summary', 'total_points'): 'ASS', ('', 'summary', 'tentative_mark'): 'ASS' }])
+                        df = pd.concat([df, missing_df])
+            df = df.sort_values(('student', '', 'student_id'))
+            df.columns = pd.MultiIndex.from_tuples(df.columns)
+            df = df.set_index(('student', '', 'student_id'))
+            df.index.name = 'student_id'
+            df.to_excel(self.outputfile)
