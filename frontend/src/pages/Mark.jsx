@@ -9,6 +9,7 @@ import XlsxPreview from '../components/XlsxPreview';
 
 export default function Mark() {
   const [dataFiles, setDataFiles] = useState([]);
+  const [allFiles, setAllFiles] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
   // Calcolo voti
@@ -42,6 +43,7 @@ export default function Mark() {
     try {
       const status = await correctAPI.getStatus();
       setDataFiles(status.data_files || []);
+      setAllFiles(status.all_files || []);
       if (status.data_files && status.data_files.length > 0) {
         setMarkDatafile(status.data_files[0]);
         setReportDatafile(status.data_files[0]);
@@ -75,12 +77,27 @@ export default function Mark() {
 
   const handleCalculateMark = async () => {
     if (!markDatafile || !markOutput) return;
+    
+    let currentOutput = markOutput;
+    while (allFiles.includes(currentOutput)) {
+      const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      if (userChoice === null) return;
+      const newName = userChoice.trim();
+      if (newName === currentOutput) break;
+      currentOutput = newName;
+    }
+    
+    if (currentOutput !== markOutput) {
+      setMarkOutput(currentOutput);
+    }
+
     setMarkLoading(true);
     setMarkError(null);
     setMarkResult(null);
     try {
-      const res = await markAPI.calculateMark({ datafile: markDatafile, outputfile: markOutput });
+      const res = await markAPI.calculateMark({ datafile: markDatafile, outputfile: currentOutput });
       setMarkResult(res);
+      await loadStatus();
     } catch (e) {
       setMarkError(e.response?.data?.detail || "Errore durante il calcolo voti");
     } finally {
@@ -90,12 +107,27 @@ export default function Mark() {
 
   const handleGenerateReport = async () => {
     if (!reportDatafile || !reportOutput) return;
+    
+    let currentOutput = reportOutput;
+    while (allFiles.includes(currentOutput)) {
+      const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      if (userChoice === null) return;
+      const newName = userChoice.trim();
+      if (newName === currentOutput) break;
+      currentOutput = newName;
+    }
+    
+    if (currentOutput !== reportOutput) {
+      setReportOutput(currentOutput);
+    }
+
     setReportLoading(true);
     setReportError(null);
     setReportResult(null);
     try {
-      const res = await markAPI.generateReport({ datafile: reportDatafile, outputfile: reportOutput });
+      const res = await markAPI.generateReport({ datafile: reportDatafile, outputfile: currentOutput });
       setReportResult(res);
+      await loadStatus();
     } catch (e) {
       setReportError(e.response?.data?.detail || "Errore durante la generazione del report");
     } finally {
@@ -108,8 +140,19 @@ export default function Mark() {
     
     let outputFilename = null;
     if (exportFormat) {
-      outputFilename = prompt(`Inserisci il nome del file per esportare in ${exportFormat.toUpperCase()}:`, `export.${exportFormat === 'excel' ? 'xlsx' : 'md'}`);
-      if (!outputFilename) return; // annullato dall'utente
+      let currentOutput = window.prompt(`Inserisci il nome del file per esportare in ${exportFormat.toUpperCase()}:`, `export.${exportFormat === 'excel' ? 'xlsx' : 'md'}`);
+      if (!currentOutput) return;
+      
+      currentOutput = currentOutput.trim();
+      
+      while (allFiles.includes(currentOutput)) {
+        const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+        if (userChoice === null) return;
+        const newName = userChoice.trim();
+        if (newName === currentOutput) break;
+        currentOutput = newName;
+      }
+      outputFilename = currentOutput;
     }
 
     setAnalysisLoading(true);
@@ -125,6 +168,7 @@ export default function Mark() {
         const res = await markAPI.studentsWithQuestion(analysisDatafile, q.file, q.index, exportFormat, outputFilename);
         setAnalysisResult({ type: 'students', data: res.students, exported: res.file, path: res.path });
       }
+      if (exportFormat) await loadStatus();
     } catch (e) {
       setAnalysisError(e.response?.data?.detail || "Errore durante l'analisi");
     } finally {

@@ -54,6 +54,30 @@ function Correct() {
       return;
     }
 
+    let currentPdfName = config.pdf_filename;
+    if (config.produce_pdf) {
+      if (!currentPdfName.endsWith('.pdf')) {
+        currentPdfName += '.pdf';
+      }
+      
+      while (status.pdf_files && status.pdf_files.includes(currentPdfName)) {
+        const userChoice = window.prompt(`Il file PDF "${currentPdfName}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPdfName);
+        if (userChoice === null) return;
+        
+        let newName = userChoice.trim();
+        if (!newName.endsWith('.pdf')) {
+          newName += '.pdf';
+        }
+        
+        if (newName === currentPdfName) break;
+        currentPdfName = newName;
+      }
+      
+      if (currentPdfName !== config.pdf_filename) {
+        setConfig(prev => ({ ...prev, pdf_filename: currentPdfName }));
+      }
+    }
+
     try {
       setError('');
       setSuccess('');
@@ -61,7 +85,8 @@ function Correct() {
       setProgress(0);
       setProgressMessage('Avvio task...');
 
-      const response = await correctAPI.startCorrection(config);
+      const reqPayload = { ...config, pdf_filename: currentPdfName };
+      const response = await correctAPI.startCorrection(reqPayload);
       
       const eventSource = new EventSource(`/api/sse/stream/${response.task_id}`);
 

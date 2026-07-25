@@ -62,6 +62,23 @@ export default function Moodle() {
 
   const handleExport = async () => {
     if (selectedQuestions.length === 0 || !exportOutput) return;
+
+    let currentOutput = exportOutput;
+    if (!currentOutput.endsWith('.xml')) currentOutput += '.xml';
+
+    while (xmlFiles.includes(currentOutput)) {
+      const userChoice = window.prompt(`Il file XML "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      if (userChoice === null) return;
+      let newName = userChoice.trim();
+      if (!newName.endsWith('.xml')) newName += '.xml';
+      if (newName === currentOutput) break;
+      currentOutput = newName;
+    }
+
+    if (currentOutput !== exportOutput) {
+      setExportOutput(currentOutput);
+    }
+
     setExportLoading(true);
     setExportError(null);
     setExportResult(null);
@@ -70,11 +87,10 @@ export default function Moodle() {
         files: selectedQuestions,
         single: single,
         penalty: parseInt(penalty) || 0,
-        outputfile: exportOutput
+        outputfile: currentOutput
       };
       const res = await moodleAPI.exportToMoodle(reqData);
       setExportResult(res);
-      // Ricarichiamo i file xml dato che ne abbiamo appena creato uno nuovo
       loadFiles();
     } catch (e) {
       setExportError(e.response?.data?.detail || "Errore durante l'esportazione");
@@ -85,13 +101,28 @@ export default function Moodle() {
 
   const handleImport = async () => {
     if (!selectedXml) return;
+    
+    let defaultMdName = selectedXml.replace(/\.xml$/i, '.md');
+    let outputFilename = window.prompt("Inserisci il nome del file Markdown da generare:", defaultMdName);
+    if (!outputFilename) return;
+    outputFilename = outputFilename.trim();
+    if (!outputFilename.endsWith('.md')) outputFilename += '.md';
+    
+    while (questionsFiles.includes(outputFilename)) {
+      const userChoice = window.prompt(`Il file Markdown "${outputFilename}" esiste già.\nInserisci un nuovo nome, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, outputFilename);
+      if (userChoice === null) return;
+      let newName = userChoice.trim();
+      if (!newName.endsWith('.md')) newName += '.md';
+      if (newName === outputFilename) break;
+      outputFilename = newName;
+    }
+
     setImportLoading(true);
     setImportError(null);
     setImportResult(null);
     try {
-      const res = await moodleAPI.importFromMoodle({ xml_file: selectedXml });
+      const res = await moodleAPI.importFromMoodle({ xml_file: selectedXml, output_name: outputFilename });
       setImportResult(res);
-      // Ricarichiamo le domande dato che ne abbiamo create di nuove
       loadFiles();
     } catch (e) {
       setImportError(e.response?.data?.detail || "Errore durante l'importazione");

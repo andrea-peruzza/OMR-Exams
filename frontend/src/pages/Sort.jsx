@@ -67,6 +67,17 @@ function Sort() {
       return;
     }
     
+    let cleanSorted = false;
+    if (status.sorted_png_count > 0) {
+      const choice = window.prompt("La cartella data/sorted/ contiene già file PNG.\n\nS: Svuota la cartella e procedi\nM: Mantieni i file esistenti e procedi\nA: Annulla\n\nScegli un'opzione (S/M/A):", "S");
+      if (choice === null) return;
+      const ch = choice.trim().toUpperCase();
+      if (ch === 'A') return;
+      if (ch === 'S') cleanSorted = true;
+      else if (ch === 'M') cleanSorted = false;
+      else return;
+    }
+    
     try {
       setError('');
       setSuccess('');
@@ -74,7 +85,8 @@ function Sort() {
       setProgress(0);
       setProgressMessage('Avvio task...');
 
-      const response = await sortAPI.startSort(config);
+      const reqPayload = { ...config, clean_sorted: cleanSorted };
+      const response = await sortAPI.startSort(reqPayload);
       const dataDir = response.data_dir;
       
       const eventSource = new EventSource(`/api/sse/stream/${response.task_id}`);
