@@ -33,10 +33,6 @@ class Sort:
         if not os.path.exists(self.sorted):
             click.secho(f'Creating directory {self.sorted}')
             os.mkdir(self.sorted)
-        else: # clean previous content
-            click.secho(f'Cleaning directory {self.sorted}')
-            for f in glob.glob(os.path.join(self.sorted, '*')):
-                os.remove(f)
         self.tasks_queue = mp.JoinableQueue()
         self.results_mutex = mp.RLock()
         self.task_done = mp.Condition(self.results_mutex)
