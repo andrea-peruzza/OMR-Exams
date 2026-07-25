@@ -17,8 +17,8 @@ export const dashboardAPI = {
 };
 
 export const generateAPI = {
-  getConfig: async () => {
-    const response = await apiClient.get('/api/generate/config');
+  getConfig: async (file = "config.yaml") => {
+    const response = await apiClient.get(`/api/generate/config?file=${file}`);
     return response.data;
   },
   getFiles: async () => {

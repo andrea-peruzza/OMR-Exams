@@ -31,36 +31,21 @@ export default function Generate() {
     output_prefix: 'esame_generato',
     split: '',
     seed: 42,
-    folded: true,
     rotated: false,
-    save_config: false
+    save_config: false,
+    config_output_name: ''
   });
 
-  const [availableFiles, setAvailableFiles] = useState({ questions: [], students: [] });
+  const [availableFiles, setAvailableFiles] = useState({ questions: [], students: [], configs: [], jsons: [] });
   const [taskId, setTaskId] = useState(null);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState(null);
   const [dataDir, setDataDir] = useState('');
-  const [configPresent, setConfigPresent] = useState(false);
+  const [selectedConfig, setSelectedConfig] = useState('');
 
   useEffect(() => {
     loadFiles();
-    checkConfigStatus();
   }, []);
-
-  const checkConfigStatus = async () => {
-    try {
-      const savedConfig = await generateAPI.getConfig();
-      if (savedConfig && Object.keys(savedConfig).length > 0) {
-        setConfigPresent(true);
-      } else {
-        setConfigPresent(false);
-      }
-    } catch (e) {
-      console.error(e);
-      setConfigPresent(false);
-    }
-  };
 
   useEffect(() => {
     if (!taskId) return;
@@ -86,21 +71,27 @@ export default function Generate() {
     try {
       const files = await generateAPI.getFiles();
       setAvailableFiles(files);
+      if (files.configs && files.configs.length > 0) {
+        setSelectedConfig(files.configs[0]);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
   const loadConfig = async () => {
+    if (!selectedConfig) return;
     try {
-      const savedConfig = await generateAPI.getConfig();
+      const savedConfig = await generateAPI.getConfig(selectedConfig);
       if (savedConfig && Object.keys(savedConfig).length > 0) {
         setConfig(prev => ({ ...prev, ...savedConfig }));
         if (savedConfig.students) {
-          setRuntime(prev => ({ ...prev, is_anonymous: false, selected_student_file: savedConfig.students }));
+          setRuntime(prev => ({ ...prev, is_anonymous: false, selected_student_file: savedConfig.students, config_output_name: selectedConfig }));
+        } else {
+          setRuntime(prev => ({ ...prev, config_output_name: selectedConfig }));
         }
       } else {
-        alert("Nessun config.yaml trovato.");
+        alert("Configurazione non valida o vuota.");
       }
     } catch (e) {
       alert("Errore caricamento config");
@@ -122,6 +113,22 @@ export default function Generate() {
   };
 
   const handleStart = async () => {
+    let currentPrefix = runtime.output_prefix;
+    while (availableFiles.jsons && availableFiles.jsons.includes(`${currentPrefix}.json`)) {
+      const userChoice = window.prompt(`Il file JSON "${currentPrefix}.json" esiste già.\nInserisci un nuovo prefisso per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPrefix);
+      if (userChoice === null) {
+        return;
+      }
+      if (userChoice === currentPrefix) {
+        break;
+      }
+      currentPrefix = userChoice;
+    }
+    
+    if (currentPrefix !== runtime.output_prefix) {
+      setRuntime(prev => ({ ...prev, output_prefix: currentPrefix }));
+    }
+
     setError(null);
     setProgress(null);
     
@@ -157,11 +164,12 @@ export default function Generate() {
     const reqData = {
       config: payloadConfig,
       save_config: runtime.save_config,
+      config_output_name: runtime.config_output_name,
       date: runtime.date,
       is_anonymous: runtime.is_anonymous,
       num_anonymous_exams: runtime.is_anonymous ? parseInt(runtime.num_anonymous_exams, 10) : undefined,
       selected_student_file: runtime.is_anonymous ? undefined : runtime.selected_student_file,
-      output_prefix: runtime.output_prefix,
+      output_prefix: currentPrefix,
       split: runtime.split ? parseInt(runtime.split, 10) : undefined,
       seed: parseInt(runtime.seed, 10),
       folded: runtime.folded,
@@ -198,18 +206,26 @@ export default function Generate() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white/80 backdrop-blur rounded-lg shadow-sm border border-gray-100">
-              <span className={`w-3 h-3 rounded-full ${configPresent ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className="text-sm font-medium text-gray-700">
-                {configPresent ? 'Config. presente' : 'Nessun config.yaml'}
-              </span>
+            <div className="flex items-center gap-2">
+              <select 
+                className="bg-white/80 backdrop-blur px-3 py-2 rounded-lg shadow-sm border border-gray-200 text-sm focus:outline-none focus:border-blue-400"
+                value={selectedConfig}
+                onChange={e => setSelectedConfig(e.target.value)}
+                disabled={!availableFiles.configs || availableFiles.configs.length === 0}
+              >
+                {availableFiles.configs && availableFiles.configs.length > 0 ? (
+                  availableFiles.configs.map(c => <option key={c} value={c}>{c}</option>)
+                ) : (
+                  <option value="">Nessun config presente</option>
+                )}
+              </select>
             </div>
             <button 
               onClick={loadConfig} 
-              disabled={!configPresent}
+              disabled={!selectedConfig}
               className="bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Precompila con la configurazione già presente
+              Precompila config
             </button>
           </div>
         </header>
@@ -523,9 +539,19 @@ export default function Generate() {
         {/* Submit */}
         {(!taskId || (progress && (progress.completed || progress.error)) || error) && (
           <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <div className="flex items-center">
-              <input type="checkbox" className="mr-2 h-5 w-5" checked={runtime.save_config} onChange={e => setRuntime({...runtime, save_config: e.target.checked})} />
-              <label className="font-medium text-gray-700">Salva in config.yaml</label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center">
+                <input type="checkbox" className="mr-2 h-5 w-5" checked={runtime.save_config} onChange={e => {
+                  setRuntime({...runtime, save_config: e.target.checked, config_output_name: e.target.checked ? (runtime.config_output_name || selectedConfig || `${runtime.output_prefix}_config.yaml`) : ''});
+                }} />
+                <label className="font-medium text-gray-700">Salva in config.yaml</label>
+              </div>
+              {runtime.save_config && (
+                <div className="flex items-center">
+                  <label className="text-sm text-gray-600 mr-2">Nome file:</label>
+                  <input type="text" className="border p-1 rounded text-sm w-48" value={runtime.config_output_name} onChange={e => setRuntime({...runtime, config_output_name: e.target.value})} placeholder="nome_config.yaml" />
+                </div>
+              )}
             </div>
             <button 
               onClick={handleStart}

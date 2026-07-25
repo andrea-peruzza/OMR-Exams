@@ -19,9 +19,9 @@ router = APIRouter()
 DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))
 
 @router.get("/config")
-def get_config():
-    config_path = os.path.join(DATA_DIR, "config.yaml")
-    if os.path.exists(config_path):
+def get_config(file: str = "config.yaml"):
+    config_path = os.path.join(DATA_DIR, file)
+    if os.path.exists(config_path) and file.endswith(".yaml"):
         with open(config_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     return {}
@@ -39,7 +39,10 @@ def get_files():
     if os.path.isdir(students_dir):
         students = [os.path.basename(f) for f in glob.glob(os.path.join(students_dir, "*.xls*"))]
         
-    return {"questions": questions, "students": students}
+    configs = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.yaml"))]
+    jsons = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.json"))]
+        
+    return {"questions": questions, "students": students, "configs": configs, "jsons": jsons}
 
 @router.post("/upload/question")
 async def upload_question(file: UploadFile = File(...)):
@@ -69,7 +72,12 @@ def run_generate_task(task_id: str, req: GenerateRequest):
         config_dict['basedir'] = DATA_DIR
 
         if req.save_config:
-            config_path = os.path.join(DATA_DIR, "config.yaml")
+            filename = req.config_output_name
+            if not filename:
+                filename = f"{req.output_prefix}_config.yaml"
+            if not filename.endswith('.yaml'):
+                filename += '.yaml'
+            config_path = os.path.join(DATA_DIR, filename)
             with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_dict, f, allow_unicode=True)
 

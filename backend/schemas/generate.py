@@ -49,6 +49,7 @@ class GenerateConfig(BaseModel):
 class GenerateRequest(BaseModel):
     config: GenerateConfig
     save_config: bool = False
+    config_output_name: Optional[str] = None
     
     # Impostazioni di runtime (non salvate in config.yaml)
     date: str
