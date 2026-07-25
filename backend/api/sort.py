@@ -49,7 +49,7 @@ def run_sort_task(task_id: str, req: SortRequest):
             progress_callback=progress_callback
         )
         
-        sorter.sort(resolution=req.resolution, paper=req.paper.upper())
+        sorter.sort(paper=req.paper.upper())
         
         # Task completato con successo
         task_manager.complete_task(task_id)

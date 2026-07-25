@@ -26,11 +26,10 @@ class Sort:
     def __init__(self, scanned, sorted, doublecheck, progress_callback=None):
         self.scanned = scanned
         self.sorted = sorted
-        self.offset = 10 # cropping offset, TODO: become a parameter
         self.doublecheck = doublecheck
         self.progress_callback = progress_callback
 
-    def sort(self, resolution, paper="A4"):
+    def sort(self, paper="A4"):
         if not os.path.exists(self.sorted):
             click.secho(f'Creating directory {self.sorted}')
             os.mkdir(self.sorted)
@@ -38,8 +37,6 @@ class Sort:
             click.secho(f'Cleaning directory {self.sorted}')
             for f in glob.glob(os.path.join(self.sorted, '*')):
                 os.remove(f)
-        self.resolution = resolution
-        self.offset = int(1.0 / (2.54 / resolution))
         self.tasks_queue = mp.JoinableQueue()
         self.results_mutex = mp.RLock()
         self.task_done = mp.Condition(self.results_mutex)
@@ -128,11 +125,47 @@ class Sort:
         dst_pdf = PdfWriter()
         with open(filename, 'rb') as f:
             current_page = PdfReader(f).pages[page]
+            
+            mb = current_page.mediabox
+            width_pt = float(mb.width)
+            height_pt = float(mb.height)
+            dpi = None
+            
+            try:
+                if '/Resources' in current_page and '/XObject' in current_page['/Resources']:
+                    xobj = current_page['/Resources']['/XObject'].get_object()
+                    for obj in xobj:
+                        if xobj[obj]['/Subtype'] == '/Image':
+                            w = float(xobj[obj]['/Width'])
+                            h = float(xobj[obj]['/Height'])
+                            dpi_x = w / (width_pt / 72.0)
+                            dpi_y = h / (height_pt / 72.0)
+                            dpi = round((dpi_x + dpi_y) / 2.0)
+                            break
+            except Exception:
+                pass
+                
+            if dpi is None:
+                try:
+                    for img in current_page.images:
+                        if hasattr(img, 'image') and img.image:
+                            w, h = img.image.size
+                            dpi_x = w / (width_pt / 72.0)
+                            dpi_y = h / (height_pt / 72.0)
+                            dpi = round((dpi_x + dpi_y) / 2.0)
+                            break
+                except Exception:
+                    pass
+                
+            if dpi is None:
+                dpi = 400
+            print(dpi)
+
             dst_pdf.add_page(current_page)
             pdf_bytes = io.BytesIO()
             dst_pdf.write(pdf_bytes)
             pdf_bytes.seek(0)
-        with Image(file=pdf_bytes, resolution=self.resolution) as img:
+        with Image(file=pdf_bytes, resolution=dpi) as img:
             img.background_color = Color('white')
             img.alpha_channel = 'remove'
             img_buffer = np.asarray(bytearray(img.make_blob('bmp')), dtype=np.uint8)

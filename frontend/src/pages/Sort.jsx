@@ -14,7 +14,6 @@ function Sort() {
 
   const [config, setConfig] = useState({
     datafile: '',
-    resolution: 300,
     paper: 'A4'
   });
 
@@ -214,20 +213,6 @@ function Sort() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Risoluzione (DPI)</label>
-              <select 
-                className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500"
-                value={config.resolution}
-                onChange={(e) => setConfig({...config, resolution: parseInt(e.target.value) || 300})}
-                disabled={generating}
-              >
-                <option value="150">150</option>
-                <option value="200">200</option>
-                <option value="300">300 (Predefinito)</option>
-                <option value="600">600</option>
-              </select>
-            </div>
           </div>
         </section>
 
