@@ -7,7 +7,8 @@ import HelpButton from '../components/HelpButton';
 
 function Sort() {
   const navigate = useNavigate();
-  const [status, setStatus] = useState({ has_scans: false, scans_count: 0, data_files: [] });
+  const [status, setStatus] = useState({ has_scans: false, scans_count: 0, data_files: [], scans_files: [] });
+  const [selectedScans, setSelectedScans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -30,6 +31,12 @@ function Sort() {
       setStatus(data);
       if (data.data_files && data.data_files.length > 0 && !config.datafile) {
         setConfig(prev => ({ ...prev, datafile: data.data_files[0] }));
+      }
+      if (data.scans_files) {
+        setSelectedScans(prev => {
+          const newFiles = data.scans_files.filter(f => !prev.includes(f));
+          return [...prev, ...newFiles];
+        });
       }
     } catch (err) {
       console.error(err);
@@ -65,6 +72,10 @@ function Sort() {
       setError('Seleziona un file dati json valido.');
       return;
     }
+    if (selectedScans.length === 0) {
+      setError('Seleziona almeno un file PDF da smistare.');
+      return;
+    }
     
     let cleanSorted = false;
     if (status.sorted_png_count > 0) {
@@ -84,7 +95,7 @@ function Sort() {
       setProgress(0);
       setProgressMessage('Avvio task...');
 
-      const reqPayload = { ...config, clean_sorted: cleanSorted };
+      const reqPayload = { ...config, clean_sorted: cleanSorted, selected_scans: selectedScans };
       const response = await sortAPI.startSort(reqPayload);
       const dataDir = response.data_dir;
       
@@ -148,10 +159,39 @@ function Sort() {
             <div className={`w-4 h-4 rounded-full ${status.has_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <span className="text-gray-700 font-medium">
               {status.has_scans 
-                ? `${status.scans_count} file di scansioni presenti nella cartella data/scans/` 
+                ? `${status.scans_count} file di scansioni presenti nella cartella data/scans/. Seleziona quali elaborare:` 
                 : 'Nessun file di scansioni presente in data/scans/. Scansiona gli esami svolti e carica il file pdf con il pulsante sottostante'}
             </span>
           </div>
+          
+          {status.has_scans && (
+            <div className="mb-4 pl-8">
+              {status.scans_files && status.scans_files.map(file => (
+                <label key={file} className="flex items-center gap-2 mb-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" 
+                    checked={selectedScans.includes(file)}
+                    onChange={(e) => {
+                      if (e.target.checked) setSelectedScans([...selectedScans, file]);
+                      else setSelectedScans(selectedScans.filter(f => f !== file));
+                    }}
+                  />
+                  <span className="text-gray-600">{file}</span>
+                </label>
+              ))}
+              <div className="flex gap-4 mt-3">
+                <button 
+                  onClick={() => setSelectedScans(status.scans_files)}
+                  className="text-sm text-blue-600 hover:underline"
+                >Seleziona tutti</button>
+                <button 
+                  onClick={() => setSelectedScans([])}
+                  className="text-sm text-blue-600 hover:underline"
+                >Deseleziona tutti</button>
+              </div>
+            </div>
+          )}
           
           <div className="flex items-center gap-4">
             <input 
@@ -221,7 +261,7 @@ function Sort() {
           {!generating && (
             <button
               onClick={startSort}
-              disabled={!status.has_scans || !config.datafile}
+              disabled={!status.has_scans || !config.datafile || selectedScans.length === 0}
               className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold shadow hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Avvia smistamento scansioni

@@ -31,10 +31,11 @@ def run_sort_task(task_id: str, req: SortRequest):
                 except:
                     pass
         
-        # Recupera tutti i pdf in data/scans/
-        scanned_files = glob.glob(os.path.join(SCANS_DIR, "*.pdf"))
+        # Recupera i pdf selezionati
+        scanned_files = [os.path.join(SCANS_DIR, f) for f in req.selected_scans]
+        scanned_files = [f for f in scanned_files if os.path.exists(f)]
         if not scanned_files:
-            raise Exception("Nessun file PDF trovato nella cartella data/scans")
+            raise Exception("Nessun file PDF selezionato o file non trovati")
             
         datafile_path = os.path.join(DATA_DIR, req.datafile)
         if not os.path.exists(datafile_path):
@@ -72,6 +73,7 @@ def get_status():
     return {
         "has_scans": len(scans_files) > 0,
         "scans_count": len(scans_files),
+        "scans_files": [os.path.basename(f) for f in scans_files],
         "data_files": data_files,
         "sorted_png_count": len(sorted_pngs)
     }
