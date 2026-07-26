@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus } from 'lucide-react';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
+import { usePrompt } from '../hooks/usePrompt';
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -43,6 +44,13 @@ export default function Generate() {
   const [error, setError] = useState(null);
   const [dataDir, setDataDir] = useState('');
   const [selectedConfig, setSelectedConfig] = useState('');
+  
+  const [isTestLoading, setIsTestLoading] = useState(false);
+  const [testPdfUrl, setTestPdfUrl] = useState(null);
+  const [showTestModal, setShowTestModal] = useState(false);
+  const [testOutputPrefix, setTestOutputPrefix] = useState('test_layout');
+  
+  const { prompt, PromptModal } = usePrompt();
 
   useEffect(() => {
     loadFiles();
@@ -116,7 +124,7 @@ export default function Generate() {
   const handleStart = async () => {
     let currentPrefix = runtime.output_prefix;
     while (availableFiles.jsons && availableFiles.jsons.includes(`${currentPrefix}.json`)) {
-      const userChoice = window.prompt(`Il file JSON "${currentPrefix}.json" esiste già.\nInserisci un nuovo prefisso per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPrefix);
+      const userChoice = await prompt(`Il file JSON "${currentPrefix}.json" esiste già.\nInserisci un nuovo prefisso per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPrefix);
       if (userChoice === null) {
         return;
       }
@@ -145,22 +153,25 @@ export default function Generate() {
       return latex;
     };
 
-    // Clean up config before sending
-    const payloadConfig = { ...config };
-    payloadConfig.header = translateToLatex(payloadConfig.header);
-    payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
-    payloadConfig.footer = translateToLatex(payloadConfig.footer);
+    const getPayloadConfig = () => {
+      const payloadConfig = { ...config };
+      payloadConfig.header = translateToLatex(payloadConfig.header);
+      payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
+      payloadConfig.footer = translateToLatex(payloadConfig.footer);
 
-    if (!payloadConfig.exam.max_questions) delete payloadConfig.exam.max_questions;
-    if (!payloadConfig.exam.max_open_questions) delete payloadConfig.exam.max_open_questions;
-    if (!payloadConfig.exam.page_limits) delete payloadConfig.exam.page_limits;
-    
-    // Process questions mapping
-    const mappedQuestions = payloadConfig.questions.filter(q => q.from && q.draw).map(q => ({
-      from: q.from,
-      draw: parseInt(q.draw, 10)
-    }));
-    payloadConfig.questions = mappedQuestions.length > 0 ? mappedQuestions : undefined;
+      if (!payloadConfig.exam.max_questions) delete payloadConfig.exam.max_questions;
+      if (!payloadConfig.exam.max_open_questions) delete payloadConfig.exam.max_open_questions;
+      if (!payloadConfig.exam.page_limits) delete payloadConfig.exam.page_limits;
+      
+      const mappedQuestions = payloadConfig.questions.filter(q => q.from && q.draw).map(q => ({
+        from: q.from,
+        draw: parseInt(q.draw, 10)
+      }));
+      payloadConfig.questions = mappedQuestions.length > 0 ? mappedQuestions : undefined;
+      return payloadConfig;
+    };
+
+    const payloadConfig = getPayloadConfig();
 
     const reqData = {
       config: payloadConfig,
@@ -193,8 +204,83 @@ export default function Generate() {
     }
   };
 
+  const handleTestLayout = async () => {
+    let currentPrefix = testOutputPrefix;
+    while (availableFiles.pdfs && availableFiles.pdfs.includes(`${currentPrefix}.pdf`)) {
+      const userChoice = await prompt(`Il file PDF di test "${currentPrefix}.pdf" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPrefix);
+      if (userChoice === null) {
+        return;
+      }
+      if (userChoice === currentPrefix) {
+        break;
+      }
+      currentPrefix = userChoice;
+    }
+    
+    if (currentPrefix !== testOutputPrefix) {
+      setTestOutputPrefix(currentPrefix);
+    }
+
+    setError(null);
+    setIsTestLoading(true);
+    setTestPdfUrl(null);
+
+    const translateToLatex = (text) => {
+      if (!text) return text;
+      let latex = text;
+      if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
+      if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
+      if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
+      if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
+      latex = latex.replace(/\n/g, ' \\newline ');
+      return latex;
+    };
+
+    const payloadConfig = { ...config };
+    payloadConfig.header = translateToLatex(payloadConfig.header);
+    payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
+    payloadConfig.footer = translateToLatex(payloadConfig.footer);
+
+    if (!payloadConfig.exam.max_questions) delete payloadConfig.exam.max_questions;
+    if (!payloadConfig.exam.max_open_questions) delete payloadConfig.exam.max_open_questions;
+    if (!payloadConfig.exam.page_limits) delete payloadConfig.exam.page_limits;
+    
+    const mappedQuestions = payloadConfig.questions.filter(q => q.from && q.draw).map(q => ({
+      from: q.from,
+      draw: parseInt(q.draw, 10)
+    }));
+    payloadConfig.questions = mappedQuestions.length > 0 ? mappedQuestions : undefined;
+
+    try {
+      const reqData = {
+        config: payloadConfig,
+        save_config: false,
+        config_output_name: '',
+        date: runtime.date,
+        is_anonymous: false,
+        output_prefix: currentPrefix,
+        seed: parseInt(runtime.seed, 10) || 42,
+        folded: runtime.folded,
+        rotated: runtime.rotated
+      };
+      const res = await generateAPI.testLayout(reqData);
+      setTestPdfUrl(res.pdf_url);
+    } catch (e) {
+      let errorMsg = e.message;
+      if (e.response?.data?.detail) {
+        errorMsg = typeof e.response.data.detail === 'string' 
+          ? e.response.data.detail 
+          : JSON.stringify(e.response.data.detail);
+      }
+      setError(errorMsg);
+    } finally {
+      setIsTestLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-blue-200 via-white to-white">
+      <PromptModal />
       <BackButton />
       <div className="max-w-5xl mx-auto p-8 font-sans">
         <header className="flex justify-between items-center mb-8 border-b pb-4">
@@ -232,9 +318,27 @@ export default function Generate() {
           </div>
         </header>
 
-
+        {showTestModal && testPdfUrl && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden">
+              <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
+                <h3 className="text-xl font-bold text-gray-800">Test del Layout - Anteprima</h3>
+                <button 
+                  onClick={() => setShowTestModal(false)}
+                  className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
+                >
+                  <X size={24} className="text-gray-700" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-auto bg-gray-100 p-6">
+                <PDFPreview url={testPdfUrl} title="Layout Test" />
+              </div>
+            </div>
+          </div>
+        )}
 
       <div className="space-y-8">
+        
         {/* Sezione Impostazioni esame */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni esame</h2>
@@ -541,6 +645,43 @@ export default function Generate() {
           </div>
         </section>
 
+        {/* Test del Layout */}
+        <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:border-blue-400 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold mb-2 text-blue-900">Test del Layout</h2>
+            <p className="text-blue-700/80 mb-4 text-sm">
+              Genera un singolo esame contenente tutte le domande selezionate per verificare rapidamente l'impaginazione e il formato senza generare l'intero set di esami.
+            </p>
+            <button
+              onClick={handleTestLayout}
+              disabled={isTestLoading || (config.questions.filter(q => q.draw > 0).length === 0)}
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold shadow-sm hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isTestLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Generazione test...
+                </>
+              ) : (
+                'Esegui Test Layout'
+              )}
+            </button>
+          </div>
+          
+          {testPdfUrl && (
+            <div 
+              onClick={() => setShowTestModal(true)}
+              className="cursor-pointer group/card shrink-0 w-32 h-40 bg-white border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm">Apri test</span>
+              </div>
+              <FileText className="text-red-500" size={40} />
+              <span className="text-xs font-semibold text-gray-500 text-center px-2 break-all">{testOutputPrefix}.pdf</span>
+            </div>
+          )}
+        </section>
+
         {/* Submit */}
         {(!taskId || (progress && (progress.completed || progress.error)) || error) && (
           <div className="flex items-center justify-between bg-gray-50 p-6 rounded-xl border border-gray-200">
@@ -549,7 +690,7 @@ export default function Generate() {
                 <input type="checkbox" className="mr-2 h-5 w-5" checked={runtime.save_config} onChange={e => {
                   setRuntime({...runtime, save_config: e.target.checked, config_output_name: e.target.checked ? (runtime.config_output_name || selectedConfig || `${runtime.output_prefix}_config.yaml`) : ''});
                 }} />
-                <label className="font-medium text-gray-700">Salva in config.yaml</label>
+                <label className="font-medium text-gray-700">Salva configurazione</label>
               </div>
               {runtime.save_config && (
                 <div className="flex items-center">

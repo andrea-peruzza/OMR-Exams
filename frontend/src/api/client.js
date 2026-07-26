@@ -44,6 +44,10 @@ export const generateAPI = {
   startGeneration: async (requestData) => {
     const response = await apiClient.post('/api/generate/start', requestData);
     return response.data;
+  },
+  testLayout: async (requestData) => {
+    const response = await apiClient.post('/api/generate/test-layout', requestData);
+    return response.data;
   }
 };
 export const sortAPI = {
