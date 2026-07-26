@@ -268,7 +268,7 @@ function Correct() {
                 {config.produce_pdf && (
                   <p className="mt-2 text-sm">
                     Il file pdf con gli esami corretti è presente nella seguente cartella: <br/>
-                    <span className="font-mono text-emerald-900 bg-emerald-100 px-2 py-1 rounded">cartella data/ del progetto</span>
+                    <span className="font-mono text-emerald-900 bg-emerald-100 px-2 py-1 rounded">cartella data/corrected/ del progetto</span>
                   </p>
                 )}
               </div>

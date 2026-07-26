@@ -30,7 +30,9 @@ def run_correct_task(task_id: str, req: CorrectRequest):
             pdf_name = req.pdf_filename
             if not pdf_name.endswith('.pdf'):
                 pdf_name += '.pdf'
-            corrected_out = os.path.join(DATA_DIR, pdf_name)
+            corrected_dir = os.path.join(DATA_DIR, "corrected")
+            os.makedirs(corrected_dir, exist_ok=True)
+            corrected_out = os.path.join(corrected_dir, pdf_name)
         else:
             corrected_out = os.devnull
             
@@ -66,7 +68,10 @@ def get_status():
         
     sorted_files = glob.glob(os.path.join(SORTED_DIR, "*.png"))
     data_files = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.json"))]
-    pdf_files = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.pdf"))]
+    corrected_dir = os.path.join(DATA_DIR, "corrected")
+    if not os.path.exists(corrected_dir):
+        os.makedirs(corrected_dir)
+    pdf_files = [os.path.basename(f) for f in glob.glob(os.path.join(corrected_dir, "*.pdf"))]
     
     all_files = []
     if os.path.exists(DATA_DIR):
