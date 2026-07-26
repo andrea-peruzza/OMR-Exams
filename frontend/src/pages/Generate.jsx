@@ -31,7 +31,7 @@ export default function Generate() {
     selected_student_file: '',
     output_prefix: 'esame_generato',
     split: '',
-    seed: 42,
+    seed: Math.floor(Math.random() * 1000000),
     rotated: false,
     save_config: false,
     config_output_name: '',
