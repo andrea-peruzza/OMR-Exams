@@ -496,10 +496,10 @@ export default function Generate() {
               <label className="w-48 text-sm font-medium text-gray-700 flex items-center">
                 Domande da estrarre
                 <HelpButton title="Estrazione delle domande">
-                  <p className="mb-3">Il numero di domande indicato si riferisce <strong>esclusivamente alle domande a scelta multipla</strong>.</p>
-                  <p className="mb-3">Tutte le <strong>domande aperte</strong> presenti nel file verranno inserite in blocco alla fine dell'esame, a meno che non venga impostato un limite massimo tramite la casella "Numero max domande aperte" nella sezione delle <strong>impostazioni aggiuntive</strong>sottostante.</p>
+                  <p className="mb-3">Il numero di domande indicato si riferisce <strong>sia alle domande a scelta multipla che alle domande aperte</strong>. Questo vuol dire che impostando n domande da estrarre verranno aggiunte all'esame n domande chiuse seguite da n domande aperte.</p>
+                  <p className="mb-3">Per limitare il numero di domande chiuse o domande aperte è possibile selezionare le caselle "Numero max domande aperte" e "Numero max domande chiuse" nella sezione delle <strong>impostazioni aggiuntive</strong> sottostante.</p>
                   <div className="bg-blue-50 border border-blue-100 p-3 rounded mt-2">
-                    <p className="text-sm text-blue-800">Per un controllo più preciso, suggerisco di tenere le domande chiuse e quelle aperte separate in due file <code>.md</code> distinti.</p>
+                    <p className="text-sm text-blue-800">Valutare di tenere le domande chiuse e quelle aperte separate in due file <code>.md</code> distinti.</p>
                   </div>
                 </HelpButton>
               </label>

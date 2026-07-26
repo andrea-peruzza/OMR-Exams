@@ -43,7 +43,7 @@ export default function HelpButton({ title, children }) {
                 onClick={() => setIsOpen(false)}
                 className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm focus:outline-none"
               >
-                Ho capito
+                Chiudi
               </button>
             </div>
           </div>
