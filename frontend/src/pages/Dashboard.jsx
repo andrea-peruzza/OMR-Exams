@@ -17,7 +17,7 @@ export default function Dashboard() {
       {/* Sezione Hub Navigazione */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Strumenti</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <Link to="/generate" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-blue-50 text-blue-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
@@ -27,20 +27,12 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Crea nuovi esami, randomizza le domande e stampa in PDF.</p>
           </Link>
 
-          <Link to="/sort" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col items-center text-center">
-            <div className="bg-purple-50 text-purple-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-              <ScanText size={32} />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Smista scansioni</h3>
-            <p className="text-sm text-gray-500">Dividi e ordina le scansioni grezze negli esami degli studenti.</p>
-          </Link>
-
           <Link to="/correct" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-emerald-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-emerald-50 text-emerald-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <CheckCircle size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Correggi</h3>
-            <p className="text-sm text-gray-500">Rileva i QR code e analizza le risposte date per ogni studente.</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Smista e Correggi</h3>
+            <p className="text-sm text-gray-500">Suddividi i PDF, rileva i QR code e analizza le risposte date per ogni studente.</p>
           </Link>
 
           <Link to="/manual_correction" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col items-center text-center">
@@ -59,7 +51,7 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Calcola i punteggi finali ed esporta la graduatoria in Excel.</p>
           </Link>
 
-          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center sm:col-span-2 lg:col-span-5">
+          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center sm:col-span-2 lg:col-span-4">
             <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform flex justify-center w-16 mx-auto">
               <Library size={32} />
             </div>
