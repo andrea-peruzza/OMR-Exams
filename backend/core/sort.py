@@ -154,8 +154,7 @@ class Sort:
                     pass
                 
             if dpi is None:
-                dpi = 400
-            print(dpi)
+                dpi = 300
 
             dst_pdf.add_page(current_page)
             pdf_bytes = io.BytesIO()
