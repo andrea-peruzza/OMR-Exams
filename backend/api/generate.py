@@ -41,8 +41,9 @@ def get_files():
         
     configs = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.yaml"))]
     jsons = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.json"))]
+    pdfs = [os.path.basename(f) for f in glob.glob(os.path.join(DATA_DIR, "*.pdf"))]
         
-    return {"questions": questions, "students": students, "configs": configs, "jsons": jsons}
+    return {"questions": questions, "students": students, "configs": configs, "jsons": jsons, "pdfs": pdfs}
 
 @router.post("/upload/question")
 async def upload_question(file: UploadFile = File(...)):
@@ -169,3 +170,33 @@ def start_generation(req: GenerateRequest, background_tasks: BackgroundTasks):
     task_id = task_manager.create_task()
     background_tasks.add_task(run_generate_task, task_id, req)
     return {"task_id": task_id, "data_dir": DATA_DIR}
+
+@router.post("/test-layout")
+async def test_layout(req: GenerateRequest):
+    import asyncio
+    try:
+        config_dict = req.config.model_dump(by_alias=True, exclude_none=True)
+        config_dict['basedir'] = DATA_DIR
+        questions_dir = os.path.join(DATA_DIR, "questions")
+        
+        output_prefix = os.path.join(DATA_DIR, req.output_prefix)
+        
+        def run_test():
+            generator = Generate(
+                config=config_dict,
+                questions=questions_dir,
+                output_prefix=output_prefix,
+                test=True
+            )
+            generator.process()
+            
+        await asyncio.to_thread(run_test)
+        
+        # Return a cache-busting timestamp to avoid caching issues with the PDF
+        import time
+        timestamp = int(time.time())
+        return {"pdf_url": f"/api/data/{req.output_prefix}.pdf?t={timestamp}"}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

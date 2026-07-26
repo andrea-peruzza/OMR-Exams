@@ -553,7 +553,8 @@ class Generate:
         document.generate_pdf(filepath=os.path.join("tmp", filename), 
                               compiler='latexmk', 
                               compiler_args=['-xelatex'])
-        copy2(os.path.join('tmp',  f"{filename}.pdf"), '.')
+        output_dir = os.path.dirname(self.output_prefix) if os.path.dirname(self.output_prefix) else '.'
+        copy2(os.path.join('tmp',  f"{filename}.pdf"), output_dir)
 
 
 def _collate_star(args, paper, rotated=False, folded=True):
