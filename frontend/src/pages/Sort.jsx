@@ -54,16 +54,18 @@ function Sort() {
   }, []);
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     try {
       setUploading(true);
-      await sortAPI.uploadScan(file);
+      for (let i = 0; i < files.length; i++) {
+        await sortAPI.uploadScan(files[i]);
+      }
       await loadStatus(); // Ricarica lo stato per aggiornare il conteggio
     } catch (err) {
       console.error(err);
-      alert('Errore durante il caricamento del file');
+      alert('Errore durante il caricamento dei file');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -200,7 +202,8 @@ function Sort() {
           <div className="flex items-center gap-4">
             <input 
               type="file" 
-              accept=".pdf" 
+              accept=".pdf"
+              multiple
               className="hidden" 
               ref={fileInputRef} 
               onChange={handleFileUpload} 
