@@ -4,6 +4,7 @@ import { sortAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
+import { usePrompt } from '../hooks/usePrompt';
 
 function Sort() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ function Sort() {
   const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  const { prompt, PromptModal } = usePrompt();
 
   const loadStatus = async () => {
     try {
@@ -79,7 +82,7 @@ function Sort() {
     
     let cleanSorted = false;
     if (status.sorted_png_count > 0) {
-      const choice = window.prompt("La cartella data/sorted/ contiene già file PNG.\n\nS: Svuota la cartella e procedi\nM: Mantieni i file esistenti e procedi\nA: Annulla\n\nScegli un'opzione (S/M/A):", "S");
+      const choice = await prompt("La cartella data/sorted/ contiene già file PNG.\n\nS: Svuota la cartella e procedi\nM: Mantieni i file esistenti e procedi\nA: Annulla\n\nScegli un'opzione (S/M/A):", "S");
       if (choice === null) return;
       const ch = choice.trim().toUpperCase();
       if (ch === 'A') return;
@@ -133,7 +136,8 @@ function Sort() {
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-purple-300 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-purple-200 via-white to-white">
+      <PromptModal />
       <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
         <header className="flex items-center gap-4 border-b pb-4 mb-8">

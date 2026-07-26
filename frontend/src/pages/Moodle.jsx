@@ -4,6 +4,7 @@ import { moodleAPI } from '../api/client';
 import { Library, Upload, Download, CheckCircle, FileCode2 } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
+import { usePrompt } from '../hooks/usePrompt';
 
 export default function Moodle() {
   const [tab, setTab] = useState('export'); // 'export' or 'import'
@@ -28,6 +29,8 @@ export default function Moodle() {
   
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  
+  const { prompt, PromptModal } = usePrompt();
   const [importError, setImportError] = useState(null);
   
   const [uploading, setUploading] = useState(false);
@@ -67,7 +70,7 @@ export default function Moodle() {
     if (!currentOutput.endsWith('.xml')) currentOutput += '.xml';
 
     while (xmlFiles.includes(currentOutput)) {
-      const userChoice = window.prompt(`Il file XML "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      const userChoice = await prompt(`Il file XML "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
       if (userChoice === null) return;
       let newName = userChoice.trim();
       if (!newName.endsWith('.xml')) newName += '.xml';
@@ -103,13 +106,13 @@ export default function Moodle() {
     if (!selectedXml) return;
     
     let defaultMdName = selectedXml.replace(/\.xml$/i, '.md');
-    let outputFilename = window.prompt("Inserisci il nome del file Markdown da generare:", defaultMdName);
+    let outputFilename = await prompt("Inserisci il nome del file Markdown da generare:", defaultMdName);
     if (!outputFilename) return;
     outputFilename = outputFilename.trim();
     if (!outputFilename.endsWith('.md')) outputFilename += '.md';
     
     while (questionsFiles.includes(outputFilename)) {
-      const userChoice = window.prompt(`Il file Markdown "${outputFilename}" esiste già.\nInserisci un nuovo nome, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, outputFilename);
+      const userChoice = await prompt(`Il file Markdown "${outputFilename}" esiste già.\nInserisci un nuovo nome, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, outputFilename);
       if (userChoice === null) return;
       let newName = userChoice.trim();
       if (!newName.endsWith('.md')) newName += '.md';
@@ -161,6 +164,7 @@ export default function Moodle() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-indigo-200 via-white to-white">
+      <PromptModal />
       <BackButton />
       <div className="max-w-4xl mx-auto p-6 space-y-8 pb-20">
         <header className="flex items-center gap-4 border-b pb-4">

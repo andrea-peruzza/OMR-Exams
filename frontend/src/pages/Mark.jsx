@@ -4,6 +4,7 @@ import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, D
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
+import { usePrompt } from '../hooks/usePrompt';
 import { correctAPI, markAPI } from '../api/client';
 import XlsxPreview from '../components/XlsxPreview';
 
@@ -31,9 +32,11 @@ export default function Mark() {
   const [questionsList, setQuestionsList] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState('');
   const [analysisMode, setAnalysisMode] = useState(''); // 'review' o 'students'
-  const [analysisResult, setAnalysisResult] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  
+  const { prompt, PromptModal } = usePrompt();
 
   useEffect(() => {
     loadStatus();
@@ -80,7 +83,7 @@ export default function Mark() {
     
     let currentOutput = markOutput;
     while (allFiles.includes(currentOutput)) {
-      const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      const userChoice = await prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
       if (userChoice === null) return;
       const newName = userChoice.trim();
       if (newName === currentOutput) break;
@@ -110,7 +113,7 @@ export default function Mark() {
     
     let currentOutput = reportOutput;
     while (allFiles.includes(currentOutput)) {
-      const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+      const userChoice = await prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
       if (userChoice === null) return;
       const newName = userChoice.trim();
       if (newName === currentOutput) break;
@@ -140,13 +143,13 @@ export default function Mark() {
     
     let outputFilename = null;
     if (exportFormat) {
-      let currentOutput = window.prompt(`Inserisci il nome del file per esportare in ${exportFormat.toUpperCase()}:`, `export.${exportFormat === 'excel' ? 'xlsx' : 'md'}`);
+      let currentOutput = await prompt(`Inserisci il nome del file per esportare in ${exportFormat.toUpperCase()}:`, `export.${exportFormat === 'excel' ? 'xlsx' : 'md'}`);
       if (!currentOutput) return;
       
       currentOutput = currentOutput.trim();
       
       while (allFiles.includes(currentOutput)) {
-        const userChoice = window.prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
+        const userChoice = await prompt(`Il file "${currentOutput}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentOutput);
         if (userChoice === null) return;
         const newName = userChoice.trim();
         if (newName === currentOutput) break;
@@ -180,6 +183,7 @@ export default function Mark() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-orange-200 via-white to-white">
+      <PromptModal />
       <BackButton />
       <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
         <header className="flex items-center gap-4 border-b pb-4 mb-8">

@@ -4,6 +4,7 @@ import { correctAPI } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
+import { usePrompt } from '../hooks/usePrompt';
 
 function Correct() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function Correct() {
   const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { prompt, PromptModal } = usePrompt();
   const [manualChecks, setManualChecks] = useState(0);
 
   const loadStatus = async () => {
@@ -61,7 +63,7 @@ function Correct() {
       }
       
       while (status.pdf_files && status.pdf_files.includes(currentPdfName)) {
-        const userChoice = window.prompt(`Il file PDF "${currentPdfName}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPdfName);
+        const userChoice = await prompt(`Il file PDF "${currentPdfName}" esiste già.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, currentPdfName);
         if (userChoice === null) return;
         
         let newName = userChoice.trim();
@@ -128,6 +130,7 @@ function Correct() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-emerald-200 via-white to-white">
+      <PromptModal />
       <BackButton />
       <div className="max-w-5xl mx-auto p-6 space-y-6 pb-20">
         <header className="flex items-center gap-4 border-b pb-4 mb-8">
