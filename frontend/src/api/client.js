@@ -84,6 +84,10 @@ export const manualAPI = {
     const response = await apiClient.get('/api/manual/scans');
     return response.data;
   },
+  getCorrected: async () => {
+    const response = await apiClient.get('/api/manual/corrected');
+    return response.data;
+  },
   getMissing: async (datafile) => {
     const response = await apiClient.get(`/api/manual/missing?datafile=${datafile}`);
     return response.data;

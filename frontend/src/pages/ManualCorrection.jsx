@@ -12,9 +12,9 @@ export default function ManualCorrection() {
   
   const [mode, setMode] = useState(null); // 'scans' or 'missing'
   
-  // Scans Mode State
-  const [scansList, setScansList] = useState([]);
-  const [selectedScan, setSelectedScan] = useState('');
+  // Corrected Mode State
+  const [correctedList, setCorrectedList] = useState([]);
+  const [selectedCorrected, setSelectedCorrected] = useState('');
   
   // Missing Mode State
   const [missingList, setMissingList] = useState([]);
@@ -24,9 +24,13 @@ export default function ManualCorrection() {
   const [currentStudentId, setCurrentStudentId] = useState('');
   const [studentData, setStudentData] = useState(null);
   
-  // Feedback
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  // Global Feedback (displayed under JSON select)
+  const [globalMessage, setGlobalMessage] = useState('');
+  const [globalError, setGlobalError] = useState('');
+  
+  // Panel Feedback (displayed inside Manual Correction Panel)
+  const [panelMessage, setPanelMessage] = useState('');
+  const [panelError, setPanelError] = useState('');
   
   const navigate = useNavigate();
 
@@ -40,26 +44,28 @@ export default function ManualCorrection() {
       setDataFiles(res.data_files || []);
     } catch (e) {
       console.error(e);
-      setError("Errore nel caricamento dei dati di base");
+      setGlobalError("Errore nel caricamento dei dati di base");
     }
   };
 
-  const loadScans = async () => {
+  const loadCorrected = async () => {
     try {
-      const res = await manualAPI.getScans();
-      setScansList(res.scans || []);
-      setMode('scans');
+      const res = await manualAPI.getCorrected();
+      setCorrectedList(res.corrected || []);
+      setMode('corrected');
       setCurrentStudentId('');
       setStudentData(null);
-      if (res.scans.length > 0) setSelectedScan(res.scans[0]);
+      if (res.corrected.length > 0) setSelectedCorrected(res.corrected[0]);
     } catch (e) {
-      setError("Errore nel caricamento delle scansioni");
+      setGlobalError("Errore nel caricamento dei PDF corretti");
     }
   };
 
   const loadMissing = async () => {
+    setGlobalError('');
+    setGlobalMessage('');
     if (!datafile) {
-      setError("Seleziona prima un file JSON");
+      setGlobalError("Seleziona prima un file JSON");
       return;
     }
     try {
@@ -70,23 +76,25 @@ export default function ManualCorrection() {
       if (res.missing && res.missing.length > 0) {
         handleStudentSelect(res.missing[0].student_id);
       } else {
-        setMessage("Tutti gli esami sono stati corretti correttamente!");
+        setGlobalMessage("Tutti gli esami sono stati corretti correttamente!");
         setCurrentStudentId('');
         setStudentData(null);
       }
     } catch (e) {
-      setError("Errore nel caricamento degli esami dubbi");
+      setGlobalError("Errore nel caricamento degli esami dubbi");
     }
   };
 
   const handleStudentSelect = async (id) => {
+    setPanelError('');
+    setPanelMessage('');
     if (!datafile || !id) return;
     setCurrentStudentId(id);
     try {
       const res = await manualAPI.getStudentData(datafile, id);
       setStudentData(res);
     } catch (e) {
-      setError("Errore nel caricamento dei dati dello studente");
+      setPanelError("Errore nel caricamento dei dati dello studente");
     }
   };
 
@@ -105,11 +113,11 @@ export default function ManualCorrection() {
         question,
         given_answers
       });
-      setMessage(`Risposta alla domanda ${question} forzata con successo!`);
+      setPanelMessage(`Risposta alla domanda ${question} forzata con successo!`);
       // Ricarica i dati per aggiornare la maschera
       handleStudentSelect(currentStudentId);
     } catch (e) {
-      setError(e.response?.data?.detail || "Errore durante il salvataggio");
+      setPanelError(e.response?.data?.detail || "Errore durante il salvataggio");
     }
   };
 
@@ -141,14 +149,28 @@ export default function ManualCorrection() {
           </select>
         </section>
 
+        {/* MESSAGGI GLOBALI (sotto la selezione JSON) */}
+        {globalError && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm flex justify-between">
+            <span>{globalError}</span>
+            <button onClick={() => setGlobalError('')} className="font-bold">&times;</button>
+          </div>
+        )}
+        {globalMessage && (
+          <div className="bg-emerald-50 text-emerald-600 p-4 rounded-lg border border-emerald-200 shadow-sm flex justify-between">
+            <span>{globalMessage}</span>
+            <button onClick={() => setGlobalMessage('')} className="font-bold">&times;</button>
+          </div>
+        )}
+
         {/* MODALITA' */}
         <div className="grid grid-cols-2 gap-6">
           <button 
-            onClick={loadScans}
-            className={`p-6 rounded-xl border-2 transition-all ${mode === 'scans' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 bg-white shadow-sm'}`}
+            onClick={loadCorrected}
+            className={`p-6 rounded-xl border-2 transition-all ${mode === 'corrected' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 bg-white shadow-sm'}`}
           >
-            <h3 className="text-xl font-bold text-blue-800 mb-2">Tutti gli esami</h3>
-            <p className="text-sm text-gray-600">Visualizza i PDF completi originali scansionati.</p>
+            <h3 className="text-xl font-bold text-blue-800 mb-2">Esami corretti</h3>
+            <p className="text-sm text-gray-600">Visualizza i PDF completi generati durante la correzione automatica.</p>
           </button>
           
           <button 
@@ -160,22 +182,22 @@ export default function ManualCorrection() {
           </button>
         </div>
 
-        {/* VISTA SCANS */}
-        {mode === 'scans' && (
+        {/* VISTA CORRECTED */}
+        {mode === 'corrected' && (
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
             <div className="flex items-center gap-4">
               <label className="font-semibold text-gray-700">Seleziona PDF:</label>
               <select 
                 className="border border-gray-300 p-2 rounded w-64"
-                value={selectedScan}
-                onChange={(e) => setSelectedScan(e.target.value)}
+                value={selectedCorrected}
+                onChange={(e) => setSelectedCorrected(e.target.value)}
               >
-                {scansList.map(s => <option key={s} value={s}>{s}</option>)}
+                {correctedList.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="border border-gray-200 rounded overflow-hidden">
-              {selectedScan ? (
-                <PDFPreview url={`/api/data/scans/${selectedScan}`} />
+              {selectedCorrected ? (
+                <PDFPreview url={`/api/data/corrected/${selectedCorrected}`} />
               ) : (
                 <p className="p-4 text-gray-500">Nessun file selezionato</p>
               )}
@@ -244,17 +266,17 @@ export default function ManualCorrection() {
             </HelpButton>
           </h2>
           
-          {error && (
+          {panelError && (
             <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm flex justify-between">
-              <span>{error}</span>
-              <button onClick={() => setError('')} className="font-bold">&times;</button>
+              <span>{panelError}</span>
+              <button onClick={() => setPanelError('')} className="font-bold">&times;</button>
             </div>
           )}
           
-          {message && (
+          {panelMessage && (
             <div className="bg-emerald-50 text-emerald-600 p-4 rounded-lg border border-emerald-200 shadow-sm flex justify-between">
-              <span>{message}</span>
-              <button onClick={() => setMessage('')} className="font-bold">&times;</button>
+              <span>{panelMessage}</span>
+              <button onClick={() => setPanelMessage('')} className="font-bold">&times;</button>
             </div>
           )}
           

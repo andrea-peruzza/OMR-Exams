@@ -16,6 +16,14 @@ async def get_scans():
     files = glob.glob(os.path.join(scans_dir, "*.pdf"))
     return {"scans": [os.path.basename(f) for f in files]}
 
+@router.get("/corrected")
+async def get_corrected():
+    corrected_dir = os.path.join(DATA_DIR, "corrected")
+    if not os.path.exists(corrected_dir):
+        return {"corrected": []}
+    files = glob.glob(os.path.join(corrected_dir, "*.pdf"))
+    return {"corrected": [os.path.basename(f) for f in files]}
+
 @router.get("/missing")
 async def get_missing(datafile: str):
     data_filename = os.path.join(DATA_DIR, datafile)
