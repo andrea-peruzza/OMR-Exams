@@ -13,6 +13,10 @@ export const dashboardAPI = {
   getStatus: async () => {
     const response = await apiClient.get('/api/dashboard/status');
     return response.data;
+  },
+  previewExcel: async (filename, headerRows = 1, indexCols = 0, centerHeaders = false) => {
+    const response = await apiClient.get(`/api/dashboard/preview_excel?filename=${filename}&headerRows=${headerRows}&indexCols=${indexCols}&centerHeaders=${centerHeaders}`);
+    return response.data;
   }
 };
 
