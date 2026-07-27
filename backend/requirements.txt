@@ -19,6 +19,7 @@ pandas
 scipy
 xlrd                    # lettura file .xls (lista studenti)
 openpyxl                # lettura/scrittura file .xlsx
+xlsxwriter              # scrittura avanzata file .xlsx
 
 # Database leggero (stato esami)
 tinydb

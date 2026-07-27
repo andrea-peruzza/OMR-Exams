@@ -63,7 +63,31 @@ async def generate_report(req: ReportRequest):
                     df = pd.concat([df, pd.DataFrame([{ 'filename': e['questions'][i][0], 'question': e['questions'][i][1], 'correct_ratio': len(correct) / len(correct_answers[i]), 'missing_ratio': len(missing) / len(correct_answers[i]), 'wrong_ratio': len(wrong) / len(correct_answers[i]), 'options': question_size[i], 'no_correct_answers': len(correct_answers[i]) }])])                    
             if not df.empty:
                 df = df.groupby(['filename', 'question']).agg({ 'correct_ratio': ['count', 'sum', 'mean', 'std'], 'missing_ratio': ['mean', 'std'], 'wrong_ratio': ['mean', 'std'], 'options': 'min', 'no_correct_answers': 'min' })
-                df.to_excel(output_filename)
+                
+                # Scrittura con xlsxwriter per formato verticale sulla prima colonna e bold
+                writer = pd.ExcelWriter(output_filename, engine='xlsxwriter')
+                df.to_excel(writer, sheet_name='Report')
+                workbook = writer.book
+                worksheet = writer.sheets['Report']
+                
+                center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+                bold_format = workbook.add_format({'bold': True})
+                
+                # Applica il formato bold alle intestazioni di colonna
+                for row in range(df.columns.nlevels):
+                    worksheet.set_row(row, None, center_bold_format)
+                
+                # Applica bold alla seconda colonna dell'indice (question)
+                worksheet.set_column(1, 1, None, bold_format)
+                
+                vertical_format = workbook.add_format({'rotation': 90, 'align': 'center', 'valign': 'vcenter', 'bold': True})
+                worksheet.set_column(0, 0, 10, vertical_format) # Imposta larghezza 10 e formato verticale
+                
+                # Ripristina l'orientamento normale per l'intestazione 'filename' (alla riga df.columns.nlevels)
+                normal_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+                worksheet.write(df.columns.nlevels, 0, 'filename', normal_format)
+                
+                writer.close()
             else:
                 raise Exception("Nessun dato di correzione presente.")
                 

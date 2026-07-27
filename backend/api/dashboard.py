@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from schemas.dashboard import DashboardStatus
 import os
+import pandas as pd
 
 router = APIRouter()
 
@@ -39,3 +40,39 @@ def get_status():
         questions_present=questions_present,
         students_present=students_present
     )
+
+@router.get("/preview_excel")
+def preview_excel(filename: str, headerRows: int = 1, indexCols: int = 0, centerHeaders: bool = False):
+    file_path = os.path.join(DATA_DIR, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File non trovato")
+    
+    try:
+        # Load the excel file. If headerRows > 1, pass a list to header to create a MultiIndex
+        header_arg = list(range(headerRows)) if headerRows > 1 else 0
+        index_arg = list(range(indexCols)) if indexCols > 0 else None
+        
+        df = pd.read_excel(file_path, header=header_arg, index_col=index_arg)
+        
+        # Take only the first 10 rows for preview
+        df = df.head(10)
+        
+        # Pulizia delle colonne "Unnamed: "
+        if isinstance(df.columns, pd.MultiIndex):
+            def clean_col(c):
+                return tuple("" if str(x).startswith("Unnamed:") else x for x in c)
+            df.columns = pd.MultiIndex.from_tuples([clean_col(c) for c in df.columns])
+        else:
+            df.columns = ["" if str(x).startswith("Unnamed:") else x for x in df.columns]
+            
+        # Pulizia dei nomi dell'indice se presenti e Unnamed
+        if df.index.names:
+            df.index.names = ["" if str(x).startswith("Unnamed:") else x for x in df.index.names]
+        
+        # Generate HTML
+        # Using standard pandas styling to HTML, na_rep vuoto
+        html_str = df.to_html(classes="w-full text-sm text-left table-auto", border=0, justify="center" if centerHeaders else "left", na_rep="")
+        
+        return {"html": html_str}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore nella lettura del file: {str(e)}")

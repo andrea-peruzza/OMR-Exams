@@ -75,17 +75,38 @@ class Mark:
                     current[(file_source, q_id, 'index')] = e['questions'][i][1]
                 
                 # Le colonne sono già nell'ordine in cui sono state inserite
-                current[('', 'summary', 'total_points')] = p[0]
-                current[('', 'summary', 'tentative_mark')] = p[0] / p[1]
+                current[('summary', '', 'total_points')] = p[0]
+                current[('summary', '', 'tentative_mark')] = p[0] / p[1]
                 df = pd.concat([df, current])
             if include_missing:
                 for exam in db.table('exams').all():
                     e = db.table('correction').get(Exam.student_id == exam['student_id'])
                     if not e:
-                        missing_df = pd.DataFrame([{ ('student', '', 'student_id'): exam['student_id'], ('', 'summary', 'total_points'): 'ASS', ('', 'summary', 'tentative_mark'): 'ASS' }])
+                        missing_df = pd.DataFrame([{ ('student', '', 'student_id'): exam['student_id'], ('summary', '', 'total_points'): 'ASS', ('summary', '', 'tentative_mark'): 'ASS' }])
                         df = pd.concat([df, missing_df])
             df = df.sort_values(('student', '', 'student_id'))
             df.columns = pd.MultiIndex.from_tuples(df.columns)
             df = df.set_index(('student', '', 'student_id'))
             df.index.name = 'student_id'
-            df.to_excel(self.outputfile)
+            
+            # Scrittura con xlsxwriter per formattare le intestazioni (MultiIndex)
+            writer = pd.ExcelWriter(self.outputfile, engine='xlsxwriter')
+            df.to_excel(writer, sheet_name='Voti')
+            workbook = writer.book
+            worksheet = writer.sheets['Voti']
+            
+            center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+            angled_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+            bold_format = workbook.add_format({'bold': True})
+            
+            # Applica il formato bold all'indice degli studenti
+            worksheet.set_column(0, 0, None, bold_format)
+            
+            # Applica il formato alle righe di intestazione (3 righe)
+            for row in range(df.columns.nlevels):
+                if row == df.columns.nlevels - 1:
+                    worksheet.set_row(row, None, angled_format)
+                else:
+                    worksheet.set_row(row, None, center_bold_format)
+                
+            writer.close()
