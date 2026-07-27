@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit, Archive } from 'lucide-react';
+import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit, Archive, Trash2 } from 'lucide-react';
 
 export default function Dashboard() {
   return (
@@ -51,6 +51,14 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Calcola i punteggi finali ed esporta la graduatoria in Excel.</p>
           </Link>
 
+        </div>
+      </div>
+
+      {/* Sezione Strumenti di ausilio */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Strumenti di ausilio</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
           <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <Library size={32} />
@@ -65,6 +73,14 @@ export default function Dashboard() {
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Backup JSON</h3>
             <p className="text-sm text-gray-500">Recupera i file di configurazione degli esami eliminati per errore.</p>
+          </Link>
+
+          <Link to="/cleanup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-red-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-red-50 text-red-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+              <Trash2 size={32} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Gestione Dati</h3>
+            <p className="text-sm text-gray-500">Elimina i file vecchi o non più necessari generati dal sistema.</p>
           </Link>
 
         </div>
