@@ -168,4 +168,15 @@ export const moodleAPI = {
   }
 };
 
+export const backupAPI = {
+  getBackups: async () => {
+    const response = await apiClient.get('/api/backup/list');
+    return response.data;
+  },
+  restoreBackup: async (filename) => {
+    const response = await apiClient.post(`/api/backup/restore/${filename}`);
+    return response.data;
+  }
+};
+
 export default apiClient;

@@ -6,6 +6,7 @@ import Correct from './pages/Correct';
 import ManualCorrection from './pages/ManualCorrection';
 import Mark from './pages/Mark';
 import Moodle from './pages/Moodle';
+import Backup from './pages/Backup';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/manual_correction" element={<ManualCorrection />} />
           <Route path="/mark" element={<Mark />} />
           <Route path="/moodle" element={<Moodle />} />
+          <Route path="/backup" element={<Backup />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit } from 'lucide-react';
+import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit, Archive } from 'lucide-react';
 
 export default function Dashboard() {
   return (
@@ -51,12 +51,20 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Calcola i punteggi finali ed esporta la graduatoria in Excel.</p>
           </Link>
 
-          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center sm:col-span-2 lg:col-span-4">
-            <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform flex justify-center w-16 mx-auto">
+          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <Library size={32} />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Convertitore Moodle</h3>
-            <p className="text-sm text-gray-500">Importa o esporta il database di domande da/verso file XML compatibili con Moodle.</p>
+            <p className="text-sm text-gray-500">Importa o esporta il database da/verso Moodle.</p>
+          </Link>
+
+          <Link to="/backup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-teal-50 text-teal-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+              <Archive size={32} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Backup JSON</h3>
+            <p className="text-sm text-gray-500">Recupera i file di configurazione degli esami eliminati per errore.</p>
           </Link>
 
         </div>
