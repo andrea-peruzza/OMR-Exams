@@ -158,6 +158,10 @@ def run_generate_task(task_id: str, req: GenerateRequest):
         )
         
         generator.process()
+        
+        from core.backup import backup_exam_json
+        backup_exam_json(os.path.join(DATA_DIR, f"{req.output_prefix}.json"))
+        
         task_manager.complete_task(task_id)
 
     except Exception as e:
