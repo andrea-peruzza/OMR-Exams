@@ -5,8 +5,15 @@ import shutil
 from datetime import datetime as dt
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from schemas.generate import GenerateRequest
+from pydantic import BaseModel
 from state.manager import task_manager
 from core.generate import Generate
+
+class QuestionSaveRequest(BaseModel):
+    filename: str
+    content: str
+    append: bool = True
+
 
 class ProgressCallback:
     def __init__(self, task_id):
@@ -66,6 +73,22 @@ async def upload_student(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"filename": file.filename}
+
+@router.post("/questions/save")
+def save_question(req: QuestionSaveRequest):
+    questions_dir = os.path.join(DATA_DIR, "questions")
+    os.makedirs(questions_dir, exist_ok=True)
+    if not req.filename.endswith('.md'):
+        req.filename += '.md'
+    file_path = os.path.join(questions_dir, req.filename)
+    mode = 'a' if req.append and os.path.exists(file_path) else 'w'
+    with open(file_path, mode, encoding='utf-8') as f:
+        # Assicura una riga vuota prima di iniziare ad aggiungere (se il file esiste e non è vuoto)
+        if mode == 'a' and os.path.getsize(file_path) > 0 and not req.content.startswith('\n'):
+            f.write('\n')
+        f.write(req.content)
+    return {"status": "success", "filename": req.filename}
+
 
 def run_generate_task(task_id: str, req: GenerateRequest):
     try:
