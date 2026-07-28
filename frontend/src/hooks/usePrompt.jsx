@@ -6,18 +6,20 @@ export const usePrompt = () => {
     isOpen: false,
     message: '',
     defaultValue: '',
+    customButtons: null,
     resolve: null,
   });
   
   const [inputValue, setInputValue] = useState('');
 
-  const prompt = useCallback((message, defaultValue = '') => {
+  const prompt = useCallback((message, defaultValue = '', customButtons = null) => {
     return new Promise((resolve) => {
       setInputValue(defaultValue);
       setPromptState({
         isOpen: true,
         message,
         defaultValue,
+        customButtons,
         resolve,
       });
     });
@@ -25,12 +27,12 @@ export const usePrompt = () => {
 
   const handleConfirm = useCallback(() => {
     if (promptState.resolve) promptState.resolve(inputValue);
-    setPromptState({ isOpen: false, message: '', defaultValue: '', resolve: null });
+    setPromptState({ isOpen: false, message: '', defaultValue: '', customButtons: null, resolve: null });
   }, [promptState, inputValue]);
 
   const handleCancel = useCallback(() => {
     if (promptState.resolve) promptState.resolve(null);
-    setPromptState({ isOpen: false, message: '', defaultValue: '', resolve: null });
+    setPromptState({ isOpen: false, message: '', defaultValue: '', customButtons: null, resolve: null });
   }, [promptState]);
 
   const PromptModal = useCallback(() => {
@@ -65,19 +67,36 @@ export const usePrompt = () => {
               }}
             />
           </div>
-          <div className="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
-            <button 
-              onClick={handleCancel}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Annulla
-            </button>
-            <button 
-              onClick={handleConfirm}
-              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              Conferma
-            </button>
+          <div className="px-6 py-4 bg-gray-50 border-t flex flex-wrap justify-end gap-3">
+            {promptState.customButtons ? (
+              promptState.customButtons.map((btn, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if (promptState.resolve) promptState.resolve({ action: btn.value, inputValue });
+                    setPromptState({ isOpen: false, message: '', defaultValue: '', customButtons: null, resolve: null });
+                  }}
+                  className={`px-4 py-2 font-semibold rounded-lg transition-colors shadow-sm ${btn.className || 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                >
+                  {btn.label}
+                </button>
+              ))
+            ) : (
+              <>
+                <button 
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Annulla
+                </button>
+                <button 
+                  onClick={handleConfirm}
+                  className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Conferma
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
