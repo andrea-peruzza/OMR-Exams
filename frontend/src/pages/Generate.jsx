@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText, FileEdit } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
 import HelpButton from '../components/HelpButton';
@@ -484,10 +484,15 @@ export default function Generate() {
                 </div>
               </HelpButton>
             </h2>
-            <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1">
-              <Upload size={16} /> Carica file .md
-              <input type="file" accept=".md" className="hidden" onChange={handleUploadQuestion} />
-            </label>
+            <div className="flex gap-2">
+              <Link to="/questions" className="text-sm bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 flex items-center gap-1 font-medium transition-colors">
+                <FileEdit size={16} /> Editor domande
+              </Link>
+              <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1 transition-colors">
+                <Upload size={16} /> Carica file .md
+                <input type="file" accept=".md" className="hidden" onChange={handleUploadQuestion} />
+              </label>
+            </div>
           </div>
           
           {config.questions.length > 0 && (
