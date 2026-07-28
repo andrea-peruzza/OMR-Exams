@@ -8,6 +8,7 @@ import Mark from './pages/Mark';
 import Moodle from './pages/Moodle';
 import Backup from './pages/Backup';
 import Cleanup from './pages/Cleanup';
+import QuestionsEditor from './pages/QuestionsEditor';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/moodle" element={<Moodle />} />
           <Route path="/backup" element={<Backup />} />
           <Route path="/cleanup" element={<Cleanup />} />
+          <Route path="/questions" element={<QuestionsEditor />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

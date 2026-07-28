@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit, Archive, Trash2 } from 'lucide-react';
+import { FilePlus, ScanText, CheckCircle, FileOutput, Library, ClipboardEdit, Archive, Trash2, FileEdit } from 'lucide-react';
 
 export default function Dashboard() {
   return (
@@ -65,6 +65,14 @@ export default function Dashboard() {
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Convertitore Moodle</h3>
             <p className="text-sm text-gray-500">Importa o esporta il database da/verso Moodle.</p>
+          </Link>
+
+          <Link to="/questions" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-blue-50 text-blue-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+              <FileEdit size={32} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Editor Domande</h3>
+            <p className="text-sm text-gray-500">Aggiungi nuove domande ai file markdown in modo semplice e guidato.</p>
           </Link>
 
           <Link to="/backup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all flex flex-col items-center text-center">

@@ -45,6 +45,10 @@ export const generateAPI = {
     });
     return response.data;
   },
+  saveQuestions: async (requestData) => {
+    const response = await apiClient.post('/api/generate/questions/save', requestData);
+    return response.data;
+  },
   startGeneration: async (requestData) => {
     const response = await apiClient.post('/api/generate/start', requestData);
     return response.data;
