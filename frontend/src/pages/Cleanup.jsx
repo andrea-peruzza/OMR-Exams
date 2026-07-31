@@ -102,19 +102,21 @@ export default function Cleanup() {
   };
 
   return (
-    <div className="min-h-screen relative bg-slate-50 pb-20">
+    <div className="min-h-screen relative bg-gradient-to-br from-red-200 via-white to-white">
       <ConfirmModal />
       <BackButton />
       <HomeButton />
-      <div className="p-8 max-w-5xl mx-auto font-sans pt-12">
+      <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center">
-        <Trash2 className="mr-3 text-red-500" size={32} />
-        Gestione Dati
-      </h1>
-      <p className="text-gray-600 mb-8">
-        Seleziona ed elimina i file non più necessari generati dal sistema.
-      </p>
+      <header className="flex items-center gap-4 border-b pb-4 mb-8">
+        <div className="bg-red-100 p-3 rounded-full text-red-700">
+          <Trash2 size={32} />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Gestione Dati</h1>
+          <p className="text-gray-600 mt-1">Seleziona ed elimina i file non più necessari generati dal sistema.</p>
+        </div>
+      </header>
 
       {message && (
         <div className={`p-4 rounded-md mb-6 ${message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
@@ -122,7 +124,7 @@ export default function Cleanup() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row h-[600px]">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-red-400 hover:shadow-md overflow-hidden flex flex-col md:flex-row h-[600px]">
         
         {/* Sidebar categorie */}
         <div className="w-full md:w-1/3 border-r border-gray-200 bg-gray-50">

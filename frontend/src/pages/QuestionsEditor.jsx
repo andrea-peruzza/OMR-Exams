@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FileEdit } from 'lucide-react';
 import { generateAPI } from '../api/client';
 import { ArrowLeft, Save, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import BackButton from '../components/BackButton';
@@ -187,16 +188,21 @@ export default function QuestionsEditor() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto font-sans">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <BackButton />
-          <HomeButton />
-          <h1 className="text-3xl font-extrabold text-gray-800">Editor Domande</h1>
+    <div className="min-h-screen relative bg-gradient-to-br from-blue-200 via-white to-white">
+      <BackButton />
+      <HomeButton />
+      <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
+        <header className="flex items-center gap-4 border-b pb-4 mb-8">
+          <div className="bg-blue-100 p-3 rounded-full text-blue-700">
+            <FileEdit size={32} />
+          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Editor Domande</h1>
+          <p className="text-gray-600 mt-1">Aggiungi nuove domande ai file markdown in modo semplice e guidato.</p>
         </div>
-      </div>
+      </header>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md mb-8">
         <h2 className="text-xl font-bold mb-4 border-b pb-2">Destinazione file</h2>
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="flex items-center gap-2">
@@ -264,7 +270,7 @@ export default function QuestionsEditor() {
 
       <div className="space-y-6">
         {questions.map((q, idx) => (
-          <div key={q.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 relative group">
+          <div key={q.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md relative group">
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <button onClick={() => removeQuestion(q.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-full" title="Rimuovi domanda">
                 <Trash2 size={20} />
@@ -368,6 +374,7 @@ export default function QuestionsEditor() {
         )}
       </div>
       <PromptModal />
+    </div>
     </div>
   );
 }

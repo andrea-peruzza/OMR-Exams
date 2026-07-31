@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, ArchiveRestore, AlertCircle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, ArchiveRestore, AlertCircle, Archive } from 'lucide-react';
 import { backupAPI } from '../api/client';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
@@ -56,18 +56,19 @@ export default function Backup() {
   };
 
   return (
-    <div className="min-h-screen relative bg-slate-50 pb-20">
+    <div className="min-h-screen relative bg-gradient-to-br from-teal-200 via-white to-white">
       <BackButton />
       <HomeButton />
-      <div className="p-8 max-w-5xl mx-auto font-sans pt-12">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm pb-2">
-            Backup e Ripristino
-          </h1>
-          <p className="text-gray-600">Gestisci i backup dei file JSON degli esami (massimo 5 file conservati).</p>
+      <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
+      <header className="flex items-center gap-4 border-b pb-4 mb-8">
+        <div className="bg-teal-100 p-3 rounded-full text-teal-700">
+          <Archive size={32} />
         </div>
-      </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Backup e Ripristino</h1>
+          <p className="text-gray-600 mt-1">Gestisci i backup dei file JSON degli esami (massimo 5 file conservati).</p>
+        </div>
+      </header>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg flex items-center">
@@ -83,7 +84,7 @@ export default function Backup() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-teal-400 hover:shadow-md overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <h2 className="text-lg font-bold text-gray-800">File di Backup Disponibili</h2>
           <button 
