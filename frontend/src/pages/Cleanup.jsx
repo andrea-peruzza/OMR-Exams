@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Trash2, CheckSquare, Square, RefreshCcw } from 'lucide-react';
 import apiClient from '../api/client';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function Cleanup() {
   const [data, setData] = useState(null);
@@ -10,6 +11,7 @@ export default function Cleanup() {
   const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState(null);
+  const { confirm, ConfirmModal } = useConfirm();
 
   const categories = [
     { id: 'all', label: 'Tutti i file' },
@@ -79,9 +81,9 @@ export default function Cleanup() {
 
   const handleDelete = async () => {
     if (selectedFiles.size === 0) return;
-    if (!window.confirm(`Sei sicuro di voler eliminare definitivamente ${selectedFiles.size} file?`)) {
-      return;
-    }
+    
+    const isConfirmed = await confirm(`Sei sicuro di voler eliminare ${selectedFiles.size} file selezionati?`);
+    if (!isConfirmed) return;
 
     setDeleting(true);
     try {
@@ -99,6 +101,7 @@ export default function Cleanup() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto font-sans">
+      <ConfirmModal />
       <Link to="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors">
         <ArrowLeft className="mr-2" size={20} />
         Torna alla Dashboard
