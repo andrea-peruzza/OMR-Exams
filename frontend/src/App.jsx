@@ -9,6 +9,7 @@ import Moodle from './pages/Moodle';
 import Backup from './pages/Backup';
 import Cleanup from './pages/Cleanup';
 import QuestionsEditor from './pages/QuestionsEditor';
+import Associate from './pages/Associate';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/backup" element={<Backup />} />
           <Route path="/cleanup" element={<Cleanup />} />
           <Route path="/questions" element={<QuestionsEditor />} />
+          <Route path="/associate" element={<Associate />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

@@ -57,15 +57,7 @@ export default function Dashboard() {
       {/* Sezione Strumenti di ausilio */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Strumenti di ausilio</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center">
-            <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-              <Library size={32} />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Convertitore Moodle</h3>
-            <p className="text-sm text-gray-500">Importa o esporta il database da/verso Moodle.</p>
-          </Link>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
           <Link to="/questions" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-blue-50 text-blue-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
@@ -75,12 +67,28 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Aggiungi nuove domande ai file markdown in modo semplice e guidato.</p>
           </Link>
 
+          <Link to="/associate" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-purple-50 text-purple-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+              <ScanText size={32} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Associa Studenti</h3>
+            <p className="text-sm text-gray-500">Associa gli esami anonimi ai nomi reali degli studenti.</p>
+          </Link>
+
+          <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center">
+            <div className="bg-indigo-50 text-indigo-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+              <Library size={32} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Convertitore Moodle</h3>
+            <p className="text-sm text-gray-500">Importa o esporta il database da/verso Moodle.</p>
+          </Link>
+
           <Link to="/backup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-teal-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-teal-50 text-teal-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <Archive size={32} />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Backup JSON</h3>
-            <p className="text-sm text-gray-500">Recupera i file di configurazione degli esami eliminati per errore.</p>
+            <p className="text-sm text-gray-500">Recupera i file di config degli esami eliminati per errore.</p>
           </Link>
 
           <Link to="/cleanup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-red-400 hover:shadow-md transition-all flex flex-col items-center text-center">
@@ -88,7 +96,7 @@ export default function Dashboard() {
               <Trash2 size={32} />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Gestione Dati</h3>
-            <p className="text-sm text-gray-500">Elimina i file vecchi o non più necessari generati dal sistema.</p>
+            <p className="text-sm text-gray-500">Elimina i file vecchi o non più necessari.</p>
           </Link>
 
         </div>
