@@ -119,12 +119,20 @@ function Correct() {
     
     let cleanSorted = false;
     if (status.sorted_png_count > 0) {
-      const choice = await prompt("La cartella data/sorted/ contiene già file PNG.\n\nS: Svuota la cartella e procedi\nM: Mantieni i file esistenti e procedi\nA: Annulla\n\nScegli un'opzione (S/M/A):", "S");
-      if (choice === null) return;
-      const ch = choice.trim().toUpperCase();
-      if (ch === 'A') return;
-      if (ch === 'S') cleanSorted = true;
-      else if (ch === 'M') cleanSorted = false;
+      const choice = await prompt(
+        "La cartella data/sorted/ contiene già file PNG. Scegli come procedere:",
+        "",
+        [
+          { label: 'Svuota la cartella', value: 'S', className: 'bg-red-600 text-white hover:bg-red-700' },
+          { label: 'Mantieni e aggiungi', value: 'M', className: 'bg-blue-600 text-white hover:bg-blue-700' },
+          { label: 'Annulla', value: 'A', className: 'bg-gray-200 text-gray-800 hover:bg-gray-300' }
+        ],
+        true // hideInput
+      );
+      if (!choice || choice.action === 'A') return;
+      
+      if (choice.action === 'S') cleanSorted = true;
+      else if (choice.action === 'M') cleanSorted = false;
       else return;
     }
     

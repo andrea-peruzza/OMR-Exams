@@ -7,12 +7,13 @@ export const usePrompt = () => {
     message: '',
     defaultValue: '',
     customButtons: null,
+    hideInput: false,
     resolve: null,
   });
   
   const [inputValue, setInputValue] = useState('');
 
-  const prompt = useCallback((message, defaultValue = '', customButtons = null) => {
+  const prompt = useCallback((message, defaultValue = '', customButtons = null, hideInput = false) => {
     return new Promise((resolve) => {
       setInputValue(defaultValue);
       setPromptState({
@@ -20,6 +21,7 @@ export const usePrompt = () => {
         message,
         defaultValue,
         customButtons,
+        hideInput,
         resolve,
       });
     });
@@ -55,17 +57,19 @@ export const usePrompt = () => {
           </div>
           <div className="p-6">
             <p className="text-gray-700 mb-4 whitespace-pre-wrap">{promptState.message}</p>
-            <input
-              type="text"
-              autoFocus
-              className="w-full border-2 border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 p-3 rounded-lg text-gray-800 outline-none transition-all font-medium"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleConfirm();
-                if (e.key === 'Escape') handleCancel();
-              }}
-            />
+            {!promptState.hideInput && (
+              <input
+                type="text"
+                autoFocus
+                className="w-full border-2 border-gray-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 p-3 rounded-lg text-gray-800 outline-none transition-all font-medium"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleConfirm();
+                  if (e.key === 'Escape') handleCancel();
+                }}
+              />
+            )}
           </div>
           <div className="px-6 py-4 bg-gray-50 border-t flex flex-wrap justify-end gap-3">
             {promptState.customButtons ? (
