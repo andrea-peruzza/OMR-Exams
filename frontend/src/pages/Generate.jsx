@@ -11,7 +11,7 @@ import { usePrompt } from '../hooks/usePrompt';
 export default function Generate() {
   const navigate = useNavigate();
   const [config, setConfig] = useState({
-    exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: 2 },
+    exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: '' },
     choices: { circled: false, usesf: false },
     paper: 'A4',
     dyslexia: false,
@@ -551,6 +551,10 @@ export default function Generate() {
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.exam.shuffle_answers} onChange={e => setConfig({...config, exam: {...config.exam, shuffle_answers: e.target.checked}})} />
               <label className="text-sm text-gray-600">Mescola risposte</label>
+            </div>
+            <div className="flex items-center">
+              <input type="checkbox" className="mr-2" checked={config.exam.separate_open_questions || false} onChange={e => setConfig({...config, exam: {...config.exam, separate_open_questions: e.target.checked}})} />
+              <label className="text-sm text-gray-600">Domande chiuse e aperte in pagine differenti</label>
             </div>
             <div className="flex items-center">
               <input type="checkbox" className="mr-2" checked={config.dyslexia} onChange={e => setConfig({...config, dyslexia: e.target.checked})} />
