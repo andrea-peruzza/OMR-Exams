@@ -28,7 +28,11 @@ export const useConfirm = () => {
     setConfirmState({ isOpen: false, message: '', resolve: null });
   }, [confirmState]);
 
+  const contextRef = React.useRef({ confirmState, handleConfirm, handleCancel });
+  contextRef.current = { confirmState, handleConfirm, handleCancel };
+
   const ConfirmModal = useCallback(() => {
+    const { confirmState, handleConfirm, handleCancel } = contextRef.current;
     if (!confirmState.isOpen) return null;
 
     return (
@@ -68,7 +72,7 @@ export const useConfirm = () => {
         </div>
       </div>
     );
-  }, [confirmState, handleCancel, handleConfirm]);
+  }, []);
 
   return { confirm, ConfirmModal };
 };

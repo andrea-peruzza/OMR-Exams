@@ -37,7 +37,11 @@ export const usePrompt = () => {
     setPromptState({ isOpen: false, message: '', defaultValue: '', customButtons: null, resolve: null });
   }, [promptState]);
 
+  const contextRef = React.useRef({ promptState, inputValue, setInputValue, handleConfirm, handleCancel });
+  contextRef.current = { promptState, inputValue, setInputValue, handleConfirm, handleCancel };
+
   const PromptModal = useCallback(() => {
+    const { promptState, inputValue, setInputValue, handleConfirm, handleCancel } = contextRef.current;
     if (!promptState.isOpen) return null;
 
     return (
@@ -105,7 +109,7 @@ export const usePrompt = () => {
         </div>
       </div>
     );
-  }, [promptState, inputValue, handleCancel, handleConfirm]);
+  }, []);
 
   return { prompt, PromptModal };
 };
