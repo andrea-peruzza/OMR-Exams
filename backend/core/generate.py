@@ -464,7 +464,10 @@ class Generate:
                               basedir=os.path.realpath(self.questions_path)) as renderer:
             content = '---\n' + '\n---\n'.join(map(lambda q: q[2], questions)) + '\n---\n'
             if open_questions:
-                content += '\n---\n'.join(map(lambda q: q[2], open_questions)) + '\n---\n'
+                open_qs = list(map(lambda q: q[2], open_questions))
+                if open_qs and self.config.get('exam', {}).get('separate_open_questions', False):
+                    open_qs[0] = '[NEWPAGE]\n' + open_qs[0]
+                content += '\n---\n'.join(open_qs) + '\n---\n'
             document = renderer.render(Document(content))   
             tmp = list(map(lambda i: (*questions[i][:2], code_answer(renderer.questions[i]['answers']), renderer.questions[i]['permutation']), range(len(questions))))
 #            tmp += list(map(lambda i: (*open_questions[i][:2], code_answer(renderer.questions[i + len(questions)]['answers']), renderer.questions[i + len(questions)]['permutation']), range(len(open_questions))))

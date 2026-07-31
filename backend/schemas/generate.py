@@ -28,6 +28,7 @@ class ConfigExam(BaseModel):
     max_questions: Optional[int] = None  # Using None instead of False for Pydantic clarity
     max_open_questions: Optional[int] = None
     page_limits: Optional[int] = None
+    separate_open_questions: Optional[bool] = False
 
 class ConfigChoices(BaseModel):
     circled: Optional[bool] = False

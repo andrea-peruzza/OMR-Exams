@@ -182,7 +182,11 @@ class QuestionRenderer(LaTeXRenderer):
         # and could contain the heading of the section
         self.questions.append({ 'question': "", 'answers': [], 'permutation': [], 'type': None })
         inner = self.render_inner(token)
-        return f'\n\\begin{{minipage}}{{\\linewidth}}\n{inner}\n\\end{{minipage}}\n'
+        prefix = ''
+        if '[NEWPAGE]' in inner:
+            inner = inner.replace('[NEWPAGE]', '')
+            prefix = '\\newpage\n'
+        return f'\n{prefix}\\begin{{minipage}}{{\\linewidth}}\n{inner}\n\\end{{minipage}}\n'
 
     def render_table_row(self, token):
         cells = [self.render(child) for child in token.children]
