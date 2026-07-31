@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, ArchiveRestore, AlertCircle } from 'lucide-react';
 import { backupAPI } from '../api/client';
+import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 
 export default function Backup() {
   const [backups, setBackups] = useState([]);
@@ -54,7 +56,10 @@ export default function Backup() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto font-sans">
+    <div className="min-h-screen relative bg-slate-50 pb-20">
+      <BackButton />
+      <HomeButton />
+      <div className="p-8 max-w-5xl mx-auto font-sans pt-12">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm pb-2">
@@ -62,9 +67,6 @@ export default function Backup() {
           </h1>
           <p className="text-gray-600">Gestisci i backup dei file JSON degli esami (massimo 5 file conservati).</p>
         </div>
-        <Link to="/dashboard" className="flex items-center text-blue-600 hover:text-blue-800 transition">
-          <ArrowLeft size={20} className="mr-2" /> Torna alla Dashboard
-        </Link>
       </div>
 
       {error && (
@@ -129,6 +131,7 @@ export default function Backup() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

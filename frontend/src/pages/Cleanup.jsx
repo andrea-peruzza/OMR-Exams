@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Trash2, CheckSquare, Square, RefreshCcw } from 'lucide-react';
 import apiClient from '../api/client';
 import { useConfirm } from '../hooks/useConfirm';
+import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 
 export default function Cleanup() {
   const [data, setData] = useState(null);
@@ -100,12 +102,11 @@ export default function Cleanup() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto font-sans">
+    <div className="min-h-screen relative bg-slate-50 pb-20">
       <ConfirmModal />
-      <Link to="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors">
-        <ArrowLeft className="mr-2" size={20} />
-        Torna alla Dashboard
-      </Link>
+      <BackButton />
+      <HomeButton />
+      <div className="p-8 max-w-5xl mx-auto font-sans pt-12">
 
       <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center">
         <Trash2 className="mr-3 text-red-500" size={32} />
@@ -216,6 +217,7 @@ export default function Cleanup() {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

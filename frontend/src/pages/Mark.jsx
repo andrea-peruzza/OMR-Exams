@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FileCheck, ArrowRight, Table, AlertCircle, FileSpreadsheet, Download, DownloadIcon, FileCode2, Home, FileOutput } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
 import { correctAPI, markAPI } from '../api/client';
@@ -185,6 +186,7 @@ export default function Mark() {
     <div className="min-h-screen relative bg-gradient-to-br from-orange-200 via-white to-white">
       <PromptModal />
       <BackButton />
+      <HomeButton />
       <div className="max-w-6xl mx-auto p-6 space-y-8 pb-20">
         <header className="flex items-center gap-4 border-b pb-4 mb-8">
           <div className="bg-orange-100 p-3 rounded-full text-orange-700">

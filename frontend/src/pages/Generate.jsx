@@ -4,6 +4,7 @@ import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileTe
 import { useNavigate, Link } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
 
@@ -282,6 +283,7 @@ export default function Generate() {
     <div className="min-h-screen relative bg-gradient-to-br from-blue-200 via-white to-white">
       <PromptModal />
       <BackButton />
+      <HomeButton />
       <div className="max-w-5xl mx-auto p-8 font-sans">
         <header className="flex justify-between items-center mb-8 border-b pb-4">
           <div className="flex items-center gap-4">

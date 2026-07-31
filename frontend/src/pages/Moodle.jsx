@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { moodleAPI } from '../api/client';
 import { Library, Upload, Download, CheckCircle, FileCode2 } from 'lucide-react';
 import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
 
@@ -166,6 +167,7 @@ export default function Moodle() {
     <div className="min-h-screen relative bg-gradient-to-br from-indigo-200 via-white to-white">
       <PromptModal />
       <BackButton />
+      <HomeButton />
       <div className="max-w-4xl mx-auto p-6 space-y-8 pb-20">
         <header className="flex items-center gap-4 border-b pb-4">
           <div className="bg-indigo-100 p-3 rounded-full text-indigo-700">

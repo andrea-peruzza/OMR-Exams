@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { generateAPI } from '../api/client';
 import { ArrowLeft, Save, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 import { usePrompt } from '../hooks/usePrompt';
 
 export default function QuestionsEditor() {
@@ -190,6 +191,7 @@ export default function QuestionsEditor() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <BackButton />
+          <HomeButton />
           <h1 className="text-3xl font-extrabold text-gray-800">Editor Domande</h1>
         </div>
       </div>

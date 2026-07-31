@@ -4,6 +4,7 @@ import { manualAPI, correctAPI } from '../api/client';
 import PDFPreview from '../components/PDFPreview';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 
 export default function ManualCorrection() {
@@ -122,8 +123,9 @@ export default function ManualCorrection() {
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-yellow-200 via-white to-white">
+    <div className="min-h-screen relative bg-gradient-to-br from-yellow-200 via-white to-white pb-20">
       <BackButton />
+      <HomeButton />
       <div className="max-w-6xl mx-auto p-6 space-y-6 pb-20">
         <header className="flex items-center gap-4 border-b pb-4 mb-8">
           <div className="bg-yellow-100 p-3 rounded-full text-yellow-700">
