@@ -139,6 +139,43 @@ export default function Generate() {
       setRuntime(prev => ({ ...prev, output_prefix: currentPrefix }));
     }
 
+    let currentConfigName = runtime.config_output_name;
+    if (runtime.save_config && currentConfigName) {
+      let checkName = currentConfigName;
+      if (!checkName.endsWith('.yaml') && !checkName.endsWith('.yml')) {
+        checkName += '.yaml';
+      }
+      
+      while (availableFiles.configs && availableFiles.configs.includes(checkName)) {
+        let defaultSuggest = currentConfigName;
+        if (defaultSuggest.endsWith('.yaml')) defaultSuggest = defaultSuggest.slice(0, -5);
+        else if (defaultSuggest.endsWith('.yml')) defaultSuggest = defaultSuggest.slice(0, -4);
+        
+        const userChoice = await prompt(`Il file di configurazione "${checkName}" esiste già nella cartella data/.\nInserisci un nuovo nome per creare un nuovo file, oppure lascia questo per sovrascriverlo (Annulla per fermare):`, defaultSuggest);
+        if (userChoice === null) {
+          return;
+        }
+        
+        let choiceWithExt = userChoice;
+        if (!choiceWithExt.endsWith('.yaml') && !choiceWithExt.endsWith('.yml')) {
+          choiceWithExt += '.yaml';
+        }
+        
+        if (choiceWithExt === checkName) {
+          // The user chose to keep the current file (either by typing exactly the same, or pressing enter on the prefix)
+          // We break to overwrite
+          break;
+        }
+        
+        currentConfigName = userChoice;
+        checkName = choiceWithExt;
+      }
+      
+      if (currentConfigName !== runtime.config_output_name) {
+        setRuntime(prev => ({ ...prev, config_output_name: currentConfigName }));
+      }
+    }
+
     setError(null);
     setProgress(null);
     
@@ -177,7 +214,7 @@ export default function Generate() {
     const reqData = {
       config: payloadConfig,
       save_config: runtime.save_config,
-      config_output_name: runtime.config_output_name,
+      config_output_name: currentConfigName,
       date: runtime.date,
       is_anonymous: runtime.is_anonymous,
       num_anonymous_exams: runtime.is_anonymous ? parseInt(runtime.num_anonymous_exams, 10) : undefined,
