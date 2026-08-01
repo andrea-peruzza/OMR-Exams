@@ -13,6 +13,9 @@ export default function QuestionsEditor() {
   const [filename, setFilename] = useState('');
   const [fileTitle, setFileTitle] = useState('');
   const [availableFiles, setAvailableFiles] = useState([]);
+  const [availableJsons, setAvailableJsons] = useState([]);
+  const [updateExams, setUpdateExams] = useState(false);
+  const [selectedJsonFile, setSelectedJsonFile] = useState('');
   
   const [questions, setQuestions] = useState([]);
   const [status, setStatus] = useState(null);
@@ -21,6 +24,7 @@ export default function QuestionsEditor() {
   useEffect(() => {
     generateAPI.getFiles().then(res => {
       if (res.questions) setAvailableFiles(res.questions);
+      if (res.jsons) setAvailableJsons(res.jsons);
     });
   }, [status]); // Reload files on successful save
 
@@ -117,7 +121,7 @@ export default function QuestionsEditor() {
     setQuestions(questions.map(q => {
       if (q.id === id) {
         if (field === 'text' && q.type === 'open' && !q.vspaceModified) {
-          return { ...q, text: value, vspace: value.length >= 85 ? 0.7 : 0.5 };
+          return { ...q, text: value, vspace: value.length >= 85 ? 0.6 : 0.5 };
         }
         if (field === 'vspace') {
           return { ...q, [field]: value, vspaceModified: true };
@@ -265,7 +269,17 @@ export default function QuestionsEditor() {
         content: markdown,
         append: appendMode
       });
-      setStatus({ type: 'success', message: 'Domande salvate con successo nel file: ' + finalFilenameToUse });
+      
+      let updateMsg = '';
+      if (mode === 'edit' && updateExams && selectedJsonFile) {
+        await generateAPI.updateCorrected({
+            question_files: [finalFilenameToUse],
+            datafile: selectedJsonFile
+        });
+        updateMsg = ' ed esami aggiornati';
+      }
+
+      setStatus({ type: 'success', message: 'Domande salvate con successo nel file: ' + finalFilenameToUse + updateMsg });
       if (mode === 'new') {
         setQuestions([]);
         setMode('existing');
@@ -481,12 +495,42 @@ export default function QuestionsEditor() {
           </button>
         </div>
 
+        {mode === 'edit' && (
+            <div className="w-full max-w-lg mt-6 bg-gray-50 p-4 rounded-xl border">
+              <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-800 mb-3">
+                <input 
+                  type="checkbox" 
+                  className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                  checked={updateExams}
+                  onChange={(e) => setUpdateExams(e.target.checked)}
+                />
+                Aggiorna esami già generati
+              </label>
+              {updateExams && (
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Seleziona il file JSON da aggiornare</label>
+                    <select 
+                      className="w-full border rounded-lg p-2"
+                      value={selectedJsonFile}
+                      onChange={(e) => setSelectedJsonFile(e.target.value)}
+                    >
+                      <option value="">-- Seleziona --</option>
+                      {availableJsons.map(f => (
+                        <option key={f} value={f}>{f}</option>
+                      ))}
+                    </select>
+                  </div>
+              )}
+            </div>
+        )}
+
         {questions.length > 0 && (
           <button 
             onClick={handleSave}
-            className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2 mt-4"
+            className={`px-8 py-3 text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 mt-4 ${mode === 'edit' && updateExams ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            <Save size={20} /> Salva nel Markdown
+            <Save size={20} /> 
+            {mode === 'edit' && updateExams ? 'Salva domande e aggiorna esami' : 'Salva nel Markdown'}
           </button>
         )}
 
