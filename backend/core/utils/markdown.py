@@ -71,6 +71,12 @@ class LatexFormula(span_token.SpanToken):
     def __init__(self, match):
         self.symbol = match.group(1)
         self.content = match.group(2)
+
+class LatexCommand(span_token.SpanToken):
+    pattern = re.compile(r"(\\[a-zA-Z]+\{[^}]+\})")
+    
+    def __init__(self, match):
+        self.command = match.group(1)
         
 class QuestionList(block_token.List):
     """
@@ -138,8 +144,11 @@ class QuestionRenderer(LaTeXRenderer):
         self.questions = []
         # TODO: check parameter coherence
         self.parameters = kwargs
-        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines], extras)) 
+        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexCommand], extras)) 
         
+    def render_latex_command(self, token):
+        return token.command
+
     def render_question_marker(self, token):
         if not self.record_answers:
             raise ValueError(f"Probably a misplaced question marker has been used (i.e., a list not starting with it) for question \"{self.questions[-1]['question']}\"")
@@ -200,7 +209,7 @@ class QuestionRenderer(LaTeXRenderer):
                 return ''
         if token.level > 2:
             inner = self.render_inner(token).strip()
-            return f'\\textbf{{Q:}} {inner}\n\\newline'
+            return f'\\textbf{{Q:}} {inner}\n'
         template = "\\question\n{inner}"
         inner = self.render_inner(token).strip()
         self.questions[-1]['question'] = inner 
@@ -474,8 +483,11 @@ class MoodleRenderer(BaseRenderer):
         self.questions = []
         # TODO: check parameter coherence
         self.parameters = kwargs
-        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexFormula], extras))
+        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexFormula, LatexCommand], extras))
         
+    def render_latex_command(self, token):
+        return ''
+
     def render_question_marker(self, token):
         if not self.record_answers:
             raise ValueError(f"Probably a misplaced question marker has been used (i.e., a list not starting with it) for question \"{self.questions[-1]['question']}\"")
