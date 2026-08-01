@@ -89,6 +89,18 @@ def save_question(req: QuestionSaveRequest):
         f.write(req.content)
     return {"status": "success", "filename": req.filename}
 
+@router.get("/questions/read")
+def read_question(filename: str):
+    questions_dir = os.path.join(DATA_DIR, "questions")
+    if not filename.endswith('.md'):
+        filename += '.md'
+    file_path = os.path.join(questions_dir, filename)
+    if not os.path.exists(file_path):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="File not found")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    return {"status": "success", "filename": filename, "content": content}
 
 def run_generate_task(task_id: str, req: GenerateRequest):
     try:

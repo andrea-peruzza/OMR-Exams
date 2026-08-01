@@ -24,6 +24,80 @@ export default function QuestionsEditor() {
     });
   }, [status]); // Reload files on successful save
 
+  const loadAndParseFile = async (selectedFile) => {
+    if (!selectedFile) {
+      setQuestions([]);
+      setFileTitle('');
+      return;
+    }
+    try {
+      const res = await generateAPI.readQuestions(selectedFile);
+      if (res.content) {
+        const text = res.content;
+        const titleMatch = text.match(/^#\s+(.+)/m);
+        if (titleMatch) setFileTitle(titleMatch[1].trim());
+        else setFileTitle('');
+
+        const blocks = text.split(/^---$/m).map(b => b.trim()).filter(b => b.length > 0 && !b.startsWith('# '));
+        const parsedQuestions = blocks.map((block, idx) => {
+          const closedMatch = block.match(/^##\s+(.+)/m);
+          if (closedMatch) {
+            const qText = closedMatch[1].trim();
+            const answers = [];
+            const ansRegex = /^- \[(x|X| )\]\s+(.+)/gm;
+            let m;
+            while ((m = ansRegex.exec(block)) !== null) {
+              answers.push({ correct: m[1].toLowerCase() === 'x', text: m[2].trim() });
+            }
+            return {
+              id: Date.now() + idx,
+              type: 'closed',
+              text: qText,
+              answers,
+              lines: 5,
+              vspace: 0.5,
+              vspaceModified: false
+            };
+          }
+          const openMatch = block.match(/^###\s+(.+)/m);
+          if (openMatch) {
+            const qText = openMatch[1].trim();
+            let vspace = 0.5;
+            let lines = 5;
+            const vspaceMatch = block.match(/\\vspace\{([\d.-]+)cm\}/);
+            if (vspaceMatch) {
+              const k = parseFloat(vspaceMatch[1]);
+              vspace = parseFloat((0.8 + k).toFixed(2));
+            }
+            const linesMatch = block.match(/\{lines:([\d.-]+)cm\}/);
+            if (linesMatch) {
+              lines = parseFloat(linesMatch[1]);
+            }
+            return {
+              id: Date.now() + idx,
+              type: 'open',
+              text: qText,
+              answers: [],
+              lines,
+              vspace,
+              vspaceModified: true
+            };
+          }
+          return null;
+        }).filter(q => q !== null);
+        setQuestions(parsedQuestions);
+      }
+    } catch (e) {
+      setStatus({ type: 'error', message: 'Impossibile caricare il file.' });
+    }
+  };
+
+  useEffect(() => {
+    if (mode === 'edit' && filename) {
+      loadAndParseFile(filename);
+    }
+  }, [mode, filename]);
+
   const addQuestion = (type) => {
     setQuestions([
       ...questions,
@@ -32,13 +106,26 @@ export default function QuestionsEditor() {
         type,
         text: '',
         answers: type === 'closed' ? [{ text: '', correct: false }, { text: '', correct: false }] : [],
-        lines: 5
+        lines: 5,
+        vspace: 0.5,
+        vspaceModified: false
       }
     ]);
   };
 
   const updateQuestion = (id, field, value) => {
-    setQuestions(questions.map(q => q.id === id ? { ...q, [field]: value } : q));
+    setQuestions(questions.map(q => {
+      if (q.id === id) {
+        if (field === 'text' && q.type === 'open' && !q.vspaceModified) {
+          return { ...q, text: value, vspace: value.length >= 85 ? 0.7 : 0.5 };
+        }
+        if (field === 'vspace') {
+          return { ...q, [field]: value, vspaceModified: true };
+        }
+        return { ...q, [field]: value };
+      }
+      return q;
+    }));
   };
 
   const addAnswer = (qId) => {
@@ -118,6 +205,7 @@ export default function QuestionsEditor() {
     const finalFilename = filename.endsWith('.md') ? filename : `${filename}.md`;
 
     let appendMode = mode === 'existing';
+    if (mode === 'edit') appendMode = false;
     let finalFilenameToUse = finalFilename;
 
     if (mode === 'new' && availableFiles.includes(finalFilename)) {
@@ -151,7 +239,7 @@ export default function QuestionsEditor() {
     }
 
     let markdown = '';
-    if (mode === 'new' && !appendMode && fileTitle.trim()) {
+    if ((mode === 'new' || mode === 'edit') && !appendMode && fileTitle.trim()) {
         markdown += `# ${fileTitle.trim()}\n\n`;
     }
 
@@ -164,6 +252,8 @@ export default function QuestionsEditor() {
         });
       } else {
         markdown += `### ${q.text}\n`;
+        const k = - (0.8 - (parseFloat(q.vspace) || 0));
+        markdown += `\\vspace{${Number(k.toFixed(2))}cm}\n`;
         markdown += `{lines:${q.lines}cm}\n`;
       }
       markdown += '\n';
@@ -176,12 +266,15 @@ export default function QuestionsEditor() {
         append: appendMode
       });
       setStatus({ type: 'success', message: 'Domande salvate con successo nel file: ' + finalFilenameToUse });
-      setQuestions([]);
       if (mode === 'new') {
+        setQuestions([]);
         setMode('existing');
         setFilename(finalFilenameToUse);
         setFileTitle('');
+      } else if (mode === 'existing') {
+        setQuestions([]);
       }
+      // If mode === 'edit', we keep the questions populated so the user can continue editing.
     } catch (e) {
       setStatus({ type: 'error', message: 'Errore durante il salvataggio.' });
     }
@@ -222,9 +315,22 @@ export default function QuestionsEditor() {
               onChange={() => { 
                 setMode('existing'); 
                 setFilename(availableFiles[0] || '');
+                setQuestions([]);
               }} 
             />
             <label htmlFor="mode-existing" className="font-semibold text-gray-700">Aggiungi a file esistente</label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input 
+              type="radio" 
+              id="mode-edit" 
+              checked={mode === 'edit'} 
+              onChange={() => { 
+                setMode('edit'); 
+                setFilename(availableFiles[0] || '');
+              }} 
+            />
+            <label htmlFor="mode-edit" className="font-semibold text-gray-700">Modifica file già esistente</label>
           </div>
         </div>
 
@@ -280,7 +386,12 @@ export default function QuestionsEditor() {
             <h3 className="text-lg font-bold mb-4 text-blue-900">Domanda {idx + 1} ({q.type === 'closed' ? 'Chiusa' : 'Aperta'})</h3>
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Testo della domanda</label>
+              <label className="flex justify-between items-end text-sm font-medium text-gray-700 mb-1">
+                <span>Testo della domanda</span>
+                {q.type === 'open' && (
+                  <span className="text-xs text-gray-500">{q.text.length} caratteri</span>
+                )}
+              </label>
               <textarea 
                 className="w-full border rounded-lg p-2"
                 rows="2"
@@ -291,15 +402,28 @@ export default function QuestionsEditor() {
             </div>
 
             {q.type === 'open' && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Spazio per la risposta (in cm)</label>
-                <input 
-                  type="number" 
-                  min="1"
-                  className="w-32 border rounded-lg p-2"
-                  value={q.lines}
-                  onChange={(e) => updateQuestion(q.id, 'lines', e.target.value)}
-                />
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Spazio per la risposta (in cm)</label>
+                  <input 
+                    type="number" 
+                    min="1"
+                    className="w-full border rounded-lg p-2"
+                    value={q.lines}
+                    onChange={(e) => updateQuestion(q.id, 'lines', e.target.value)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Spazio dall'inizio della risposta (in cm)</label>
+                  <input 
+                    type="number" 
+                    min="0"
+                    step="0.1"
+                    className="w-full border rounded-lg p-2"
+                    value={q.vspace}
+                    onChange={(e) => updateQuestion(q.id, 'vspace', e.target.value)}
+                  />
+                </div>
               </div>
             )}
 

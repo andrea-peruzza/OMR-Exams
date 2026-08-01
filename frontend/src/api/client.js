@@ -49,6 +49,10 @@ export const generateAPI = {
     const response = await apiClient.post('/api/generate/questions/save', requestData);
     return response.data;
   },
+  readQuestions: async (filename) => {
+    const response = await apiClient.get(`/api/generate/questions/read?filename=${encodeURIComponent(filename)}`);
+    return response.data;
+  },
   startGeneration: async (requestData) => {
     const response = await apiClient.post('/api/generate/start', requestData);
     return response.data;
