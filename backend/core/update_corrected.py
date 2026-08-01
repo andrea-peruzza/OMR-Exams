@@ -65,5 +65,11 @@ class UpdateCorrected:
                                 click.secho('Updating record', fg='green')
                                 exam['answers'][i] = ref_answers
                                 db.table('exams').update(set('answers', exam['answers']), Exam.student_id == exam['student_id'])
+                                
+                                if 'correction' in db.tables():
+                                    correction = db.table('correction').get(Exam.student_id == exam['student_id'])
+                                    if correction and len(correction['correct_answers']) > i:
+                                        correction['correct_answers'][i] = ref_answers
+                                        db.table('correction').update(set('correct_answers', correction['correct_answers']), Exam.student_id == exam['student_id'])
                                                                                 
                             

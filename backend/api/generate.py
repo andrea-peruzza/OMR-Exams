@@ -14,6 +14,11 @@ class QuestionSaveRequest(BaseModel):
     content: str
     append: bool = True
 
+from typing import List
+class UpdateCorrectedRequest(BaseModel):
+    question_files: List[str]
+    datafile: str
+
 
 class ProgressCallback:
     def __init__(self, task_id):
@@ -101,6 +106,30 @@ def read_question(filename: str):
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     return {"status": "success", "filename": filename, "content": content}
+
+@router.post("/questions/update-corrected")
+def update_corrected_endpoint(req: UpdateCorrectedRequest):
+    try:
+        from core.update_corrected import UpdateCorrected
+        # question_files are relative to DATA_DIR, like "questions/filename.md"
+        # datafile is relative to DATA_DIR, like "exam.json"
+        # wait, req.question_files might just be filenames if we assume they're all in questions/
+        # let's assume they are filenames and we prepend "questions/"
+        q_files = []
+        for qf in req.question_files:
+            q_files.append(os.path.join(DATA_DIR, "questions", qf))
+        
+        data_file = os.path.join(DATA_DIR, req.datafile)
+        
+        updater = UpdateCorrected(q_files, data_file)
+        updater.process(dry_run=False)
+        return {"status": "success"}
+    except Exception as e:
+        import logging
+        logging.getLogger("omrexams").error(f"Error updating corrected exams: {e}")
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 def run_generate_task(task_id: str, req: GenerateRequest):
     try:
