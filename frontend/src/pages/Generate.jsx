@@ -1,12 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText, FileEdit } from 'lucide-react';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText, FileEdit, Copy, Plus, Search } from 'lucide-react';
+import HeaderFooterEditor from '../components/HeaderFooterEditor';
 import { useNavigate, Link } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
+
+// Funzione helper per tradurre HTML (Quill) in LaTeX
+const translateToLatex = (text) => {
+  if (!text) return text;
+  let latex = text;
+  
+  // Variabili magiche nuove
+  latex = latex.replace(/\{\{NOME\}\}/g, '\\thestudent');
+  latex = latex.replace(/\{\{MATRICOLA\}\}/g, '\\thematriculationno');
+  latex = latex.replace(/\{\{DATA\}\}/g, '\\thedate');
+  latex = latex.replace(/\{\{PAGINA\}\}/g, '\\thepage');
+  
+  // Compatibilità vecchi testi
+  if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
+  if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
+  if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
+  if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
+
+  // Gestione HTML da Quill
+  if (latex.includes('<')) {
+    // Quill applica le classi ql-align-* ai tag <p>
+    latex = latex.replace(/<p class="ql-align-center">(.*?)<\/p>/g, '\\begin{center}$1\\end{center}');
+    latex = latex.replace(/<p class="ql-align-right">(.*?)<\/p>/g, '\\begin{flushright}$1\\end{flushright}');
+    latex = latex.replace(/<p class="ql-align-justify">(.*?)<\/p>/g, '$1');
+
+    // Manteniamo i <div> per retrocompatibilità
+    latex = latex.replace(/<div class="ql-align-center">(.*?)<\/div>/g, '\\begin{center}$1\\end{center}');
+    latex = latex.replace(/<div class="ql-align-right">(.*?)<\/div>/g, '\\begin{flushright}$1\\end{flushright}');
+    latex = latex.replace(/<div class="ql-align-justify">(.*?)<\/div>/g, '$1');
+    latex = latex.replace(/<div[^>]*>(.*?)<\/div>/g, '$1 \\newline ');
+    
+    latex = latex.replace(/<strong>(.*?)<\/strong>/g, '\\textbf{$1}');
+    latex = latex.replace(/<em>(.*?)<\/em>/g, '\\textit{$1}');
+    latex = latex.replace(/<u>(.*?)<\/u>/g, '\\underline{$1}');
+    
+    latex = latex.replace(/<p><br><\/p>/g, ' \\newline ');
+    latex = latex.replace(/<\/p>/g, ' \\newline ');
+    latex = latex.replace(/<p[^>]*>/g, '');
+    latex = latex.replace(/<br\s*\/?>/g, ' \\newline ');
+    
+    latex = latex.replace(/<[^>]+>/g, '');
+    latex = latex.replace(/&nbsp;/g, ' ');
+    latex = latex.replace(/&lt;/g, '<');
+    latex = latex.replace(/&gt;/g, '>');
+    latex = latex.replace(/&amp;/g, '&');
+    
+    latex = latex.replace(/( \\newline )+$/g, '');
+  } else {
+    latex = latex.replace(/\n/g, ' \\newline ');
+  }
+  
+  return latex.trim();
+};
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -162,8 +216,6 @@ export default function Generate() {
         }
         
         if (choiceWithExt === checkName) {
-          // The user chose to keep the current file (either by typing exactly the same, or pressing enter on the prefix)
-          // We break to overwrite
           break;
         }
         
@@ -179,20 +231,9 @@ export default function Generate() {
     setError(null);
     setProgress(null);
     
-    // Funzione helper per tradurre linguaggio naturale in LaTeX
-    const translateToLatex = (text) => {
-      if (!text) return text;
-      let latex = text;
-      if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
-      if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
-      if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
-      if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
-      latex = latex.replace(/\n/g, ' \\newline ');
-      return latex;
-    };
-
     const getPayloadConfig = () => {
       const payloadConfig = { ...config };
+      
       payloadConfig.header = translateToLatex(payloadConfig.header);
       payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
       payloadConfig.footer = translateToLatex(payloadConfig.footer);
@@ -263,18 +304,8 @@ export default function Generate() {
     setIsTestLoading(true);
     setTestPdfUrl(null);
 
-    const translateToLatex = (text) => {
-      if (!text) return text;
-      let latex = text;
-      if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
-      if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
-      if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
-      if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
-      latex = latex.replace(/\n/g, ' \\newline ');
-      return latex;
-    };
-
     const payloadConfig = { ...config };
+    
     payloadConfig.header = translateToLatex(payloadConfig.header);
     payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
     payloadConfig.footer = translateToLatex(payloadConfig.footer);
@@ -648,49 +679,13 @@ export default function Generate() {
           </div>
         </section>
 
-        {/* Parti personalizzate */}
+        {/* Struttura (Header, Preamble, Footer) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
-            Parti personalizzate
-            <HelpButton title="Formattazione in LaTeX">
-              <p className="mb-3">In questi campi puoi scrivere in linguaggio naturale ed eventualmente utilizzare i comandi base di LaTeX per impaginare a piacimento l'intestazione, il preambolo e il piè di pagina.</p>
-              <p className="mb-2 font-medium text-gray-800">Comandi che potrebbero essere utili:</p>
-              <ul className="list-disc pl-5 mb-4 space-y-2">
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\newline</code> per andare a capo alla riga successiva</li>
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thedate</code> stampa la data impostata</li>
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thestudent</code> stampa nome e cognome dello studente estratto</li>
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thematriculationno</code> stampa il numero di matricola/id dello studente</li>
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\thepage</code> stampa il numero della pagina corrente</li>
-                <li><code className="bg-gray-100 px-1.5 py-0.5 rounded text-indigo-600 font-mono">\textbf&#123;testo&#125;</code> per fare il <span className="font-bold">testo in grassetto</span></li>
-              </ul>
-              <div className="bg-blue-50 border border-blue-100 p-3 rounded mt-5">
-                <p className="text-sm text-blue-800">Eventualmente possono anche essere utilizzati dei template precompilati standard presenti sulla destra.</p>
-              </div>
-            </HelpButton>
+            Struttura e Layout della Pagina
           </h2>
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-sm font-medium text-gray-700">Header</label>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, header: "Data dell'esame\nNome del candidato\nMatricola"})}>Usa standard: "Data, nome e matricola"</button>
-              </div>
-              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.header} onChange={e => setConfig({...config, header: e.target.value})} placeholder="Testata dell'esame"></textarea>
-            </div>
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-sm font-medium text-gray-700">Preamble</label>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, preamble: "Istruzioni: rispondi a tutte le domande annerendo completamente la casella."})}>Usa standard: "Istruzioni esame"</button>
-              </div>
-              <textarea className="w-full border p-2 rounded text-sm" rows="3" value={config.preamble} onChange={e => setConfig({...config, preamble: e.target.value})} placeholder="Testo libero introdotto prima delle domande"></textarea>
-            </div>
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-sm font-medium text-gray-700">Footer</label>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-800" onClick={() => setConfig({...config, footer: 'Numero di pagina'})}>Usa standard: "Numero di pagina"</button>
-              </div>
-              <input type="text" className="w-full border p-2 rounded text-sm" value={config.footer} onChange={e => setConfig({...config, footer: e.target.value})} placeholder="Piè di pagina dell'esame" />
-            </div>
-          </div>
+          <p className="text-sm text-gray-500 mb-6">Personalizza la testata, le istruzioni e il piè di pagina visualizzando l'anteprima in tempo reale.</p>
+          <HeaderFooterEditor config={config} setConfig={setConfig} />
         </section>
 
         {/* Test del Layout */}
