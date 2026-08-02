@@ -77,6 +77,12 @@ class LatexCommand(span_token.SpanToken):
     
     def __init__(self, match):
         self.command = match.group(1)
+
+class SaytexFormula(span_token.SpanToken):
+    pattern = re.compile(r'(\u00A3.*?\u00A3)')
+    
+    def __init__(self, match):
+        self.content = match.group(1)[1:-1]
         
 class QuestionList(block_token.List):
     """
@@ -144,10 +150,25 @@ class QuestionRenderer(LaTeXRenderer):
         self.questions = []
         # TODO: check parameter coherence
         self.parameters = kwargs
-        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexCommand], extras)) 
+        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexCommand, LatexFormula, SaytexFormula], extras)) 
         
+    def render_latex_formula(self, token):
+        if token.symbol == '$':
+            return f'${token.content}$'
+        else:
+            return f'$${token.content}$$'
+
     def render_latex_command(self, token):
         return token.command
+
+    def render_saytex_formula(self, token):
+        try:
+            import saytex
+            compiler = saytex.Saytex()
+            latex_code = compiler.to_latex(token.content)
+            return f"${latex_code}$"
+        except Exception:
+            return f"${token.content}$"
 
     def render_question_marker(self, token):
         if not self.record_answers:
@@ -483,10 +504,19 @@ class MoodleRenderer(BaseRenderer):
         self.questions = []
         # TODO: check parameter coherence
         self.parameters = kwargs
-        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexFormula, LatexCommand], extras))
+        super().__init__(*chain([QuestionMarker, QuestionTopic, QuestionList, QuestionBlock, Lines, LatexFormula, LatexCommand, SaytexFormula], extras))
         
     def render_latex_command(self, token):
         return ''
+
+    def render_saytex_formula(self, token):
+        try:
+            import saytex
+            compiler = saytex.Saytex()
+            latex_code = compiler.to_latex(token.content)
+            return f"\\({latex_code}\\)"
+        except Exception:
+            return f"\\({token.content}\\)"
 
     def render_question_marker(self, token):
         if not self.record_answers:
