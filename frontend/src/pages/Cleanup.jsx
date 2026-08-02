@@ -20,7 +20,7 @@ export default function Cleanup() {
     { id: 'generated_pdfs', label: 'PDF degli esami generati' },
     { id: 'generated_jsons', label: 'JSON degli esami generati' },
     { id: 'scans', label: 'Esami scansionati (scans)' },
-    { id: 'sorted', label: 'Immagini degli esami (sorted)' },
+    { id: 'sorted', label: 'Esami ordinati (sorted)' },
     { id: 'corrected', label: 'PDF degli esami corretti' },
     { id: 'reports', label: 'File Excel/Markdown (voti e report)' },
     { id: 'config', label: 'File di configurazione YAML' },
@@ -113,7 +113,7 @@ export default function Cleanup() {
           <Trash2 size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Gestione Dati</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Gestione dati</h1>
           <p className="text-gray-600 mt-1">Seleziona ed elimina i file non più necessari generati dal sistema.</p>
         </div>
       </header>

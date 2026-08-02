@@ -5,6 +5,7 @@ import { generateAPI } from '../api/client';
 import { ArrowLeft, Save, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
+import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
 
 export default function QuestionsEditor() {
@@ -304,13 +305,40 @@ export default function QuestionsEditor() {
             <FileEdit size={32} />
           </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Editor Domande</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Editor domande</h1>
           <p className="text-gray-600 mt-1">Aggiungi nuove domande ai file markdown in modo semplice e guidato.</p>
         </div>
       </header>
 
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md mb-8">
-        <h2 className="text-xl font-bold mb-4 border-b pb-2">Destinazione file</h2>
+        <h2 className="text-xl font-bold mb-4 border-b pb-2 flex items-center">
+          Destinazione file
+          <HelpButton title="Guida all'Editor Domande">
+            <div className="space-y-4 text-sm text-gray-700">
+              <div>
+                <p className="font-semibold text-gray-800 mb-1">Azioni disponibili:</p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li><strong>Nuovo file:</strong> Permette di creare un nuovo file di domande. Specifica il nome del file e il titolo dell'esame, dopodiché potrai aggiungere domande chiuse o aperte.</li>
+                  <li><strong>Aggiungi a esistente:</strong> Seleziona un file già creato. Le nuove domande che andrai a inserire verranno aggiunte in coda al file scelto.</li>
+                  <li><strong>Modifica esistente:</strong> Permette di visualizzare le domande di un file esistente, modificarle o crearne di nuove. È presente anche l'opzione per aggiornare in blocco tutti i file JSON già generati con quelle domande (utile per aggiornare le risposte corrette).</li>
+                </ul>
+              </div>
+              <hr className="border-gray-200" />
+              <div>
+                <p className="font-semibold text-gray-800 mb-1">Domande chiuse (scelta multipla):</p>
+                <p>Nelle risposte chiuse è possibile indicare quali sono le risposte corrette semplicemente spuntando il relativo checkbox dedicato di fianco ad esse.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800 mb-1">Domande aperte:</p>
+                <p>Nelle domande aperte è possibile personalizzare due parametri chiave:</p>
+                <ul className="list-disc pl-5 mt-1 space-y-1">
+                  <li>Lo spazio totale (in cm) da dedicare alla risposta dello studente.</li>
+                  <li>La spaziatura iniziale tra il testo della domanda e la prima riga utile per rispondere. Di default è impostata a <strong>0.5cm</strong> se la domanda è breve (meno di 85 caratteri, sta in una riga), oppure a <strong>0.6cm</strong> se la domanda è più lunga (85 caratteri o più).</li>
+                </ul>
+              </div>
+            </div>
+          </HelpButton>
+        </h2>
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="flex items-center gap-2">
             <input 

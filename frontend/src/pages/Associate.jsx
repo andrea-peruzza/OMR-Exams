@@ -5,6 +5,7 @@ import { Save, Upload, AlertCircle, CheckCircle, RefreshCw, Search, Server, Scan
 import { Link } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
+import HelpButton from '../components/HelpButton';
 
 const AutocompleteInput = ({ excelData, onSelect, disabled }) => {
   const [query, setQuery] = React.useState('');
@@ -286,9 +287,9 @@ export default function Associate() {
             <ScanText size={32} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Associa Studenti</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Associa studenti</h1>
             <p className="text-gray-600 mt-1">
-              Associa i compiti anonimi agli studenti reali. Modifica manualmente i campi o carica un file Excel contenente i dati degli studenti da associare.
+              Associa i compiti anonimi agli studenti. Modifica manualmente i campi o carica un file Excel contenente i dati degli studenti da associare.
             </p>
           </div>
         </header>
@@ -314,6 +315,16 @@ export default function Associate() {
           <>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row items-center gap-4">
         <div className="flex items-center gap-4 flex-wrap">
+          <HelpButton title="Associazione Studenti">
+            <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+              <p>
+                Nella sezione sottostante sono presenti tutte le scansioni degli esami svolte, con di fianco la possibilità di associare ad ogni esame un preciso studente con il rispettivo numero di matricola.
+              </p>
+              <p>
+                Tale informazione è inseribile manualmente oppure, caricando un file Excel con le informazioni degli studenti da associare tramite i pulsanti qui a lato, è possibile svolgere una ricerca dello studente dalla sezione dedicata, per una corrispondenza immediata.
+              </p>
+            </div>
+          </HelpButton>
           <label className="flex items-center gap-2 cursor-pointer bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
             <Upload size={20} />
             <span className="font-semibold">Carica Excel</span>
@@ -334,15 +345,6 @@ export default function Associate() {
               </select>
             </div>
           )}
-
-          <button 
-            onClick={fetchExams}
-            disabled={loading}
-            className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-            <span className="font-semibold">Ricarica Dati</span>
-          </button>
         </div>
       </div>
 
@@ -421,13 +423,13 @@ export default function Associate() {
                     ) : (
                       <span className="text-gray-400 italic">Immagine non trovata</span>
                     )}
-                    <p className="mt-2 text-sm text-gray-500">ID Attuale: {exam.original_id}</p>
+                    <p className="mt-2 text-sm text-gray-500">ID attuale: {exam.original_id}</p>
                   </td>
                   
                   <td className="px-6 py-4">
                     <div className="space-y-4 max-w-xs">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
                         <input
                           type="text"
                           value={exam.new_fullname}

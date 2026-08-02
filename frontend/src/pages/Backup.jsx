@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCw, ArchiveRestore, AlertCircle, Archive } from 'luci
 import { backupAPI } from '../api/client';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
+import HelpButton from '../components/HelpButton';
 
 export default function Backup() {
   const [backups, setBackups] = useState([]);
@@ -65,7 +66,7 @@ export default function Backup() {
           <Archive size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Backup e Ripristino</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Backup e ripristino</h1>
           <p className="text-gray-600 mt-1">Gestisci i backup dei file JSON degli esami (massimo 5 file conservati).</p>
         </div>
       </header>
@@ -86,14 +87,19 @@ export default function Backup() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-teal-400 hover:shadow-md overflow-hidden">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-          <h2 className="text-lg font-bold text-gray-800">File di Backup Disponibili</h2>
-          <button 
-            onClick={fetchBackups} 
-            className="flex items-center text-sm bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-100 transition"
-          >
-            <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} /> 
-            Aggiorna
-          </button>
+          <h2 className="text-lg font-bold text-gray-800 flex items-center">
+            File di backup disponibili
+            <HelpButton title="Informazioni sui Backup">
+              <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+                <p>
+                  In questa pagina è possibile recuperare i file JSON contenenti le informazioni degli esami che sono stati erroneamente cancellati in precedenza.
+                </p>
+                <p>
+                  Per non occupare troppa memoria inutilmente sul disco, il sistema è configurato per mantenere la possibilità di ripristinare solamente gli <strong>ultimi 5 file JSON</strong> degli esami prodotti. I backup più vecchi vengono eliminati automaticamente.
+                </p>
+              </div>
+            </HelpButton>
+          </h2>
         </div>
         
         {loading && backups.length === 0 ? (
@@ -105,8 +111,8 @@ export default function Backup() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 text-gray-600 text-sm border-b">
-                  <th className="p-4 font-semibold">Nome File</th>
-                  <th className="p-4 font-semibold">Data Creazione / Modifica</th>
+                  <th className="p-4 font-semibold">Nome file</th>
+                  <th className="p-4 font-semibold">Data creazione / modifica</th>
                   <th className="p-4 font-semibold">Dimensione</th>
                   <th className="p-4 font-semibold text-right">Azione</th>
                 </tr>
