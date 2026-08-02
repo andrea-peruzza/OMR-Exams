@@ -336,14 +336,19 @@ def decode(image, highlight=False, offset=5):
         return opencv_decode(image, highlight, offset)
     except:
         pass
-    # FALLBACK
-    if len(image.shape) > 2:
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    else:
-        gray_img = image
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    clahe_image = clahe.apply(gray_img)
-    return opencv_decode(clahe_image, highlight, offset)
+    # FALLBACK with preprocessing
+    prepared_img = prepare_image_for_decoding(image)
+    if 'zxingcpp' in available_libraries:
+        try:
+            return zxing_decode(prepared_img, highlight, offset)
+        except:
+            pass
+    if 'pyzbar' in available_libraries:
+        try:
+            return pyzbar_decode(prepared_img, highlight, offset)
+        except:
+            pass
+    return opencv_decode(prepared_img, highlight, offset)
 
 
         
