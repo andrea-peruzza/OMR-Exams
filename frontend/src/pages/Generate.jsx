@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateAPI } from '../api/client';
-import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText, FileEdit, Copy, Plus, Search } from 'lucide-react';
+import { Play, Upload, CheckCircle2, AlertCircle, ArrowLeft, FilePlus, X, FileText, FileEdit, Copy, Plus, Search, Library } from 'lucide-react';
 import HeaderFooterEditor from '../components/HeaderFooterEditor';
 import { useNavigate, Link } from 'react-router-dom';
 import PDFPreview from '../components/PDFPreview';
@@ -60,6 +60,38 @@ const translateToLatex = (text) => {
   }
   
   return latex.trim();
+};
+
+// Funzione inversa per decodificare il LaTeX salvato nei file YAML e ripristinarlo nell'editor HTML Quill
+const latexToHtml = (latex) => {
+  if (!latex) return latex;
+  let html = latex;
+  
+  // Variabili
+  html = html.replace(/\\thestudent/g, '{{NOME}}');
+  html = html.replace(/\\thematriculationno/g, '{{MATRICOLA}}');
+  html = html.replace(/\\thedate/g, '{{DATA}}');
+  html = html.replace(/\\thepage/g, '{{PAGINA}}');
+  
+  // Inline formatting
+  html = html.replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>');
+  html = html.replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>');
+  html = html.replace(/\\underline\{([^}]+)\}/g, '<u>$1</u>');
+  
+  // Alignments (multiline support)
+  html = html.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/g, '<p class="ql-align-center">$1</p>');
+  html = html.replace(/\\begin\{flushright\}([\s\S]*?)\\end\{flushright\}/g, '<p class="ql-align-right">$1</p>');
+  
+  // Newlines
+  html = html.replace(/ \\newline /g, '<br>');
+  html = html.replace(/\\newline/g, '<br>');
+  
+  // Wrappa in <p> se serve per essere digerito bene da Quill
+  if (!html.includes('<p')) {
+    html = `<p>${html}</p>`;
+  }
+  
+  return html;
 };
 
 export default function Generate() {
@@ -148,6 +180,11 @@ export default function Generate() {
     try {
       const savedConfig = await generateAPI.getConfig(selectedConfig);
       if (savedConfig && Object.keys(savedConfig).length > 0) {
+        // Ripristina l'HTML per l'editor WYSIWYG
+        if (savedConfig.header) savedConfig.header = latexToHtml(savedConfig.header);
+        if (savedConfig.preamble) savedConfig.preamble = latexToHtml(savedConfig.preamble);
+        if (savedConfig.footer) savedConfig.footer = latexToHtml(savedConfig.footer);
+        
         setConfig(prev => ({ ...prev, ...savedConfig }));
         if (savedConfig.students) {
           setRuntime(prev => ({ ...prev, is_anonymous: false, selected_student_file: savedConfig.students, config_output_name: selectedConfig }));
@@ -392,7 +429,7 @@ export default function Generate() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden">
               <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
-                <h3 className="text-xl font-bold text-gray-800">Test del Layout - Anteprima</h3>
+                <h3 className="text-xl font-bold text-gray-800">Test del layout - anteprima</h3>
                 <button 
                   onClick={() => setShowTestModal(false)}
                   className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
@@ -411,7 +448,19 @@ export default function Generate() {
         
         {/* Sezione Impostazioni esame */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni esame</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
+            Impostazioni esame
+            <HelpButton title="Generazione Esami">
+              <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+                <p>
+                  Per generare degli esami è possibile compilare manualmente tutte le sezioni sottostanti, specificando tutte le impostazione desiderate.
+                </p>
+                <p>
+                  In alternativa, è possibile <strong>precompilare</strong> automaticamente tutti i campi (al di fuori dell'eventuale file Excel con le informazioni degli studenti utilizzato) caricando un file di configurazione precedentemente salvato, utilizzando l'apposito menu a tendina posizionato in alto a destra.
+                </p>
+              </div>
+            </HelpButton>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Titolo esame</label>
@@ -528,7 +577,7 @@ export default function Generate() {
               <HelpButton title="Sintassi Markdown delle domande">
                 <div className="space-y-4">
                   <div>
-                    <p className="font-semibold text-gray-800 mb-2">Esempio pratico:</p>
+                    <p className="font-semibold text-gray-800 mb-2">Il file markdown delle domande può essere creato o modificato attraverso il pulsante <strong>Editor domande</strong> qui a destra, oppure convertito da un file delle domande esportato da Moodle tramite il collegamento <strong>Converti da Moodle</strong>. In alternativa il file markdown pùò essere compilato seguendo le seguenti convenzioni. Esempio pratico:</p>
                     <pre className="bg-slate-800 text-gray-100 p-3 rounded-lg overflow-x-auto text-sm font-mono leading-relaxed">
 {`---
 ## Quale linguaggio viene eseguito nel browser?
@@ -547,6 +596,7 @@ export default function Generate() {
                       <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">---</code> funge da separatore tra una domanda e l'altra</li>
                       <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">##</code> definisce una domanda chiusa (a scelta multipla)</li>
                       <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">###</code> definisce una domanda aperta</li>
+                      <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">\vspace{'{'}-0.3cm{'}'}</code> sceglie di quanto avvicinare le linee per la risposta al testo di una domanda aperta</li>
                       <li><code className="bg-gray-100 px-1 rounded text-pink-600 font-bold">{'{'}lines:2cm{'}'}</code> definisce lo spazio da lasciare per rispondere ad una domanda aperta</li>
                       <li>È possibile avere domande con più risposte corrette</li>
                     </ul>
@@ -557,6 +607,9 @@ export default function Generate() {
             <div className="flex gap-2">
               <Link to="/questions" className="text-sm bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 flex items-center gap-1 font-medium transition-colors">
                 <FileEdit size={16} /> Editor domande
+              </Link>
+              <Link to="/moodle" className="text-sm bg-teal-50 text-teal-600 px-3 py-1 rounded hover:bg-teal-100 flex items-center gap-1 font-medium transition-colors">
+                <Library size={16} /> Converti da Moodle
               </Link>
               <label className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded cursor-pointer hover:bg-blue-100 flex items-center gap-1 transition-colors">
                 <Upload size={16} /> Carica file .md
@@ -682,7 +735,28 @@ export default function Generate() {
         {/* Struttura (Header, Preamble, Footer) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
-            Struttura e Layout della Pagina
+            Struttura e layout della pagina
+            <HelpButton title="Struttura e Layout">
+              <div className="space-y-4 text-sm text-gray-700">
+                <p>
+                  In questa sezione puoi determinare come appariranno le diverse parti della pagina per tutti gli esami generati:
+                </p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><strong>Header:</strong> La testata dell'esame</li>
+                  <li><strong>Preamble:</strong> Le istruzioni iniziali</li>
+                  <li><strong>Footer:</strong> Il piè di pagina</li>
+                </ul>
+                <p>
+                  È possibile inserire anche dei comandi che stampano: data dell'esame, nome del candidato (se utilizzato file excel per nominare gli studenti), matricola del candidato (con la stessa condizione), numero della pagina attuale.
+                </p>
+                <p>
+                  Nel caso si volesse scrivere direttamente in <strong>LaTeX</strong>, si è liberi di farlo. L'unica accortezza è quella di andare a capo con <kbd className="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold">Shift+Invio</kbd> per evitare l'inserimento di <code>\newline</code> indesiderati (che verrebbero generati in automatico premendo solo <kbd className="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold">Invio</kbd>).
+                </p>
+                <p>
+                  Nella parte di destra verrà visualizzato un'anteprima dell'esame contenente le sezioni aggiunte, utilizzando come template un esempio di esame generato.
+                </p>
+              </div>
+            </HelpButton>
           </h2>
           <p className="text-sm text-gray-500 mb-6">Personalizza la testata, le istruzioni e il piè di pagina visualizzando l'anteprima in tempo reale.</p>
           <HeaderFooterEditor config={config} setConfig={setConfig} />
