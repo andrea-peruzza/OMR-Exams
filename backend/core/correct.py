@@ -16,6 +16,7 @@ import logging
 from collections import Counter
 from itertools import combinations
 import img2pdf
+import json
 from pypdf import PdfReader, PdfWriter
 from tinydb import TinyDB, Query
 from shutil import copy2, rmtree
@@ -101,6 +102,7 @@ class Correct:
         files = sorted(glob.glob(os.path.join('tmp', "*.jpg")))
         output_pdf = PdfWriter()
         old_student_id = None
+        student_pages = {}
         with click.progressbar(length=len(files), label="Merging corrections",
                                bar_template='%(label)s |%(bar)s| %(info)s',
                                fill_char=click.style(u'█', fg='cyan'),
@@ -109,7 +111,12 @@ class Correct:
                 with io.BytesIO() as f:
                     f.write(img2pdf.convert(filename))              
                     f.seek(0)
-                    student_id = os.path.basename(filename).split("-")[0]  
+                    student_id = os.path.basename(filename).split("-")[0]
+                    
+                    if student_id not in student_pages:
+                        student_pages[student_id] = []
+                    student_pages[student_id].append(i + 1)  # 1-indexed pages for react-pdf
+                    
                     if student_id != old_student_id:                
                         output_pdf.append(PdfReader(f, strict=False), outline_item=f'Student {student_id}')
                         old_student_id = student_id
@@ -121,6 +128,10 @@ class Correct:
         click.secho("Writing pdf file", fg="green")
         with open(self.corrected, 'wb') as f:
             output_pdf.write(f)
+            
+        json_path = self.corrected + '.json'
+        with open(json_path, 'w') as f:
+            json.dump(student_pages, f)
 
         # TODO: seems not to work, to be tested (the pages with images are rendered as blank files)
         # Marking collected pdf with the student_id
@@ -265,11 +276,11 @@ class Correct:
                     page_answers = exam[0]['answers'][metadata['range'][0] - 1:metadata['range'][1]]
         # contour detection
         correction = [None] * 4    
+        masks = [None] * 4
         try:
             binary, circles, empty_circles = Correct.detect_circles_edges(roi, metadata)
             # process result        
-            correction[0], mask = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
-            image = Correct.add_superimposed(image, mask, roi, p0, p1, 'Contour')
+            correction[0], masks[0] = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
         except Exception as e:
             click.secho(f"\nFailed Contour Detection for {filename}", fg="yellow")
             click.echo(str(e))
@@ -277,24 +288,21 @@ class Correct:
         # TODO: temporarily disabled, seems to have some troubles that need further investigation
         try:
             binary, circles, empty_circles = Correct.detect_circles_blob(roi, metadata)            
-            correction[1], mask = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)            
-            image = Correct.add_superimposed(image, mask, roi, p0, p1, 'Blob')
+            correction[1], masks[1] = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)            
         except Exception as e:
             click.secho(f"\nFailed Blob for {filename}", fg="yellow")
             click.echo(f"{e}")
         # laplacian detection
         try:
             binary, circles, empty_circles = Correct.detect_circles_laplacian(roi, metadata)
-            correction[2], mask = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
-            image = Correct.add_superimposed(image, mask, roi, p0, p1, 'Laplacian')
+            correction[2], masks[2] = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
         except Exception as e:
             click.secho(f"Failed Laplacian for {filename}", fg="yellow")
             click.echo(str(e))
         # hough detection
         try:
             binary, circles, empty_circles = Correct.detect_circles_hough(roi, metadata)
-            correction[3], mask = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
-            image = Correct.add_superimposed(image, mask, roi, p0, p1, 'Hough')
+            correction[3], masks[3] = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
         except Exception as e:
             click.secho(f"Failed Hough for {filename}", fg="yellow")
             click.echo(f"{e}")
@@ -337,7 +345,19 @@ class Correct:
         #         y = y + p0[1]
         #         cv2.rectangle(image, (x, y), (x + w, y + h), RED, 1, cv2.LINE_AA)
 
-        majority, correct = self.majority_correction(filename, correction)  
+        majority, correct, stats, num_algorithms = self.majority_correction(filename, correction)  
+        
+        image = Correct.add_stats_panel(image, stats, majority, correct, num_algorithms, p0, p1)
+        
+        if masks[0] is not None:
+             image = Correct.add_superimposed(image, masks[0], roi, p0, p1, 'Contour')
+        if masks[1] is not None:
+             image = Correct.add_superimposed(image, masks[1], roi, p0, p1, 'Blob')
+        if masks[2] is not None:
+             image = Correct.add_superimposed(image, masks[2], roi, p0, p1, 'Laplacian')
+        if masks[3] is not None:
+             image = Correct.add_superimposed(image, masks[3], roi, p0, p1, 'Hough')
+
         given_text = f"Given answers: {' '.join(','.join(a) for a in majority)}"
         correct_text = f"Correct answers: {' '.join(','.join(a) for a in correct)}"
         (width, height), _ =  cv2.getTextSize(given_text, cv2.FONT_HERSHEY_SIMPLEX, 1, 3)
@@ -350,24 +370,42 @@ class Correct:
     def majority_correction(self, filename, correction):
         correction = list(filter(lambda c: c is not None, correction))
         correct_answers = list(map(lambda c: c[1], correction[0]))
-        correction = [list(map(lambda c: c[0], correction[i])) for i in range(len(correction))]
-        if not all(len(c) == len(correct_answers) for c in correction):
-            raise RuntimeError("Uneven number of answers (not matching with the correct ones)")
+        
         majority = []
+        stats = []
         span = len(correct_answers)
+        num_algos = len(correction)
+        
         for i in range(span):
+            avg_areas = {}
+            for opt in "ABCDE":
+                total = 0.0
+                count = 0
+                for c in correction:
+                    if len(c) > i and len(c[i]) > 2:
+                        areas = c[i][2]
+                        if opt in areas:
+                            total += areas[opt]
+                            count += 1
+                if count > 0:
+                    avg_areas[opt] = total / count
+                else:
+                    avg_areas[opt] = 0.0
+            stats.append(avg_areas)
+            
             counter = Counter()
             for c in correction:
-                for a in c[i]:
+                for a in c[i][0]:
                     counter[a] += 1
             tmp = []
             for a in counter:
-                if counter[a] >= len(correction) / 2:
+                if counter[a] >= num_algos / 2:
                     tmp.append(a)
-            if all(c1[i] != c2[i] for c1, c2 in combinations(correction, 2)):
+            if all(c1[i][0] != c2[i][0] for c1, c2 in combinations(correction, 2)):
                 self.watch_queue.put((filename, i))
-            majority.append(set(tmp))                        
-        return majority, correct_answers
+            majority.append(set(tmp))
+            
+        return majority, correct_answers, stats, num_algos
 
     @staticmethod
     def add_superimposed(image, mask, roi, p0, p1, method):
@@ -378,11 +416,101 @@ class Correct:
         cv2.putText(image, method, (prev_x, p0[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, BLUE, 3)
         return image
     
+    @staticmethod
+    def add_stats_panel(image, stats, majority, correct_ans, num_algorithms, p0, p1):
+        panel_width = 800
+        prev_x = image.shape[1]
+        image = cv2.copyMakeBorder(image, 0, 0, 0, panel_width, cv2.BORDER_CONSTANT, value=WHITE)
+        
+        start_x = prev_x + 20
+        
+        cv2.putText(image, "Statistiche", (start_x, max(40, p0[1] - 40)), cv2.FONT_HERSHEY_SIMPLEX, 1.6, BLACK, 3)
+        
+        roi_height = p1[1] - p0[1]
+        num_questions = len(stats)
+        
+        for i in range(num_questions):
+            counts = stats[i]
+            
+            # Mostra almeno fino alla D, se c'è E viene aggiunta
+            max_opt = 'D'
+            if 'E' in correct_ans[i] or 'E' in majority[i] or counts.get('E', 0.0) > 0.0:
+                max_opt = 'E'
+                
+            options_to_show = [chr(c) for c in range(ord('A'), ord(max_opt) + 1)]
+            
+            sugg_str = "".join(sorted(majority[i])) if majority[i] else "Nessuna"
+            corr_str = "".join(sorted(correct_ans[i])) if correct_ans[i] else "Nessuna"
+            sugg_color = GREEN if sugg_str == corr_str else RED
+            
+            row_y_center = p0[1] + int((i + 0.5) * (roi_height / num_questions))
+            font_scale = 1.3
+            font_thick = 2
+            
+            # Riga superiore (multicolore: testo nero, % blu)
+            curr_x = start_x
+            y_pos_1 = row_y_center - 15
+            
+            part0 = f"Q{i+1}: "
+            cv2.putText(image, part0, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
+            (w, h), _ = cv2.getTextSize(part0, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+            curr_x += w
+            
+            for idx, option in enumerate(options_to_show):
+                raw_val = counts.get(option, 0.0)
+                adjusted_val = (raw_val - 0.25) / 0.75
+                pct = int(max(0.0, min(1.0, adjusted_val)) * 100)
+                
+                # Lettera
+                letter_str = f"{option}:"
+                cv2.putText(image, letter_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
+                (w, h), _ = cv2.getTextSize(letter_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+                curr_x += w
+                
+                # Percentuale
+                pct_str = f"{pct}%"
+                cv2.putText(image, pct_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLUE, font_thick)
+                (w, h), _ = cv2.getTextSize(pct_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+                curr_x += w
+                
+                # Virgola (tranne per l'ultimo)
+                if idx < len(options_to_show) - 1:
+                    comma_str = ", "
+                    cv2.putText(image, comma_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
+                    (w, h), _ = cv2.getTextSize(comma_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+                    curr_x += w
+            
+            # Riga inferiore (multicolore)
+            curr_x = start_x
+            y_pos = row_y_center + 35
+            
+            part1 = "   Suggerito: "
+            cv2.putText(image, part1, (curr_x, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
+            (w, h), _ = cv2.getTextSize(part1, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+            curr_x += w
+            
+            part2 = sugg_str
+            cv2.putText(image, part2, (curr_x, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, sugg_color, font_thick)
+            (w, h), _ = cv2.getTextSize(part2, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+            curr_x += w
+            
+            part3 = " | Corretto: "
+            cv2.putText(image, part3, (curr_x, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
+            (w, h), _ = cv2.getTextSize(part3, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
+            curr_x += w
+            
+            part4 = corr_str
+            cv2.putText(image, part4, (curr_x, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, GREEN, font_thick)
+            
+        return image
+
     def write(self, filename, image):
         filename = os.path.join('tmp', os.path.basename(filename))
         filename = ".".join(filename.split(".")[:-1]) + ".jpg"
-        # rescale to 72 dpi to save space
-        image = cv2.resize(image, None, fx=72.0 / self.resolution, fy=72.0 / self.resolution, interpolation=cv2.INTER_AREA)
+        # rescale to 150 dpi to save space (previously 72 dpi)
+        # Using 150 provides a good balance between readability and file size
+        fx_fy = min(1.0, 150.0 / self.resolution)
+        image = cv2.resize(image, None, fx=fx_fy, fy=fx_fy, interpolation=cv2.INTER_AREA)
         cv2.imwrite(filename, image, [cv2.IMWRITE_JPEG_QUALITY, self.compression])
 
 
@@ -586,7 +714,13 @@ class Correct:
             tmp = ("".join(sorted(a for a in answers_res)) if answers_res else "None")
             tmp += "/" + ("".join(sorted(a for a in correct_res)) if correct_res else "None")
             cv2.putText(mask, tmp, tuple(p), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 3)
-            correction.append((answers_res, correct_res))
+            
+            filled_areas_dict = {}
+            for j, c in enumerate(given_answers):
+                r = chr(j + ord('A'))
+                filled_areas_dict[r] = Correct.circle_filled_area(binary, c) / reference_area
+
+            correction.append((answers_res, correct_res, filled_areas_dict))
         return correction, mask
 
     @staticmethod

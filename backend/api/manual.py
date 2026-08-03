@@ -24,6 +24,16 @@ async def get_corrected():
     files = glob.glob(os.path.join(corrected_dir, "*.pdf"))
     return {"corrected": [os.path.basename(f) for f in files]}
 
+@router.get("/corrected_mapping")
+async def get_corrected_mapping(pdf_name: str):
+    import json
+    json_path = os.path.join(DATA_DIR, "corrected", pdf_name + ".json")
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=404, detail="Mapping JSON non trovato per questo PDF")
+    with open(json_path, "r") as f:
+        mapping = json.load(f)
+    return {"mapping": mapping}
+
 @router.get("/missing")
 async def get_missing(datafile: str):
     data_filename = os.path.join(DATA_DIR, datafile)

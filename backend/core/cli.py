@@ -291,7 +291,7 @@ def sort(ctx, scanned, sorted_dir, datafile, resolution, paper, yes):
 @click.option('--corrected', '-c', type=click.Path(exists=False, file_okay=True, resolve_path=True), default=os.path.join('.', 'corrected-exam.pdf'))
 @click.option('--datafile', '-d', type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True, writable=True), required=True)
 @click.option('--resolution', '-r', default=300)
-@click.option('--compression', '-z', type=int, default=50)
+@click.option('--compression', '-z', type=int, default=80)
 @click.option('--yes', '-y', is_flag=True, type=bool, required=False, default=False, help='Answer yes to all prompt requests')
 @click.pass_context
 def correct(ctx, sorted_dir, corrected, datafile, resolution, compression, yes):  
