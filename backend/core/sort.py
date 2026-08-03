@@ -108,7 +108,7 @@ class Sort:
                 if metadata is None:
                     # Il QR code non è stato trovato (pagina scartata)
                     self.discarded_pages.put({'filename': filename, 'page': page})
-                elif metadata and self.doublecheck is not None:                    
+                elif metadata and self.doublecheck:                    
                     with TinyDB(self.doublecheck) as db:
                         Exam = Query()
                         table = db.table('exams')
@@ -120,7 +120,8 @@ class Sort:
                             raise RuntimeError(f"Expected correct answers for student {metadata['student_id']} do not match\ncoded: {answers}/{metadata['correct']}\nexpected: {result[0]['answers']}")
             except Exception as e:
                 print("\n", str(e))
-                self.discarded_pages.put({'filename': filename, 'page': page})
+                if "Error processing file" in str(e):
+                    self.discarded_pages.put({'filename': filename, 'page': page})
             finally:
                 with self.results_mutex:
                     self.results.value += 1
