@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ClipboardEdit } from 'lucide-react';
 import { manualAPI, correctAPI } from '../api/client';
 import PDFPreview from '../components/PDFPreview';
+import CroppedPDFPreview from '../components/CroppedPDFPreview';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../components/BackButton';
 import HomeButton from '../components/HomeButton';
@@ -16,6 +17,9 @@ export default function ManualCorrection() {
   // Corrected Mode State
   const [correctedList, setCorrectedList] = useState([]);
   const [selectedCorrected, setSelectedCorrected] = useState('');
+  const [correctedMapping, setCorrectedMapping] = useState({});
+  const [selectedCorrectedStudent, setSelectedCorrectedStudent] = useState('');
+  const [showAlgorithms, setShowAlgorithms] = useState(false);
   
   // Missing Mode State
   const [missingList, setMissingList] = useState([]);
@@ -56,10 +60,44 @@ export default function ManualCorrection() {
       setMode('corrected');
       setCurrentStudentId('');
       setStudentData(null);
-      if (res.corrected.length > 0) setSelectedCorrected(res.corrected[0]);
+      if (res.corrected.length > 0) {
+          setSelectedCorrected(res.corrected[0]);
+          loadCorrectedMapping(res.corrected[0]);
+      }
     } catch (e) {
       setGlobalError("Errore nel caricamento dei PDF corretti");
     }
+  };
+
+  const loadCorrectedMapping = async (pdfName) => {
+    try {
+      const res = await manualAPI.getCorrectedMapping(pdfName);
+      setCorrectedMapping(res.mapping || {});
+      const students = Object.keys(res.mapping || {});
+      if (students.length > 0) {
+        setSelectedCorrectedStudent(students[0]);
+        handleStudentSelect(students[0]);
+      } else {
+        setSelectedCorrectedStudent('');
+      }
+    } catch (e) {
+      console.error(e);
+      setGlobalError("Mapping del PDF non trovato. È necessario rigenerare gli esami corretti.");
+      setCorrectedMapping({});
+      setSelectedCorrectedStudent('');
+    }
+  };
+
+  const handleCorrectedPdfChange = (e) => {
+    const pdfName = e.target.value;
+    setSelectedCorrected(pdfName);
+    loadCorrectedMapping(pdfName);
+  };
+
+  const handleCorrectedStudentChange = (e) => {
+    const studentId = e.target.value;
+    setSelectedCorrectedStudent(studentId);
+    handleStudentSelect(studentId);
   };
 
   const loadMissing = async () => {
@@ -187,19 +225,54 @@ export default function ManualCorrection() {
         {/* VISTA CORRECTED */}
         {mode === 'corrected' && (
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
-            <div className="flex items-center gap-4">
-              <label className="font-semibold text-gray-700">Seleziona PDF:</label>
-              <select 
-                className="border border-gray-300 p-2 rounded w-64"
-                value={selectedCorrected}
-                onChange={(e) => setSelectedCorrected(e.target.value)}
-              >
-                {correctedList.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+              <div className="flex items-center gap-4">
+                <label className="font-semibold text-gray-700">Seleziona PDF:</label>
+                <select 
+                  className="border border-gray-300 p-2 rounded w-64"
+                  value={selectedCorrected}
+                  onChange={handleCorrectedPdfChange}
+                >
+                  {correctedList.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              
+              {Object.keys(correctedMapping).length > 0 && (
+                <>
+                  <div className="flex items-center gap-4">
+                    <label className="font-semibold text-gray-700">Studente:</label>
+                    <select 
+                      className="border border-gray-300 p-2 rounded w-64"
+                      value={selectedCorrectedStudent}
+                      onChange={handleCorrectedStudentChange}
+                    >
+                      {Object.keys(correctedMapping).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  
+                  <div className="flex items-center ml-auto">
+                    <button
+                      onClick={() => setShowAlgorithms(!showAlgorithms)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors"
+                    >
+                      {showAlgorithms ? 'Nascondi algoritmi' : 'Approfondisci algoritmi'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
+
             <div className="border border-gray-200 rounded overflow-hidden">
-              {selectedCorrected ? (
-                <PDFPreview url={`/api/data/corrected/${selectedCorrected}`} />
+              {selectedCorrected && selectedCorrectedStudent ? (
+                <div className="w-full overflow-x-auto bg-gray-50">
+                  <CroppedPDFPreview 
+                    url={`/api/data/corrected/${selectedCorrected}`} 
+                      pages={correctedMapping[selectedCorrectedStudent]} 
+                      showAlgorithms={showAlgorithms}
+                    />
+                  </div>
+              ) : selectedCorrected ? (
+                <p className="p-4 text-gray-500">Seleziona uno studente o rigenera il PDF per aggiornare la mappatura.</p>
               ) : (
                 <p className="p-4 text-gray-500">Nessun file selezionato</p>
               )}

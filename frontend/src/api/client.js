@@ -104,6 +104,10 @@ export const manualAPI = {
     const response = await apiClient.get('/api/manual/corrected');
     return response.data;
   },
+  getCorrectedMapping: async (pdfName) => {
+    const response = await apiClient.get(`/api/manual/corrected_mapping?pdf_name=${pdfName}`);
+    return response.data;
+  },
   getMissing: async (datafile) => {
     const response = await apiClient.get(`/api/manual/missing?datafile=${datafile}`);
     return response.data;
