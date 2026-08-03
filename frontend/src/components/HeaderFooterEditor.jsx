@@ -112,7 +112,7 @@ export default function HeaderFooterEditor({ config, setConfig }) {
           label="Testata (Header)"
           placeholder="Inserisci la testata (es. dati universitari, nome, data...)"
           value={config.header}
-          onChange={(val) => setConfig({ ...config, header: val })}
+          onChange={(val) => setConfig(prev => ({ ...prev, header: val }))}
         />
         <div className="h-10"></div> {/* Spaziatore perché Quill h-32 non conta la toolbar */}
         
@@ -120,7 +120,7 @@ export default function HeaderFooterEditor({ config, setConfig }) {
           label="Istruzioni per gli studenti (Preamble)"
           placeholder="Istruzioni generali (es. non usare la matita, riempire bene i cerchi...)"
           value={config.preamble}
-          onChange={(val) => setConfig({ ...config, preamble: val })}
+          onChange={(val) => setConfig(prev => ({ ...prev, preamble: val }))}
         />
         <div className="h-10"></div>
         
@@ -128,7 +128,7 @@ export default function HeaderFooterEditor({ config, setConfig }) {
           label="Piè di pagina (Footer)"
           placeholder="Inserisci il piè di pagina (es. numero pagina...)"
           value={config.footer}
-          onChange={(val) => setConfig({ ...config, footer: val })}
+          onChange={(val) => setConfig(prev => ({ ...prev, footer: val }))}
         />
         <div className="h-10"></div>
       </div>

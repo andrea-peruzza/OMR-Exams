@@ -185,7 +185,48 @@ export default function Generate() {
         if (savedConfig.preamble) savedConfig.preamble = latexToHtml(savedConfig.preamble);
         if (savedConfig.footer) savedConfig.footer = latexToHtml(savedConfig.footer);
         
-        setConfig(prev => ({ ...prev, ...savedConfig }));
+        setConfig(() => {
+          const newConfig = {
+            exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: '', qr_eclevel: 'H' },
+            choices: { circled: false, usesf: false },
+            paper: 'A4',
+            dyslexia: false,
+            header: '',
+            footer: '',
+            preamble: '',
+            excel: {
+              data_marker: { skip_until: '', on_column: 0, skip_rows: 0 },
+              fields: { id: 'id', name: 'name', surname: 'surname', email: '' }
+            },
+            questions: []
+          };
+          
+          if (savedConfig.exam) {
+            newConfig.exam = { ...newConfig.exam, ...savedConfig.exam };
+          }
+          if (savedConfig.choices) {
+            newConfig.choices = { ...newConfig.choices, ...savedConfig.choices };
+          }
+          if (savedConfig.excel) {
+            newConfig.excel = { ...newConfig.excel, ...savedConfig.excel };
+            if (savedConfig.excel.data_marker) {
+              newConfig.excel.data_marker = { ...newConfig.excel.data_marker, ...savedConfig.excel.data_marker };
+            }
+            if (savedConfig.excel.fields) {
+              newConfig.excel.fields = { ...newConfig.excel.fields, ...savedConfig.excel.fields };
+            }
+          }
+          
+          const baseKeys = ['paper', 'dyslexia', 'header', 'footer', 'preamble', 'questions'];
+          baseKeys.forEach(k => {
+            if (savedConfig[k] !== undefined) {
+              newConfig[k] = savedConfig[k];
+            }
+          });
+          
+          return newConfig;
+        });
+        
         if (savedConfig.students) {
           setRuntime(prev => ({ ...prev, is_anonymous: false, selected_student_file: savedConfig.students, config_output_name: selectedConfig }));
         } else {
@@ -269,7 +310,8 @@ export default function Generate() {
     setProgress(null);
     
     const getPayloadConfig = () => {
-      const payloadConfig = { ...config };
+      // Create a deep copy to avoid mutating React state
+      const payloadConfig = JSON.parse(JSON.stringify(config));
       
       payloadConfig.header = translateToLatex(payloadConfig.header);
       payloadConfig.preamble = translateToLatex(payloadConfig.preamble);
@@ -719,13 +761,13 @@ export default function Generate() {
               }} />
               <label className="text-sm text-gray-600">Numero max pagine pdf</label>
               {(config.exam.page_limits !== '' && config.exam.page_limits !== undefined) && (
-                <input type="number" min="1" className="w-20 border p-1 rounded text-sm ml-auto" value={config.exam.page_limits} onChange={e => setConfig({...config, exam: {...config.exam, page_limits: e.target.value}})} />
+                <input type="number" min="1" className="w-20 border p-1 rounded text-sm ml-auto" value={config.exam.page_limits} onChange={e => setConfig(prev => ({...prev, exam: {...prev.exam, page_limits: e.target.value}}))} />
               )}
             </div>
 
             <div className="mt-2 md:col-span-2">
               <label className="block text-sm text-gray-600 mb-1">Formato carta</label>
-              <select className="w-full md:w-1/2 border p-2 rounded" value={config.paper} onChange={e => setConfig({...config, paper: e.target.value})}>
+              <select className="w-full md:w-1/2 border p-2 rounded" value={config.paper} onChange={e => setConfig(prev => ({...prev, paper: e.target.value}))}>
                 <option value="A4">A4</option>
                 <option value="A3">A3</option>
               </select>
