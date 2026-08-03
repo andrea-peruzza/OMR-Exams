@@ -152,8 +152,9 @@ function Correct() {
       eventSource.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         if (data.status === 'in_progress' || data.status === 'Starting') {
-          setSortProgress(data.progress || 0);
-          setSortMessage(data.message || 'Elaborazione in corso...');
+          const pct = (data.total && data.total > 0) ? (data.progress / data.total) * 100 : (data.progress || 0);
+          setSortProgress(pct);
+          setSortMessage(data.message || 'Smistamento in corso...');
         } else if (data.status === 'Completed' || data.status === 'completed') {
           setSortProgress(100);
           setSortMessage('Smistamento completato!');
@@ -232,8 +233,9 @@ function Correct() {
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.status === 'in_progress' || data.status === 'Starting') {
-          setCorrectProgress(data.progress || 0);
-          setCorrectMessage(data.message || 'Elaborazione in corso...');
+          const pct = (data.total && data.total > 0) ? (data.progress / data.total) * 100 : (data.progress || 0);
+          setCorrectProgress(pct);
+          setCorrectMessage(data.message || 'Correzione in corso...');
         } else if (data.status === 'Completed' || data.status === 'completed') {
           setCorrectProgress(100);
           setCorrectMessage('Correzione completata');
