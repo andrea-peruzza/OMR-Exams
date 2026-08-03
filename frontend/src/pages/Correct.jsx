@@ -158,7 +158,18 @@ function Correct() {
         } else if (data.status === 'Completed' || data.status === 'completed') {
           setSortProgress(100);
           setSortMessage('Smistamento completato!');
-          setSortSuccess(`I PDF scansionati sono stati smistati con successo per studente.`);
+          
+          let successMsg = `I PDF scansionati sono stati smistati con successo per studente.`;
+          if (data.result_data && data.result_data.discarded_pages && data.result_data.discarded_pages.length > 0) {
+            const count = data.result_data.discarded_pages.length;
+            const details = data.result_data.discarded_pages.map(dp => {
+              const fname = dp.filename.split('/').pop().split('\\').pop();
+              return `- ${fname} (pagina ${dp.page + 1})`;
+            }).join('\n');
+            successMsg += `\n\n⚠️ ATTENZIONE: ${count} pagine sono state scartate perché non è stato trovato un QR code valido:\n${details}`;
+          }
+          setSortSuccess(successMsg);
+          
           setSorting(false);
           eventSource.close();
           await loadStatus(); // Aggiorna lo stato per sbloccare la Fase 2
@@ -428,7 +439,7 @@ function Correct() {
 
             {sortSuccess && (
               <div className="mt-6 text-center bg-green-50 text-green-700 p-4 rounded-lg border border-green-200 w-full shadow-sm">
-                <p className="font-medium">{sortSuccess}</p>
+                <p className="font-medium whitespace-pre-line text-left">{sortSuccess}</p>
                 <p className="text-sm mt-1">Puoi ora procedere con la Fase 2.</p>
               </div>
             )}

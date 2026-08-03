@@ -38,6 +38,7 @@ class Sort:
         self.task_done = mp.Condition(self.results_mutex)
         self.results = mp.Value('i', 0, lock=self.results_mutex)   
         self.page_leftovers = mp.Queue()
+        self.discarded_pages = mp.Queue()
 
         pages = 0
 
@@ -91,6 +92,11 @@ class Sort:
         if paper == "A3":           
             rmtree("split_tmp")
         click.secho('Finished', fg='red', underline=True)
+        
+        discarded = []
+        while not self.discarded_pages.empty():
+            discarded.append(self.discarded_pages.get())
+        return discarded
 
     def worker_main(self):                        
         while True:
@@ -99,7 +105,10 @@ class Sort:
                 break
             try:
                 metadata = self.process(filename, page)
-                if metadata and self.doublecheck is not None:                    
+                if metadata is None:
+                    # Il QR code non è stato trovato (pagina scartata)
+                    self.discarded_pages.put({'filename': filename, 'page': page})
+                elif metadata and self.doublecheck is not None:                    
                     with TinyDB(self.doublecheck) as db:
                         Exam = Query()
                         table = db.table('exams')
@@ -111,6 +120,7 @@ class Sort:
                             raise RuntimeError(f"Expected correct answers for student {metadata['student_id']} do not match\ncoded: {answers}/{metadata['correct']}\nexpected: {result[0]['answers']}")
             except Exception as e:
                 print("\n", str(e))
+                self.discarded_pages.put({'filename': filename, 'page': page})
             finally:
                 with self.results_mutex:
                     self.results.value += 1

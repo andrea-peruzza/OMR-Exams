@@ -50,10 +50,10 @@ def run_sort_task(task_id: str, req: SortRequest):
             progress_callback=progress_callback
         )
         
-        sorter.sort(paper=req.paper.upper())
+        discarded_pages = sorter.sort(paper=req.paper.upper())
         
         # Task completato con successo
-        task_manager.complete_task(task_id)
+        task_manager.complete_task(task_id, result_data={"discarded_pages": discarded_pages})
         
     except Exception as e:
         import traceback
