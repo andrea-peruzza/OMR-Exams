@@ -97,7 +97,7 @@ const latexToHtml = (latex) => {
 export default function Generate() {
   const navigate = useNavigate();
   const [config, setConfig] = useState({
-    exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: '' },
+    exam: { name: 'Esame', language: 'it', shuffle_questions: true, shuffle_answers: true, max_questions: '', max_open_questions: '', page_limits: '', qr_eclevel: 'H' },
     choices: { circled: false, usesf: false },
     paper: 'A4',
     dyslexia: false,
@@ -700,6 +700,7 @@ export default function Generate() {
               )}
             </div>
 
+
             <div className="flex items-center gap-2">
               <input type="checkbox" className="mr-2" checked={config.exam.max_open_questions !== '' && config.exam.max_open_questions !== undefined} onChange={e => {
                 if(e.target.checked) setConfig({...config, exam: {...config.exam, max_open_questions: 5}});
@@ -727,6 +728,39 @@ export default function Generate() {
               <select className="w-full md:w-1/2 border p-2 rounded" value={config.paper} onChange={e => setConfig({...config, paper: e.target.value})}>
                 <option value="A4">A4</option>
                 <option value="A3">A3</option>
+              </select>
+            </div>
+            
+            <div className="mt-2 md:col-span-2">
+              <label className="text-sm text-gray-600 mb-1 flex items-center">
+                Livello Correzione QR (ECLevel)
+                <HelpButton title="Livello Correzione QR">
+                  <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+                    <p>
+                      Il livello scelto determina la <strong>percentuale di tolleranza agli errori</strong> dei QR code generati. Una tolleranza maggiore permette al sistema di leggere correttamente il QR code anche se parzialmente danneggiato, sporco o scansionato male.
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>L:</strong> circa 7% di tolleranza</li>
+                      <li><strong>M:</strong> circa 15% di tolleranza</li>
+                      <li><strong>Q:</strong> circa 25% di tolleranza</li>
+                      <li><strong>H:</strong> circa 30% di tolleranza</li>
+                    </ul>
+                    <div className="bg-blue-50 border border-blue-100 p-3 rounded">
+                      <p className="text-blue-800">
+                        <strong>Altamente consigliato: Livello H</strong>
+                      </p>
+                      <p className="text-blue-700 mt-1">
+                        Garantisce la massima affidabilità in fase di lettura. L'unico compromesso è che, contenendo più dati per la correzione, il lato dei QR code stampati sarà lungo <strong>2.8 cm</strong>, a differenza degli altri livelli che producono QR code da <strong>2.5 cm</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </HelpButton>
+              </label>
+              <select className="w-full md:w-1/2 border p-2 rounded" value={config.exam.qr_eclevel || 'H'} onChange={e => setConfig({...config, exam: {...config.exam, qr_eclevel: e.target.value}})}>
+                <option value="L">Low (L)</option>
+                <option value="M">Medium (M)</option>
+                <option value="Q">Quartile (Q)</option>
+                <option value="H">High (H)</option>
               </select>
             </div>
           </div>

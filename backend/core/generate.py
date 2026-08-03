@@ -144,6 +144,16 @@ class Generate:
             # Copy the file to the temporary directory
             click.secho(f'Copying omrexam.cls to tmp', fg='yellow')
             copy2(template_path, 'tmp')
+            qr_eclevel = self.config.get('exam', {}).get('qr_eclevel', 'H')
+            qr_size = '2.8cm' if qr_eclevel == 'H' else '2.5cm'
+            cls_path = os.path.join('tmp', 'omrexam.cls')
+            with open(cls_path, 'r', encoding='utf-8') as f:
+                cls_content = f.read()
+            cls_content = re.sub(r'\\setlength\{\\OMR@BarcodeWidth\}\{.*?\}', lambda m: f'\\setlength{{\\OMR@BarcodeWidth}}{{{qr_size}}}', cls_content)
+            cls_content = re.sub(r'\\setlength\{\\OMR@BarcodeHeight\}\{.*?\}', lambda m: f'\\setlength{{\\OMR@BarcodeHeight}}{{{qr_size}}}', cls_content)
+            cls_content = re.sub(r'eclevel=[LMQH]', f'eclevel={qr_eclevel}', cls_content)
+            with open(cls_path, 'w', encoding='utf-8') as f:
+                f.write(cls_content)
         click.secho(f'Generating {len(self.students)} exams (this may take a while)', fg='red', underline=True)
         with click.progressbar(length=len(self.students), label='Generating exams',
                                bar_template='%(label)s |%(bar)s| %(info)s',
@@ -537,6 +547,16 @@ class Generate:
             # Copy the file to the temporary directory
             click.secho(f'Copying omrexam.cls to tmp', fg='yellow')
             copy2(template_path, 'tmp')
+            qr_eclevel = self.config.get('exam', {}).get('qr_eclevel', 'H')
+            qr_size = '2.8cm' if qr_eclevel == 'H' else '2.5cm'
+            cls_path = os.path.join('tmp', 'omrexam.cls')
+            with open(cls_path, 'r', encoding='utf-8') as f:
+                cls_content = f.read()
+            cls_content = re.sub(r'\\setlength\{\\OMR@BarcodeWidth\}\{.*?\}', lambda m: f'\\setlength{{\\OMR@BarcodeWidth}}{{{qr_size}}}', cls_content)
+            cls_content = re.sub(r'\\setlength\{\\OMR@BarcodeHeight\}\{.*?\}', lambda m: f'\\setlength{{\\OMR@BarcodeHeight}}{{{qr_size}}}', cls_content)
+            cls_content = re.sub(r'eclevel=[LMQH]', f'eclevel={qr_eclevel}', cls_content)
+            with open(cls_path, 'w', encoding='utf-8') as f:
+                f.write(cls_content)
         with QuestionRenderer(language=self.config['exam'].get('language'), 
                               date=dt.now(), 
                               exam=self.config['exam'].get('name'), 

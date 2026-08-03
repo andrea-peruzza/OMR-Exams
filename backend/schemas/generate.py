@@ -29,6 +29,7 @@ class ConfigExam(BaseModel):
     max_open_questions: Optional[int] = None
     page_limits: Optional[int] = None
     separate_open_questions: Optional[bool] = False
+    qr_eclevel: Optional[str] = 'H'
 
 class ConfigChoices(BaseModel):
     circled: Optional[bool] = False
