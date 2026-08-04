@@ -20,6 +20,7 @@ export default function ManualCorrection() {
   const [correctedMapping, setCorrectedMapping] = useState({});
   const [selectedCorrectedStudent, setSelectedCorrectedStudent] = useState('');
   const [showAlgorithms, setShowAlgorithms] = useState(false);
+  const [showFullPdf, setShowFullPdf] = useState(false);
   
   // Missing Mode State
   const [missingList, setMissingList] = useState([]);
@@ -178,7 +179,22 @@ export default function ManualCorrection() {
 
         {/* SELEZIONE DATAFILE */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
-          <label className="font-semibold text-gray-700">Database JSON attivo:</label>
+          <div className="flex items-center gap-2 mb-2">
+            <label className="font-semibold text-gray-700">Database JSON attivo:</label>
+            <HelpButton title="Revisione e verifica manuale">
+              <div className="text-sm text-gray-700 space-y-3">
+                <p>
+                  <strong>Esami corretti:</strong> Verranno visualizzati gli esami corretti dal sistema, mostrando per ogni studente le risposte date per ogni domanda e le statistiche delle risposte derivate dagli algoritmi di correzione. È possibile inoltre estendere l'analisi osservando anche come hanno agito i diversi algoritmi di correzione.
+                </p>
+                <p>
+                  <strong>Esami dubbi:</strong> Verranno visualizzati i fogli di esame che non sono stati corretti dal sistema a causa di un problema (es. fallita scansione del codice QR).
+                </p>
+                <p>
+                  Sia le risposte degli esami dubbi che di quelli corretti possono essere modificate attraverso il <strong>pannello correzione manuale</strong> sottostante, che presenterà la maschera delle risposte per lo studente scelto offrendo la possibilità di forzare una determinata risposta.
+                </p>
+              </div>
+            </HelpButton>
+          </div>
           <select 
             className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-orange-500 w-64"
             value={datafile}
@@ -250,7 +266,13 @@ export default function ManualCorrection() {
                     </select>
                   </div>
                   
-                  <div className="flex items-center ml-auto">
+                  <div className="flex items-center ml-auto gap-2">
+                    <button
+                      onClick={() => setShowFullPdf(true)}
+                      className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition-colors"
+                    >
+                      Visualizza PDF Intero
+                    </button>
                     <button
                       onClick={() => setShowAlgorithms(!showAlgorithms)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors"
@@ -261,6 +283,26 @@ export default function ManualCorrection() {
                 </>
               )}
             </div>
+
+            {/* MODALE PDF INTERO */}
+            {showFullPdf && selectedCorrected && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden">
+                  <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
+                    <h2 className="text-xl font-bold text-gray-800">Visualizzazione completa: {selectedCorrected}</h2>
+                    <button 
+                      onClick={() => setShowFullPdf(false)}
+                      className="text-gray-500 hover:text-red-500 font-bold text-2xl px-2"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
+                    <PDFPreview url={`/api/data/corrected/${selectedCorrected}`} />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="border border-gray-200 rounded overflow-hidden">
               {selectedCorrected && selectedCorrectedStudent ? (
