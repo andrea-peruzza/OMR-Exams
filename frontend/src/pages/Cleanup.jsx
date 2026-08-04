@@ -21,7 +21,7 @@ export default function Cleanup() {
     { id: 'generated_jsons', label: 'JSON degli esami generati' },
     { id: 'scans', label: 'Esami scansionati (scans)' },
     { id: 'sorted', label: 'Esami ordinati (sorted)' },
-    { id: 'corrected', label: 'PDF degli esami corretti' },
+    { id: 'corrected', label: 'PDF degli esami corretti (con JSON supportativi)' },
     { id: 'reports', label: 'File Excel/Markdown (voti e report)' },
     { id: 'config', label: 'File di configurazione YAML' },
     { id: 'students', label: 'Excel degli studenti (students)' },

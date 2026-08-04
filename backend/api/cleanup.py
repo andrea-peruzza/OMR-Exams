@@ -46,11 +46,15 @@ def get_files():
         for f in glob.glob(os.path.join(sorted_dir, "*.png")):
             data["sorted"].append(os.path.relpath(f, DATA_DIR))
 
-    # Corrected: all .pdf in DATA_DIR/corrected/
+    # Corrected: all .pdf in DATA_DIR/corrected/ and .json in DATA_DIR/corrected/sidecar/
     corrected_dir = os.path.join(DATA_DIR, "corrected")
     if os.path.exists(corrected_dir):
         for f in glob.glob(os.path.join(corrected_dir, "*.pdf")):
             data["corrected"].append(os.path.relpath(f, DATA_DIR))
+        sidecar_dir = os.path.join(corrected_dir, "sidecar")
+        if os.path.exists(sidecar_dir):
+            for f in glob.glob(os.path.join(sidecar_dir, "*.json")):
+                data["corrected"].append(os.path.relpath(f, DATA_DIR))
 
     # Reports: .xlsx and .md in DATA_DIR
     for f in glob.glob(os.path.join(DATA_DIR, "*.xlsx")):
