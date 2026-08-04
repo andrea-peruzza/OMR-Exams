@@ -32,20 +32,20 @@ def backup_exam_json(filepath):
     filename = os.path.basename(filepath)
     backup_path = os.path.join(BACKUP_DIR, filename)
     
-    # Rimuovi l'eventuale file esistente in backup per evitare errori di permesso in sovrascrittura
+    # Remove any existing file in backup to avoid overwrite permission errors
     if os.path.exists(backup_path):
         _allow_deletion(backup_path)
         os.chmod(backup_path, stat.S_IWRITE)
         os.remove(backup_path)
         
-    # Copia il file
+    # Copy the file
     shutil.copy2(filepath, backup_path)
     
-    # Imposta sola lettura e nega l'eliminazione
+    # Set read-only and deny deletion
     os.chmod(backup_path, stat.S_IREAD)
     _deny_deletion(backup_path)
     
-    # Gestisci il limite di 5 file
+    # Manage 5 file limit
     _enforce_backup_limit()
 
 def _enforce_backup_limit(limit=5):
@@ -56,14 +56,14 @@ def _enforce_backup_limit(limit=5):
     if len(files) <= limit:
         return
         
-    # Ordina i file per data di modifica (dal più vecchio al più nuovo)
+    # Sort files by modification date (oldest to newest)
     files.sort(key=lambda x: os.path.getmtime(x))
     
-    # Elimina i più vecchi finché non si raggiunge il limite
+    # Delete the oldest ones until the limit is reached
     files_to_delete = files[:-limit]
     for file in files_to_delete:
         try:
-            # Rimuovi i blocchi NTFS e di sola lettura prima di eliminare
+            # Remove NTFS and read-only blocks before deleting
             _allow_deletion(file)
             os.chmod(file, stat.S_IWRITE)
             os.remove(file)
@@ -77,7 +77,7 @@ def list_backups():
     _ensure_backup_dir()
     files = glob.glob(os.path.join(BACKUP_DIR, "*.json"))
     
-    # Ordina dal più recente al più vecchio
+    # Sort from newest to oldest
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     
     backups = []
@@ -100,16 +100,16 @@ def restore_backup(filename):
         
     target_path = os.path.join(DATA_DIR, filename)
     
-    # Rimuovi temporaneamente il blocco di negazione per permettere la lettura
+    # Temporarily remove the deny block to allow reading
     _allow_deletion(backup_path)
     try:
-        # Copia il file dal backup alla cartella data
+        # Copy the file from the backup to the data folder
         shutil.copy2(backup_path, target_path)
     finally:
-        # Ripristina il blocco sul backup
+        # Reset the lock on the backup
         _deny_deletion(backup_path)
     
-    # Rimuovi il flag di sola lettura dal file ripristinato, in modo che sia normalmente utilizzabile
+    # Remove the read-only flag from the restored file, so that it is normally usable
     os.chmod(target_path, stat.S_IWRITE)
     
     return True

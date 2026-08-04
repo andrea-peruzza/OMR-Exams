@@ -172,7 +172,7 @@ function Correct() {
           
           setSorting(false);
           eventSource.close();
-          await loadStatus(); // Aggiorna lo stato per sbloccare la Fase 2
+          await loadStatus(); // Update status to unlock Phase 2
         } else if (data.status === 'Failed' || data.status === 'failed') {
           setSortError(`Errore: ${data.error}`);
           setSorting(false);
@@ -294,7 +294,7 @@ function Correct() {
           </div>
         </header>
 
-        {/* --- FASE 1: SORTING --- */}
+        {/* --- PHASE 1: SORTING --- */}
         <div className="border-2 border-purple-200 rounded-2xl p-6 bg-purple-50/30">
           <h2 className="text-2xl font-bold text-purple-800 mb-6 flex items-center gap-3">
             <span className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">1</span>
@@ -307,7 +307,7 @@ function Correct() {
             </div>
           )}
 
-          {/* STATUS & UPLOAD SEZIONE */}
+          {/* STATUS & SECTION UPLOAD */}
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col mb-6">
             <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Stato scansioni</h3>
             <div className="flex items-center gap-4 mb-4">
@@ -367,7 +367,7 @@ function Correct() {
             </div>
           </section>
 
-          {/* IMPOSTAZIONI SEZIONE */}
+          {/* SECTION SETTINGS */}
           {status.has_scans && (
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-purple-400 hover:shadow-md transition-all flex flex-col">
               <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
@@ -411,7 +411,7 @@ function Correct() {
             </section>
           )}
 
-          {/* AZIONE E PROGRESSO SORT */}
+          {/* SORT ACTION AND PROGRESS */}
           <div className="mt-8 flex flex-col items-center">
             {!sorting && (
               <button
@@ -446,7 +446,7 @@ function Correct() {
           </div>
         </div>
 
-        {/* --- FASE 2: CORRECTION --- */}
+        {/* --- PHASE 2: CORRECTION --- */}
         <div className={`border-2 rounded-2xl p-6 transition-all duration-500 ${isFase2Ready ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-200 bg-gray-50 opacity-60 grayscale-[0.5]'}`}>
           <div className="flex justify-between items-start mb-6">
             <h2 className={`text-2xl font-bold flex items-center gap-3 ${isFase2Ready ? 'text-emerald-800' : 'text-gray-500'}`}>
@@ -467,7 +467,7 @@ function Correct() {
             </div>
           )}
 
-          {/* STATUS SEZIONE */}
+          {/* SECTION STATUS */}
           <section className={`group bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition-all flex flex-col mb-6 ${isFase2Ready ? 'hover:border-green-400 hover:shadow-md' : ''}`}>
             <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Verifica requisiti</h3>
             <div className="space-y-3">
@@ -491,7 +491,7 @@ function Correct() {
             </div>
           </section>
 
-          {/* IMPOSTAZIONI SEZIONE */}
+          {/* SECTION SETTINGS */}
           <div className={`transition-all duration-300 ${!isFase2Ready ? 'pointer-events-none' : ''}`}>
             {isFase2Ready && (
               <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-green-400 hover:shadow-md transition-all flex flex-col mb-8">
@@ -552,7 +552,7 @@ function Correct() {
               </section>
             )}
 
-            {/* AZIONE E PROGRESSO CORRECT */}
+            {/* CORRECT ACTION AND PROGRESS */}
             <div className="flex flex-col items-center">
               {!correcting && (
                 <button

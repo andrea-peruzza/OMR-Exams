@@ -53,7 +53,7 @@ export default function Cleanup() {
       Object.values(data).forEach(files => {
         all = all.concat(files);
       });
-      // rimuovi duplicati in caso
+      // remove duplicates in case
       return [...new Set(all)];
     }
     return data[category] || [];
@@ -92,7 +92,7 @@ export default function Cleanup() {
       const payload = { files: Array.from(selectedFiles) };
       const res = await apiClient.delete('/api/cleanup/files', { data: payload });
       setMessage({ type: 'success', text: `Eliminati ${res.data.deleted.length} file con successo.` });
-      fetchData(); // Ricarica la lista
+      fetchData(); // Reload the list
     } catch (err) {
       console.error(err);
       setMessage({ type: 'error', text: 'Errore durante l\'eliminazione dei file.' });
@@ -126,7 +126,7 @@ export default function Cleanup() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-red-400 hover:shadow-md overflow-hidden flex flex-col md:flex-row h-[600px]">
         
-        {/* Sidebar categorie */}
+        {/* Sidebar categories */}
         <div className="w-full md:w-1/3 border-r border-gray-200 bg-gray-50">
           <div className="p-4 border-b border-gray-200 font-semibold text-gray-700">
             Categorie
@@ -145,7 +145,7 @@ export default function Cleanup() {
           </ul>
         </div>
 
-        {/* Elenco file */}
+        {/* File list */}
         <div className="w-full md:w-2/3 flex flex-col">
           {category === 'generated_jsons' && (
             <div className="bg-yellow-50 text-yellow-800 p-3 text-sm border-b border-yellow-200">
@@ -193,7 +193,7 @@ export default function Cleanup() {
             )}
           </div>
 
-          {/* Footer azioni */}
+          {/* Footer actions */}
           <div className="p-4 border-t border-gray-200 bg-white flex justify-between items-center">
             <div className="flex items-center">
               <button 

@@ -177,7 +177,7 @@ export default function QuestionsEditor() {
       return;
     }
     
-    // Validazione base
+    // Basic validation
     for (let i = 0; i < questions.length; i++) {
         const q = questions[i];
         if (!q.text.trim()) {
@@ -200,7 +200,7 @@ export default function QuestionsEditor() {
                  return;
              }
         }
-    } // FINE CICLO FOR
+    } // END OF FORCING CYCLE
 
     if (mode === 'new' && !fileTitle.trim()) {
         setStatus({ type: 'error', message: 'Il titolo del file è obbligatorio per i nuovi file.' });

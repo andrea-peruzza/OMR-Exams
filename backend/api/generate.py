@@ -88,7 +88,7 @@ def save_question(req: QuestionSaveRequest):
     file_path = os.path.join(questions_dir, req.filename)
     mode = 'a' if req.append and os.path.exists(file_path) else 'w'
     with open(file_path, mode, encoding='utf-8') as f:
-        # Assicura una riga vuota prima di iniziare ad aggiungere (se il file esiste e non è vuoto)
+        # Ensure an empty line before starting to add (if the file exists and is not empty)
         if mode == 'a' and os.path.getsize(file_path) > 0 and not req.content.startswith('\n'):
             f.write('\n')
         f.write(req.content)
@@ -146,7 +146,7 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             with open(config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_dict, f, allow_unicode=True)
 
-        # Costruisce la lista studenti: lista di tuple (matricola, fullname) come si aspetta il core
+        # Builds the student list: list of tuples (freshman number, fullname) as the core expects
         student_list = []
         if not req.is_anonymous and req.selected_student_file:
             excel_path = os.path.join(DATA_DIR, "students", req.selected_student_file)
@@ -170,7 +170,7 @@ def run_generate_task(task_id: str, req: GenerateRequest):
             
             df = pd.read_excel(excel_path, skiprows=skip_rows)
             
-            # Auto-rilevamento intelligente: salta le righe finché non trova vere intestazioni
+            # Intelligent auto-detection: skips lines until it finds real headers
             attempts = 0
             while df.columns.astype(str).str.startswith('Unnamed:').all() and attempts < 10:
                 skip_rows += 1

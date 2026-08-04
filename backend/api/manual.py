@@ -51,10 +51,10 @@ async def get_missing(datafile: str):
         
         for exam in exams:
             student_id = str(exam['student_id'])
-            # Cerca se esiste una correzione
+            # Check to see if there is a fix
             corr = correction_table.get(Correction.student_id == student_id)
             if not corr:
-                # Trova i PNG in data/sorted
+                # Find NPCs in data/sorted
                 sorted_dir = os.path.join(DATA_DIR, "sorted")
                 pngs = glob.glob(os.path.join(sorted_dir, f"{student_id}-*.png"))
                 pngs = [os.path.basename(p) for p in pngs]
@@ -75,7 +75,7 @@ async def get_student_data(datafile: str, student_id: str):
         Exam = Query()
         Correction = Query()
         
-        # Gestisci student_id come stringa o int
+        # Handle student_id as string or int
         exam = db.table('exams').get(Exam.student_id == student_id)
         if not exam:
             exam = db.table('exams').get(Exam.student_id == int(student_id))

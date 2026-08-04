@@ -25,7 +25,7 @@ async def get_exams(datafile: str):
             student_id = str(exam['student_id'])
             fullname = exam.get('fullname', 'Anonimo')
             
-            # Trova la prima pagina smistata per questo studente (es. 1-1.png)
+            # Find the first sorted page for this student (e.g. 1-1.png)
             first_image = f"{student_id}-1.png"
             image_path = os.path.join(sorted_dir, first_image)
             image_url = f"/api/data/sorted/{first_image}" if os.path.exists(image_path) else None
@@ -76,7 +76,7 @@ async def update_associations(req: BulkAssociateRequest):
         correction_table = db.table('correction')
         
         for assoc in req.associations:
-            # Trova l'esame per aggiornare fullname e student_id
+            # Find the exam to update fullname and student_id
             exam = exams_table.get(Exam.student_id == assoc.original_id)
             if not exam:
                 exam = exams_table.get(Exam.student_id == int(assoc.original_id))
@@ -87,16 +87,16 @@ async def update_associations(req: BulkAssociateRequest):
                 exams_table.upsert(exam, Exam.student_id == assoc.original_id)
                 updated_count += 1
                 
-                # Se esiste anche la correzione, aggiorniamo il suo student_id per mantenere la coerenza
+                # If the fix also exists, we update its student_id to maintain consistency
                 if 'correction' in db.tables():
                     correction = correction_table.get(Exam.student_id == assoc.original_id)
                     if correction:
                         correction['student_id'] = assoc.new_student_id
                         correction_table.upsert(correction, Exam.student_id == assoc.original_id)
                         
-                # IMPORTANTE: Se si cambia lo student_id, l'immagine smistata in `sorted/` ha ancora il vecchio nome file (es. "vecchioID-1.png")
-                # Tuttavia, essendo solo per associazione, potremmo voler rinominare i file o semplicemente tenere i vecchi file per non rompere i collegamenti
-                # Per semplicità, rinominiamo i file PNG se l'id è cambiato
+                # IMPORTANT: If you change the student_id, the image sorted in `sorted/` still has the old file name (e.g. "oldID-1.png")
+                # However, being only by association, we may want to rename the files or simply keep the old files so as not to break links
+                # For simplicity, we rename PNG files if the id has changed
                 if str(assoc.original_id) != str(assoc.new_student_id):
                     sorted_dir = os.path.join(DATA_DIR, "sorted")
                     old_prefix = f"{assoc.original_id}-"

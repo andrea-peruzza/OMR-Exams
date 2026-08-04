@@ -148,9 +148,9 @@ export default function Moodle() {
     
     try {
       const res = await moodleAPI.uploadXml(formData);
-      // Ricarica la lista dei file XML
+      // Reload the list of XML files
       await loadFiles();
-      // Imposta il file appena caricato come selezionato
+      // Set the newly uploaded file as selected
       setSelectedXml(res.filename);
     } catch (err) {
       setImportError(err.response?.data?.detail || "Errore durante il caricamento del file");
@@ -363,7 +363,7 @@ export default function Moodle() {
           </section>
         )}
 
-        {/* Ritorno alla Dashboard */}
+        {/* Return to the Dashboard */}
         <div className="flex justify-center mt-12">
           <Link to="/dashboard" className="px-6 py-2 bg-gray-800 text-white rounded shadow hover:bg-gray-900 transition-colors">
             Torna alla Dashboard

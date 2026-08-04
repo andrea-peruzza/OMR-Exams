@@ -154,7 +154,7 @@ export default function ManualCorrection() {
         given_answers
       });
       setPanelMessage(`Risposta alla domanda ${question} forzata con successo!`);
-      // Ricarica i dati per aggiornare la maschera
+      // Reload the data to update the form
       handleStudentSelect(currentStudentId);
     } catch (e) {
       setPanelError(e.response?.data?.detail || "Errore durante il salvataggio");
@@ -177,7 +177,7 @@ export default function ManualCorrection() {
         </header>
 
 
-        {/* SELEZIONE DATAFILE */}
+        {/* DATAFILE SELECTION */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex items-center gap-2 mb-2">
             <label className="font-semibold text-gray-700">Database JSON attivo:</label>
@@ -205,7 +205,7 @@ export default function ManualCorrection() {
           </select>
         </section>
 
-        {/* MESSAGGI GLOBALI (sotto la selezione JSON) */}
+        {/* GLOBAL MESSAGES (under JSON selection) */}
         {globalError && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 shadow-sm flex justify-between">
             <span>{globalError}</span>
@@ -219,7 +219,7 @@ export default function ManualCorrection() {
           </div>
         )}
 
-        {/* MODALITA' */}
+        {/* MODE */}
         <div className="grid grid-cols-2 gap-6">
           <button 
             onClick={loadCorrected}
@@ -238,7 +238,7 @@ export default function ManualCorrection() {
           </button>
         </div>
 
-        {/* VISTA CORRECTED */}
+        {/* CORRECTED VIEW */}
         {mode === 'corrected' && (
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
@@ -284,7 +284,7 @@ export default function ManualCorrection() {
               )}
             </div>
 
-            {/* MODALE PDF INTERO */}
+            {/* FULL PDF MODAL */}
             {showFullPdf && selectedCorrected && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden">
@@ -322,7 +322,7 @@ export default function ManualCorrection() {
           </section>
         )}
 
-        {/* VISTA MISSING (DUBBI) */}
+        {/* MISSING VIEW (DOUBTS) */}
         {mode === 'missing' && missingList.length > 0 && (
           <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
             <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border">
@@ -370,7 +370,7 @@ export default function ManualCorrection() {
           </section>
         )}
 
-        {/* STRUMENTI DI CORREZIONE (Visibile in entrambe le modalità se c'è un file caricato e inseriamo manuale) */}
+        {/* PROOFING TOOLS (Visible in both modes if there is a file loaded and we insert manually) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 flex items-center">
             Pannello correzione manuale
@@ -419,7 +419,7 @@ export default function ManualCorrection() {
           {studentData && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
               
-              {/* Tabella Get Answers / Correction Mask */}
+              {/* Get Answers / Correction Mask table */}
               <div className="space-y-4">
                 <h3 className="font-bold text-gray-800">Stato risposte attuale</h3>
                 <div className="overflow-x-auto">

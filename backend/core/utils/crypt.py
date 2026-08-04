@@ -51,7 +51,7 @@ def binary_encrypt(solutions, key):
     assert type(solutions) is list, "Only lists can be binary encrypted"
     if type(key) is not str:
         key = str(key)
-    # transform the key in sequence of bytes (taking only the least significant byte)
+    # transform the key into sequence of bytes (taking only the least significant byte)
     mask = (1 << 8) - 1
     key_generator = cycle(ord(c) & mask for c in key)
     questions = 0b0  
@@ -69,11 +69,11 @@ def binary_encrypt(solutions, key):
 def binary_decrypt(solutions, key):
     assert type(solutions) is str or type(solutions) is bytes, "Only strings or byte strings can be decrypted"
     solutions = int.from_bytes(a2b_base64(solutions), 'little')
-    # 8 bit 11...1 mask
+    # 8 bits 11...1 mask
     mask = (1 << 8) - 1
     if type(key) is not str:
         key = str(key)
-    # transform the key in sequence of bytes (taking only the least significant byte)
+    # transform the key into sequence of bytes (taking only the least significant byte)
     key_generator = cycle(ord(c) & mask for c in key)
     # extract solutions, the order is reversed
     tmp = []

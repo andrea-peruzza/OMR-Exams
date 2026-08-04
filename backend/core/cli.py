@@ -5,7 +5,7 @@ import platform
 from ctypes.util import find_library
 import os
 
-# This hack is needed to take care of non-export of DYLD_LIBRARY_PATH using the env 
+# This hack is needed to take care of non-export of DYLD_LIBRARY_PATH using the env
 if platform.system() == 'Darwin' and platform.processor() == 'arm' and not find_library('zbar'):
     os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = ":".join(os.environ.get('DYLD_FALLBACK_LIBRARY_PATH', '').split(':') + ['/opt/homebrew/lib'])
 

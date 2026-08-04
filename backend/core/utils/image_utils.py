@@ -34,7 +34,7 @@ def line_intersect(pts1, pts2):
     intersection = np.cross(h_line1, h_line2)
     return intersection[:2] / intersection[2]
 
-# TODO: temporarily abandoned idea, it would be useful for perspective transform
+# TODO: temporarily abandoned idea, it would be useful for perspective transformation
 def search_for_markers(image, top_left, bottom_right, resolution):
     delta = 1.0 / (2.54 / resolution) # search in a square with semi-width 1.0cm
     center = line_intersect(top_left[[0, 1]], bottom_right[[1, 2]])

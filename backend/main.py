@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-#  MOCK CLICK BLOCCANTI 
-# Deve stare PRIMA di qualsiasi import da core/
-# Impedisce che click.prompt() e click.confirm() blocchino il server
-# aspettando input dall'utente che in un contesto API non arriverà mai
+#  MOCK CLICK BLOCKERS
+# Must be BEFORE any import from core/
+# Prevents click.prompt() and click.confirm() from crashing the server
+# waiting for input from the user which in an API context will never arrive
 import click
 click.prompt = lambda *args, **kwargs: kwargs.get('default', 'y')
 click.confirm = lambda *args, **kwargs: True
@@ -34,7 +34,7 @@ app.include_router(backup.router, prefix="/api/backup")
 app.include_router(cleanup.router, prefix="/api/cleanup")
 app.include_router(associate.router, prefix="/api/associate")
 
-# Mount della cartella data per permettere al frontend di accedere ai PDF
+# Mount the data folder to allow the frontend to access PDFs
 DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data")))
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)

@@ -218,11 +218,11 @@ class Generate:
 
         if not self.error.value:
             click.secho('Removing tmp', fg='yellow')
-            # rmtree('tmp')    # original row
+            # rmtree('tmp') # original row
             for _ in range(5): # try 5 times
                 try:
                     rmtree('tmp')
-                    break # if it has succeded it exit the loop
+                    break # if it has happened it exit the loop
                 except OSError:
                     time.sleep(0.5) # wait 0.5 seconds than try again
             else:
@@ -256,7 +256,7 @@ class Generate:
                     # get rid of the xdv file, if any
                     if os.path.exists(f"{filename}.xdv"):
                         os.remove(f"{filename}.xdv")
-                    # check the generated output in terms of pages 
+                    # check the generated output in terms of pages
                     # TODO: it should be done also in terms of the qrcode, number of questions, coherence of answers
                     with open(f"{filename}.pdf", 'rb') as f:
                         pdf_file = PdfReader(f, strict=False)
@@ -286,7 +286,7 @@ class Generate:
 
     @staticmethod
     def collate_exams_a4(filename, pdf_files, bar=None, progress_callback=None):
-        # This is for A4 management            
+        # This is for A4 management
         merger = PdfWriter()
         _blank = PdfWriter()
         _blank.add_blank_page(**A4SIZE)    
@@ -359,12 +359,12 @@ class Generate:
                             left = True
                         a3page.merge_transformed_page(page, transformation, expand=False) 
                         if left:
-                            # add page 
+                            # add page
                             writer.add_page(a3page)
                             a3page = PageObject.create_blank_page(**A3SIZE)  
                             rotate = not rotate
                 else:
-                    # normal A3, two A4 per A3
+                    # normal A3, two A4 for A3
                     for p, page in enumerate(pdf.pages):
                         if p % 2 == 0:
                             # page left
@@ -374,7 +374,7 @@ class Generate:
                             # page right
                             transformation = Transformation().translate(A3SIZE['width'] / 2, 0)
                             a3page.merge_transformed_page(page, transformation, expand=False) 
-                            # add page 
+                            # add page
                             writer.add_page(a3page)
                             a3page = PageObject.create_blank_page(**A3SIZE)  
 

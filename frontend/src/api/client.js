@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-// Crea un'istanza base di axios centralizzata
+// Create a centralized basic axios instance
 const apiClient = axios.create({
-  baseURL: '', // Modifica con variabili d'ambiente se necessario
+  baseURL: '', // Edit with environment variables if necessary
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Raccolta delle API raggruppate per funzionalità
+// Collection of APIs grouped by functionality
 export const dashboardAPI = {
   getStatus: async () => {
     const response = await apiClient.get('/api/dashboard/status');

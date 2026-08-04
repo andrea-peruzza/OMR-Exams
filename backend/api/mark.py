@@ -64,7 +64,7 @@ async def generate_report(req: ReportRequest):
             if not df.empty:
                 df = df.groupby(['filename', 'question']).agg({ 'correct_ratio': ['count', 'sum', 'mean', 'std'], 'missing_ratio': ['mean', 'std'], 'wrong_ratio': ['mean', 'std'], 'options': 'min', 'no_correct_answers': 'min' })
                 
-                # Scrittura con xlsxwriter per formato verticale sulla prima colonna e bold
+                # Writing with xlsxwriter for vertical format on the first column and bold
                 writer = pd.ExcelWriter(output_filename, engine='xlsxwriter')
                 df.to_excel(writer, sheet_name='Report')
                 workbook = writer.book
@@ -73,17 +73,17 @@ async def generate_report(req: ReportRequest):
                 center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
                 bold_format = workbook.add_format({'bold': True})
                 
-                # Applica il formato bold alle intestazioni di colonna
+                # Applies bold format to column headings
                 for row in range(df.columns.nlevels):
                     worksheet.set_row(row, None, center_bold_format)
                 
-                # Applica bold alla seconda colonna dell'indice (question)
+                # Apply bold to the second column of the index (question)
                 worksheet.set_column(1, 1, None, bold_format)
                 
                 vertical_format = workbook.add_format({'rotation': 90, 'align': 'center', 'valign': 'vcenter', 'bold': True})
-                worksheet.set_column(0, 0, 10, vertical_format) # Imposta larghezza 10 e formato verticale
+                worksheet.set_column(0, 0, 10, vertical_format) # Set width 10 and vertical format
                 
-                # Ripristina l'orientamento normale per l'intestazione 'filename' (alla riga df.columns.nlevels)
+                # Restore normal orientation for the 'filename' header (at the df.columns.nlevels line)
                 normal_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
                 worksheet.write(df.columns.nlevels, 0, 'filename', normal_format)
                 
@@ -139,12 +139,12 @@ async def review_question(datafile: str, question_file: str, question: int, expo
                 out_path = os.path.join(DATA_DIR, output_filename)
                 if export_format == 'excel':
                     df = pd.DataFrame(table)
-                    # Formatta array come stringhe per Excel
+                    # Format arrays as strings for Excel
                     for col in ["correct_ref", "marked", "correct", "missing", "wrong"]:
                         df[col] = df[col].apply(lambda x: ', '.join(x))
                     df.to_excel(out_path, index=False)
                 elif export_format == 'markdown':
-                    # Preparazione dati testuali per tabulate
+                    # Preparing textual data for tabulation
                     tab_data = []
                     for row in table:
                         tab_data.append([

@@ -7,11 +7,11 @@ router = APIRouter()
 
 import glob
 
-# In sviluppo locale: calcoliamo dinamicamente la cartella "data" che si trova
-# due livelli sopra rispetto a questo file (backend/api/dashboard.py -> ../../data)
+# In local development: we dynamically calculate the "data" folder located
+# two levels above this file (backend/api/dashboard.py -> ../../data)
 DEFAULT_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
 
-# In Docker: viene impostata automaticamente dal docker-compose.yaml tramite env
+# In Docker: This is automatically set by docker-compose.yaml via env
 DATA_DIR = os.environ.get("DATA_DIR", DEFAULT_DATA_DIR)
 
 @router.get("/status", response_model=DashboardStatus)
@@ -24,13 +24,13 @@ def get_status():
     
     questions_present = False
     if os.path.isdir(questions_dir):
-        # Cerchiamo file markdown nella cartella questions
+        # We look for markdown files in the questions folder
         md_files = glob.glob(os.path.join(questions_dir, "*.md"))
         questions_present = len(md_files) > 0
         
     students_present = False
     if os.path.isdir(students_dir):
-        # Cerchiamo file excel nella cartella students
+        # We are looking for excel files in the students folder
         excel_files = glob.glob(os.path.join(students_dir, "*.xls*"))
         students_present = len(excel_files) > 0
 
@@ -57,7 +57,7 @@ def preview_excel(filename: str, headerRows: int = 1, indexCols: int = 0, center
         # Take only the first 10 rows for preview
         df = df.head(10)
         
-        # Pulizia delle colonne "Unnamed: "
+        # Cleaning up "Unnamed: " columns
         if isinstance(df.columns, pd.MultiIndex):
             def clean_col(c):
                 return tuple("" if str(x).startswith("Unnamed:") else x for x in c)
@@ -65,12 +65,12 @@ def preview_excel(filename: str, headerRows: int = 1, indexCols: int = 0, center
         else:
             df.columns = ["" if str(x).startswith("Unnamed:") else x for x in df.columns]
             
-        # Pulizia dei nomi dell'indice se presenti e Unnamed
+        # Cleaning up index names if present and Unnamed
         if df.index.names:
             df.index.names = ["" if str(x).startswith("Unnamed:") else x for x in df.index.names]
         
         # Generate HTML
-        # Using standard pandas styling to HTML, na_rep vuoto
+        # Using standard pandas styling to HTML, empty na_rep
         html_str = df.to_html(classes="w-full text-sm text-left table-auto", border=0, justify="center" if centerHeaders else "left", na_rep="")
         
         return {"html": html_str}

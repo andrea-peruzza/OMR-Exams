@@ -47,7 +47,7 @@ class MarkdownConverter:
         if qtype != 'essay':
             single = question.find('single').text == 'true'
             
-            # Leggiamo tutte le risposte
+            # Let's read all the answers
             raw_answers = []
             for a in question.findall('answer'):
                 text_ans, _ = MarkdownConverter.dispatch_answer(a)
@@ -55,8 +55,8 @@ class MarkdownConverter:
                 raw_answers.append((text_ans, fract))
                 
             if not raw_answers:
-                # Fallback per i file XML esportati con il vecchio bug che codificava
-                # le domande aperte come multichoice vuote.
+                # Fallback for XML files exported with old bug coding
+                # open questions as empty multichoice.
                 return (text, False, None)
                 
             if single:

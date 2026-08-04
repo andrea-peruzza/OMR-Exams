@@ -19,7 +19,7 @@ export default function HelpButton({ title, children }) {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsOpen(false)}>
           <div 
             className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
-            onClick={e => e.stopPropagation()} // Previene la chiusura cliccando dentro la modale
+            onClick={e => e.stopPropagation()} // Prevent closure by clicking inside the modal
           >
             <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/80">
               <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2">

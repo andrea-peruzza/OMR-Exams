@@ -74,7 +74,7 @@ def decode_top_left(data):
 
 
 # Preprocess the image to improve QR code detection
-# Not used yet, but could be useful in some cases, to be cheked
+# Not used yet, but could be useful in some cases, to be checked
 def prepare_image_for_decoding(image):
     if len(image.shape) > 2:
         g = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -99,7 +99,7 @@ def prepare_image_for_decoding(image):
     bw2 = cv2.adaptiveThreshold(g, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 35, 7)
     bw = cv2.bitwise_and(bw1, bw2)
 
-    # 5. Morph close for removing small holes 
+    # 5. Morph close for removing small holes
     # TODO: check if needed
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     bw = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel, iterations=1)
@@ -152,13 +152,13 @@ def decode(image, highlight=False, offset=5):
             # Empty page detected
             return None
         
-        # decide for rotation
+        # decides for rotation
         rotated = check_rotation(decoded_text)
         if rotated:
             image = cv2.rotate(image, cv2.ROTATE_180)
             decoded_text, qrcodes = search_qrcodes_opencv(image)
 
-        # extract information from the qrcode    
+        # extract information from the qrcode
         top_left_decode = decode_top_left(decoded_text[0])
         bottom_right_decode = decode_bottom_right(decoded_text[1])                     
         
@@ -168,10 +168,10 @@ def decode(image, highlight=False, offset=5):
 
         if highlight:
             for qrcode in qrcodes:
-                # extract the bounding box location of the qrcode and draw a green 
+                # extract the bounding box location of the qrcode and draw a green
                 # frame around them
                 t = order_points(qrcode.astype('int'))
-                # currently assumes that the image has the right orientation 
+                # currently assumes that the image has the right orientation
                 # if this is not the case, the qrcode.polygon can be inspected
                 # and possibly used for rotation
                 cv2.rectangle(image, t[0] - offset, t[2] + offset, GREEN, 3)
@@ -245,7 +245,7 @@ def decode(image, highlight=False, offset=5):
 
         if highlight:
             for qrcode in qrcodes:
-                # extract the bounding box location of the qrcode and draw a green 
+                # extract the bounding box location of the qrcode and draw a green
                 # frame around them
                 (x, y, w, h) = qrcode.rect
                 cv2.rectangle(image, (int(x - offset), int(y - offset)), (int(x + w + offset), int(y + h + offset)), GREEN, 3)
@@ -297,7 +297,7 @@ def decode(image, highlight=False, offset=5):
 
         if highlight:
             for qrcode in qrcodes:
-                # extract the bounding box location of the qrcode and draw a green 
+                # extract the bounding box location of the qrcode and draw a green
                 # frame around them
                 (x, y, w, h) = qrcode.rect
                 cv2.rectangle(image, (int(x - offset), int(y - offset)), (int(x + w + offset), int(y + h + offset)), GREEN, 3)

@@ -43,5 +43,5 @@ class TaskManager:
     def get_task(self, task_id: str) -> Dict[str, Any]:
         return self.tasks.get(task_id, None)
 
-# Istanza Singleton condivisa
+# Shared singleton instance
 task_manager = TaskManager()

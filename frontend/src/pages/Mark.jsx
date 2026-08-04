@@ -14,25 +14,25 @@ export default function Mark() {
   const [allFiles, setAllFiles] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  // Calcolo voti
+  // Calculation of votes
   const [markDatafile, setMarkDatafile] = useState('');
   const [markOutput, setMarkOutput] = useState('voti.xlsx');
   const [markResult, setMarkResult] = useState(null);
   const [markLoading, setMarkLoading] = useState(false);
   const [markError, setMarkError] = useState(null);
 
-  // Report
+  // Reports
   const [reportDatafile, setReportDatafile] = useState('');
   const [reportOutput, setReportOutput] = useState('report.xlsx');
   const [reportResult, setReportResult] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState(null);
 
-  // Analisi
+  // Analyses
   const [analysisDatafile, setAnalysisDatafile] = useState('');
   const [questionsList, setQuestionsList] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState('');
-  const [analysisMode, setAnalysisMode] = useState(''); // 'review' o 'students'
+  const [analysisMode, setAnalysisMode] = useState(''); // 'review' or 'students'
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -198,7 +198,7 @@ export default function Mark() {
           </div>
         </header>
 
-        {/* Semaforo */}
+        {/* Stoplight */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex items-center gap-4">
           <div className={`w-4 h-4 rounded-full ${dataFiles.length > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`}></div>
           <div>
@@ -212,7 +212,7 @@ export default function Mark() {
         {dataFiles.length > 0 && (
           <div className="grid grid-cols-1 gap-8">
             
-            {/* Calcolo Voti */}
+            {/* Vote Calculation */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
               <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
                 Calcolo voti
@@ -259,7 +259,7 @@ export default function Mark() {
               )}
             </section>
 
-            {/* Report Statistico */}
+            {/* Statistical Report */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
               <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
                 Generazione report
@@ -305,7 +305,7 @@ export default function Mark() {
               )}
             </section>
 
-            {/* Analisi Domande */}
+            {/* Analysis Questions */}
             <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex flex-col">
               <h2 className="text-xl font-bold text-gray-700 border-b pb-2 flex items-center">
                 Analisi domanda specifica
@@ -416,7 +416,7 @@ export default function Mark() {
           </div>
         )}
 
-        {/* Ritorno alla Dashboard */}
+        {/* Return to the Dashboard */}
         <div className="flex justify-center mt-12">
           <Link to="/dashboard" className="px-6 py-2 bg-gray-800 text-white rounded shadow hover:bg-gray-900 transition-colors">
             Torna alla Dashboard

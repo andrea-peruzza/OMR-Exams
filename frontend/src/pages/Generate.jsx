@@ -9,31 +9,31 @@ import HomeButton from '../components/HomeButton';
 import HelpButton from '../components/HelpButton';
 import { usePrompt } from '../hooks/usePrompt';
 
-// Funzione helper per tradurre HTML (Quill) in LaTeX
+// Helper function to translate HTML (Quill) to LaTeX
 const translateToLatex = (text) => {
   if (!text) return text;
   let latex = text;
   
-  // Variabili magiche nuove
+  // New magic variables
   latex = latex.replace(/\{\{NOME\}\}/g, '\\thestudent');
   latex = latex.replace(/\{\{MATRICOLA\}\}/g, '\\thematriculationno');
   latex = latex.replace(/\{\{DATA\}\}/g, '\\thedate');
   latex = latex.replace(/\{\{PAGINA\}\}/g, '\\thepage');
   
-  // Compatibilità vecchi testi
+  // Compatibility of old texts
   if (!latex.includes('\\thepage')) latex = latex.replace(/Numero di pagina/gi, '\\thepage');
   if (!latex.includes('\\thedate')) latex = latex.replace(/Data dell'esame/gi, 'Data: \\thedate');
   if (!latex.includes('\\thestudent')) latex = latex.replace(/Nome del candidato/gi, 'Candidato: \\thestudent');
   if (!latex.includes('\\thematriculationno')) latex = latex.replace(/Matricola/gi, 'Matricola: \\thematriculationno');
 
-  // Gestione HTML da Quill
+  // HTML management from Quill
   if (latex.includes('<')) {
-    // Quill applica le classi ql-align-* ai tag <p>
+    // Quill applies ql-align-* classes to <p> tags
     latex = latex.replace(/<p class="ql-align-center">(.*?)<\/p>/g, '\\begin{center}$1\\end{center}');
     latex = latex.replace(/<p class="ql-align-right">(.*?)<\/p>/g, '\\begin{flushright}$1\\end{flushright}');
     latex = latex.replace(/<p class="ql-align-justify">(.*?)<\/p>/g, '$1');
 
-    // Manteniamo i <div> per retrocompatibilità
+    // We keep the <div>s for backwards compatibility
     latex = latex.replace(/<div class="ql-align-center">(.*?)<\/div>/g, '\\begin{center}$1\\end{center}');
     latex = latex.replace(/<div class="ql-align-right">(.*?)<\/div>/g, '\\begin{flushright}$1\\end{flushright}');
     latex = latex.replace(/<div class="ql-align-justify">(.*?)<\/div>/g, '$1');
@@ -62,12 +62,12 @@ const translateToLatex = (text) => {
   return latex.trim();
 };
 
-// Funzione inversa per decodificare il LaTeX salvato nei file YAML e ripristinarlo nell'editor HTML Quill
+// Reverse function to decode LaTeX saved in YAML files and restore it to the Quill HTML editor
 const latexToHtml = (latex) => {
   if (!latex) return latex;
   let html = latex;
   
-  // Variabili
+  // Variables
   html = html.replace(/\\thestudent/g, '{{NOME}}');
   html = html.replace(/\\thematriculationno/g, '{{MATRICOLA}}');
   html = html.replace(/\\thedate/g, '{{DATA}}');
@@ -86,7 +86,7 @@ const latexToHtml = (latex) => {
   html = html.replace(/ \\newline /g, '<br>');
   html = html.replace(/\\newline/g, '<br>');
   
-  // Wrappa in <p> se serve per essere digerito bene da Quill
+  // Wrap in <p> if needed to be digested well by Quill
   if (!html.includes('<p')) {
     html = `<p>${html}</p>`;
   }
@@ -180,7 +180,7 @@ export default function Generate() {
     try {
       const savedConfig = await generateAPI.getConfig(selectedConfig);
       if (savedConfig && Object.keys(savedConfig).length > 0) {
-        // Ripristina l'HTML per l'editor WYSIWYG
+        // Reset HTML for WYSIWYG editor
         if (savedConfig.header) savedConfig.header = latexToHtml(savedConfig.header);
         if (savedConfig.preamble) savedConfig.preamble = latexToHtml(savedConfig.preamble);
         if (savedConfig.footer) savedConfig.footer = latexToHtml(savedConfig.footer);
@@ -488,7 +488,7 @@ export default function Generate() {
 
       <div className="space-y-8">
         
-        {/* Sezione Impostazioni esame */}
+        {/* Exam Settings section */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
             Impostazioni esame
@@ -526,7 +526,7 @@ export default function Generate() {
           </div>
         </section>
 
-        {/* Sezione Impostazioni studenti */}
+        {/* Student Settings section */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni studenti</h2>
           
@@ -611,7 +611,7 @@ export default function Generate() {
           </div>
         </section>
 
-        {/* Sezione Impostazioni domande */}
+        {/* Question Settings section */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex justify-between items-center border-b pb-2 mb-4">
             <h2 className="text-xl font-semibold text-gray-700 flex items-center">
@@ -703,7 +703,7 @@ export default function Generate() {
           </button>
         </section>
 
-        {/* Sezione Impostazioni aggiuntive */}
+        {/* Additional settings section */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Impostazioni aggiuntive</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -808,7 +808,7 @@ export default function Generate() {
           </div>
         </section>
 
-        {/* Struttura (Header, Preamble, Footer) */}
+        {/* Structure (Header, Preamble, Footer) */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2 flex items-center">
             Struttura e layout della pagina
@@ -838,7 +838,7 @@ export default function Generate() {
           <HeaderFooterEditor config={config} setConfig={setConfig} />
         </section>
 
-        {/* Test del Layout */}
+        {/* Layout Test */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:border-blue-400 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex-1">
             <h2 className="text-xl font-semibold mb-2 text-blue-900">Test del Layout</h2>
@@ -901,7 +901,7 @@ export default function Generate() {
           </div>
         )}
 
-        {/* Barra di Avanzamento, Errori e Preview */}
+        {/* Progress Bar, Errors and Preview */}
         {error && <div className="p-4 mt-6 bg-red-100 text-red-700 rounded-lg">{error}</div>}
         
         {taskId && progress && (
@@ -928,7 +928,7 @@ export default function Generate() {
                 {/* PDF Preview */}
                 <PDFPreview url={`/api/data/${runtime.output_prefix}.pdf`} />
                 
-                {/* Ritorno Dashboard */}
+                {/* Return Dashboard */}
                 <div className="mt-6 flex justify-center">
                   <button 
                     onClick={() => navigate('/dashboard')}

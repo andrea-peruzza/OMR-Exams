@@ -14,7 +14,7 @@ export default function Dashboard() {
         Benvenuto in OMRExams, una suite per la generazione, lo smistamento, la correzione automatica e la valutazione di esami cartacei tramite Optical Mark Recognition (OMR).Seleziona uno degli strumenti sottostanti per procedere con il flusso di lavoro.
       </p>
 
-      {/* Sezione Hub Navigazione */}
+      {/* Navigation Hub section */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Strumenti</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -54,7 +54,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Sezione Strumenti di ausilio */}
+      {/* Help tools section */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Strumenti di ausilio</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">

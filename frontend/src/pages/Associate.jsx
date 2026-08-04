@@ -71,7 +71,7 @@ export default function Associate() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [excelData, setExcelData] = useState([]); // List of {name, matricola} from Excel
+  const [excelData, setExcelData] = useState([]); // List of {name, serial number} from Excel
   const [serverFiles, setServerFiles] = useState([]);
   const [examSearchId, setExamSearchId] = useState('');
   const [fetchingServerExcel, setFetchingServerExcel] = useState(false);
@@ -89,7 +89,7 @@ export default function Associate() {
       setHasSortedFiles(res.data.has_sorted_files);
     } catch (err) {
       console.error("Errore nel controllo dei file ordinati", err);
-      // Fallback
+      // Fallbacks
       setHasSortedFiles(true);
     }
   };

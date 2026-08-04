@@ -74,7 +74,7 @@ class Mark:
                     current[(file_source, q_id, 'size')] = q_size
                     current[(file_source, q_id, 'index')] = e['questions'][i][1]
                 
-                # Le colonne sono già nell'ordine in cui sono state inserite
+                # The columns are already in the order they were inserted
                 current[('summary', '', 'total_points')] = p[0]
                 current[('summary', '', 'tentative_mark')] = p[0] / p[1]
                 df = pd.concat([df, current])
@@ -89,7 +89,7 @@ class Mark:
             df = df.set_index(('student', '', 'student_id'))
             df.index.name = 'student_id'
             
-            # Scrittura con xlsxwriter per formattare le intestazioni (MultiIndex)
+            # Writing with xlsxwriter to format headers (MultiIndex)
             writer = pd.ExcelWriter(self.outputfile, engine='xlsxwriter')
             df.to_excel(writer, sheet_name='Voti')
             workbook = writer.book
@@ -99,10 +99,10 @@ class Mark:
             angled_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
             bold_format = workbook.add_format({'bold': True})
             
-            # Applica il formato bold all'indice degli studenti
+            # Apply bold format to the student index
             worksheet.set_column(0, 0, None, bold_format)
             
-            # Applica il formato alle righe di intestazione (3 righe)
+            # Apply format to header lines (3 lines)
             for row in range(df.columns.nlevels):
                 if row == df.columns.nlevels - 1:
                     worksheet.set_row(row, None, angled_format)

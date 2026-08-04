@@ -1,1 +1,1 @@
-# file vuoto, serve a python per riconoscere la cartella come package importabile
+# empty file, it is used by python to recognize the folder as an importable package

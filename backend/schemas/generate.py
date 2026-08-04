@@ -53,11 +53,11 @@ class GenerateRequest(BaseModel):
     save_config: bool = False
     config_output_name: Optional[str] = None
     
-    # Impostazioni di runtime (non salvate in config.yaml)
+    # Runtime settings (not saved in config.yaml)
     date: str
     is_anonymous: bool
     num_anonymous_exams: Optional[int] = None
-    selected_student_file: Optional[str] = None  # path relativo in data/students/
+    selected_student_file: Optional[str] = None  # relative path in data/students/
     output_prefix: str
     split: Optional[int] = None
     seed: Optional[int] = 42

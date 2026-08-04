@@ -43,7 +43,7 @@ class QuestionsEnvironment(pylatex.base_classes.Environment):
     escape = False
     content_separator = "\n"
 
-# Define a custom renderer back to markdown so that it can be further processed 
+# Define a custom renderer back to markdown so that it can be further processed
 # into latex later
            
 
@@ -208,7 +208,7 @@ class QuestionRenderer(LaTeXRenderer):
             return f'\n\\includegraphics[max width=\\linewidth]{{{path}}}\n'
 
     def render_question_block(self, token):
-        # possibly, the first question could start without a marker 
+        # possibly, the first question could start without a marker
         # and could contain the heading of the section
         self.questions.append({ 'question': "", 'answers': [], 'permutation': [], 'type': None })
         inner = self.render_inner(token)
@@ -306,7 +306,7 @@ class QuestionRenderer(LaTeXRenderer):
             return self.custom_render_list_item(token)
         else:
             return "".join(self.render(child) for child in token.children)
-        #    raise Error("Once a question list is started all the list items must be questions")                               
+        #    raise Error("Once a question list is started all the list items must be questions")
 
     def render_document(self, token):
         if not self.parameters.get('test', False):
@@ -346,8 +346,8 @@ class QuestionRenderer(LaTeXRenderer):
             options=options,
             arguments=['omrexam']
         )
-#        pylatex.Document(documentclass='omrexam', 
-#            inputenc=None, lmodern=False, fontenc=None, textcomp=None,
+#        pylatex.Document(documentclass='omrexam',
+#            inputenc=None, lmodern=False, fontinc=None, textcomp=None,
 #            options=options)
         doc.preamble.append(pylatex.Package('polyglossia'))
         doc.preamble.append(pylatex.Command('setdefaultlanguage', self.parameters.get('language', '').lower()))
@@ -381,8 +381,8 @@ class QuestionRenderer(LaTeXRenderer):
         self.footnotes.update(token.footnotes)
         self.parameters['shuffle'] = False
         inner = self.render_inner(token)                
-        #doc = pylatex.Document(documentclass='omrexam', 
-        #    inputenc=None, lmodern=False, fontenc=None, textcomp=None)
+        #doc = pylatex.Document(documentclass='omrexam',
+        #    inputenc=None, lmodern=False, fontinc=None, textcomp=None)
         doc = pylatex.Document('basic')
         doc.documentclass = pylatex.Command('documentclass',
             options=['testing'],
@@ -555,7 +555,7 @@ class MoodleRenderer(BaseRenderer):
         return f'![{inner}](@@PLUGINFILE@@/{os.path.basename(token.src)})'
 
     def render_question_block(self, token):
-        # possibly, the first question could start without a marker 
+        # possibly, the first question could start without a marker
         # and could contain the heading of the section
         self.questions.append({ 'question': "", 'choices': [], 'answers': [], 'images': [], 'open': False })
         inner = self.render_inner(token)
@@ -617,7 +617,7 @@ class MoodleRenderer(BaseRenderer):
         else:
             self.questions[-1]['choices'].append(" ".join(self.render(child) for child in token.children))
             return ''
-        #    raise Error("Once a question list is started all the list items must be questions")                               
+        #    raise Error("Once a question list is started all the list items must be questions")
 
     def render_questions(self, token):    
         def render_question(question, id):

@@ -228,9 +228,9 @@ class Correct:
                 break
             try:
                 detected_answers, correct_answers = self.process(filename)
-                if correct_answers: # probably no question in current file           
+                if correct_answers: # probably no question in current file
                     *student, page = ".".join(os.path.basename(filename).split(".")[:-1]).split("-")
-                    # this is due because of old-style matriculation numbers
+                    # this is due to old-style matriculation numbers
                     student = "-".join(student)
                     self.results_mutex.acquire()
                     self.append_correction(student, page, list(map(list, detected_answers)), list(map(list, correct_answers)))
@@ -252,7 +252,7 @@ class Correct:
         if metadata.get('rotated', False):
             image = cv2.rotate(image, cv2.ROTATE_180)
 
-        if metadata['range'] == (0, 0): # no question and markers in current page
+        if metadata['range'] == (0, 0): # no questions and markers on current page
             self.write(filename, image, is_wide=False)
             return [], []
         tl, br = metadata['top_left'], metadata['bottom_right']
@@ -261,7 +261,7 @@ class Correct:
         p1 = np.round(np.dot(metadata['p1'], metadata['scaling'])).astype(int) + tl        
         roi_width = p1[0] - p0[0]
         roi_height = p1[1] - p0[1]
-        # this fix was needed since sometimes the roi was too close to objects and some detector did not work
+        # this fix was needed since sometimes the roi was too close to objects and some detectors did not work
         expand_x = int(roi_width * 0.05 / 2)
         expand_y = 0 #int(roi_height * 0.05 / 2)
         p0 = np.array([max(0, p0[0] - expand_x), max(0, p0[1] - expand_y)])
@@ -281,7 +281,7 @@ class Correct:
         masks = [None] * 4
         try:
             binary, circles, empty_circles = Correct.detect_circles_edges(roi, metadata)
-            # process result        
+            # process result
             correction[0], masks[0] = Correct.process_circles(roi, binary, circles, empty_circles, metadata, page_answers)
         except Exception as e:
             click.secho(f"\nFailed Contour Detection for {filename}", fg="yellow")
@@ -321,7 +321,7 @@ class Correct:
         #     while len(idxs) > 0:
         #         last = len(idxs) - 1
         #         i = idxs[-1]
-        #         pick.append(i)
+        #         pick.append(s)
         #         suppress = [last]
         #         for pos in range(0, last):
         #             j = idxs[pos]
@@ -335,10 +335,10 @@ class Correct:
         #     return boxes[pick]
                     
         # ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
-        # scale = 300 / roi.shape[1] 
+        # scale = 300 / roi.shape[1]
         # tw, th = int(roi.shape[1] * scale), int(roi.shape[0] * scale)
         # ss.setBaseImage(cv2.resize(roi, (tw, th)))
-        # ss.switchToSingleStrategy() 
+        # ss.switchToSingleStrategy()
         # rects = non_max_suppression(ss.process())
         # for i, rect in enumerate(rects):
         #     if i < 1000:
@@ -360,7 +360,7 @@ class Correct:
         if masks[3] is not None:
              image = Correct.add_superimposed(image, masks[3], roi, p0, p1, 'Hough')
 
-        # Scritte given and correct answers rimosse come da richiesta
+        # Written given and correct answers removed as per request
         self.write(filename, image, is_wide=True)
 
         return majority, correct
@@ -430,7 +430,7 @@ class Correct:
         for i in range(num_questions):
             counts = stats[i]
             
-            # Mostra almeno fino alla D, se c'è E viene aggiunta
+            # Show at least up to D, if there is E it is added
             max_opt = 'D'
             if 'E' in correct_ans[i] or 'E' in majority[i] or counts.get('E', 0.0) > 0.0:
                 max_opt = 'E'
@@ -445,7 +445,7 @@ class Correct:
             font_scale = 1.3
             font_thick = 2
             
-            # Riga superiore (multicolore: testo nero, % blu)
+            # Top row (multicolor: black text, % blue)
             curr_x = start_x
             y_pos_1 = row_y_center - 15
             
@@ -459,26 +459,26 @@ class Correct:
                 adjusted_val = (raw_val - 0.25) / 0.75
                 pct = int(max(0.0, min(1.0, adjusted_val)) * 100)
                 
-                # Lettera
+                # Letter
                 letter_str = f"{option}:"
                 cv2.putText(image, letter_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
                 (w, h), _ = cv2.getTextSize(letter_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
                 curr_x += w
                 
-                # Percentuale
+                # Percentage
                 pct_str = f"{pct}%"
                 cv2.putText(image, pct_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLUE, font_thick)
                 (w, h), _ = cv2.getTextSize(pct_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
                 curr_x += w
                 
-                # Virgola (tranne per l'ultimo)
+                # Comma (except for the last one)
                 if idx < len(options_to_show) - 1:
                     comma_str = ", "
                     cv2.putText(image, comma_str, (curr_x, y_pos_1), cv2.FONT_HERSHEY_SIMPLEX, font_scale, BLACK, font_thick)
                     (w, h), _ = cv2.getTextSize(comma_str, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thick)
                     curr_x += w
             
-            # Riga inferiore (multicolore)
+            # Bottom row (multicolor)
             curr_x = start_x
             y_pos = row_y_center + 35
             
@@ -556,7 +556,7 @@ class Correct:
         empty_circles = []
         scaling = metadata['scaling']
         bubble_radius = np.max(np.dot(metadata['bsize'], scaling) / 2.0)
-        # for each detcted contour
+        # for each outlined contour
         for contour in contours:
             perimeter = cv2.arcLength(contour, True)
             # try to simplify it
@@ -576,7 +576,7 @@ class Correct:
     def circle_intersection_area(c1, c2):
         r1, r2 = c1[2], c2[2]
         d = np.linalg.norm(np.array(c1[:2]) - np.array(c2[:2])) + np.finfo(float).eps
-        if r1 < r2: # ensure that r1 >= r2    
+        if r1 < r2: # ensure that r1 >= r2
             r1, r2 = r2, r1
         if (d > r1 + r2):
             return 0.0        
@@ -606,27 +606,27 @@ class Correct:
         reference_circles = [c for c in circles if abs(c[0] - pivot[0]) <= pivot[2]]
         reference_radius = np.max(np.dot(metadata['bsize'], metadata['scaling']) / 2)
         reference_area = reference_radius * reference_radius * math.pi
-        # all the other are the answer circles
+        # all the others are the answer circles
         other_circles = [c for c in circles if abs(c[0] - pivot[0]) > pivot[2]]
         # highlight the reference circles
         for c in reference_circles:
             Correct.highlight_circle(mask, c, CYAN)
             filled_area = Correct.circle_filled_area(binary, c) / reference_area
             #text = f"{filled_area:.0%}"
-            #cv2.putText(mask, text, tuple(np.array(c[:2]) - np.array([c[2], c[2] + 2 * offset])), 
+            #cv2.putText(mask, text, tuple(np.array(c[:2]) - np.array([c[2], c[2] + 2 * offset])),
             #            cv2.FONT_HERSHEY_SIMPLEX, 0.8, CYAN, 3)
         # maintain the information as a mapping between the reference circle and all the
         # answer circles on the same row
         answer_circles = {c: [] for c in reference_circles}
         # process the answer circles
         for c in other_circles:
-            # find the closest reference circle, w.r.t. y coordinate
+            # find the closest reference circle, w.r.t. y coordinates
             ydist = np.fromiter((abs(c[1] - rc[1]) for rc in reference_circles), int)
             reference_circle = reference_circles[np.argmin(ydist)]
             answer_circles[reference_circle].append(tuple(list(c) + [True]))
         # and the empty ones (they are meaningful only for edge detection)
         for c in empty_circles:
-            # find the closest reference circle, w.r.t. y coordinate
+            # find the closest reference circle, w.r.t. y coordinates
             ydist = np.fromiter((abs(c[1] - rc[1]) for rc in reference_circles), int)
             reference_circle = reference_circles[np.argmin(ydist)]
             answer_circles[reference_circle].append(tuple(list(c) + [False]))
@@ -655,7 +655,7 @@ class Correct:
             given_answers = sorted(ac[1])
             for c in given_answers:
                 Correct.highlight_circle(mask, c, ORANGE, shape="rectangle")
-            # TODO: assumption that the line of answers is almost horizontal, it could be detected
+            # TODO: assuming that the line of answers is almost horizontal, it could be detected
             #       another assumption is that the maximum number of answers is 10
             phantom_circles = []
             for j in range(1, 11):
@@ -731,7 +731,7 @@ class Correct:
         bubble_radius = np.max(np.dot(metadata['bsize'], scaling) / 2.0)
         params.minDistBetweenBlobs = bubble_radius * 2.0
         #params.filterByColor = False
-        #blobColor = 0 
+        #blobColor = 0
 
         # Filter by Area.
         params.filterByArea = True
@@ -803,21 +803,21 @@ class Correct:
         
         s = np.max(np.dot(metadata['bsize'], metadata['scaling']) / 2.0)
 
-        s1 = s / 1.4142 # stretto
+        s1 = s / 1.4142 # strict
         # some denoising
         im1 = cv2.GaussianBlur(gray, (round_up_to_odd(1 + 5 * s1), round_up_to_odd(1 + 5 * s1)), s1)
 
-        s2 = s * 1.4142 #largo
+        s2 = s * 1.4142 #wide
         # some denoising
         im2 = cv2.GaussianBlur(gray, (round_up_to_odd(1 + 5 * s2), round_up_to_odd(1 + 5 * s2)), s2)
 
-        response = im2.astype(float) - im1.astype(float)  #largo - stretto
+        response = im2.astype(float) - im1.astype(float)  #wide - narrow
         response = cv2.normalize(response, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8UC1)
         
         y, x = np.ogrid[-s // 2 : s // 2, -s // 2 : s // 2]
         mask = x * x + y * y <= s * s    
         
-        peak_indexes = peak_local_max(response, footprint=mask, #min_distance=s, 
+        peak_indexes = peak_local_max(response, footprint=mask, #min_distance=s,
                                       exclude_border=False, threshold_rel=0.5) 
         maxima = np.zeros_like(response, dtype=int)
         maxima[tuple(peak_indexes.T)] = 255        

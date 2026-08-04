@@ -65,8 +65,8 @@ export default function CroppedPDFPreview({ url, pages = [1], showAlgorithms = f
               }} 
             >
               {/* 
-                When showAlgorithms is true, we shift less to the left to show the right part,
-                and we increase the width. We need to shift it so that the original exam is still cropped.
+                When showAlgorithms is true, shift less to the left to show the right part,
+                and increase the width. Need to shift it so that the original exam is still cropped.
               */}
               <div style={{ 
                 transform: showAlgorithms ? 'translateX(-32.9%) translateY(-12.5%)' : 'translateX(-60%) translateY(-13%)', 
@@ -84,7 +84,7 @@ export default function CroppedPDFPreview({ url, pages = [1], showAlgorithms = f
           ))}
         </div>
 
-        {/* CONTROLLI PAGINAZIONE */}
+        {/* PAGING CONTROLS */}
         {(hasNext || hasPrev) && (
           <div className="flex flex-row gap-4 items-center justify-center mt-4 p-2 bg-white rounded-lg shadow-sm border border-gray-200 w-fit">
              <button

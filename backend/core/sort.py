@@ -106,7 +106,7 @@ class Sort:
             try:
                 metadata = self.process(filename, page)
                 if metadata is None:
-                    # Il QR code non è stato trovato (pagina scartata)
+                    # The QR code was not found (page discarded)
                     self.discarded_pages.put({'filename': filename, 'page': page})
                 elif metadata and self.doublecheck:                    
                     with TinyDB(self.doublecheck) as db:

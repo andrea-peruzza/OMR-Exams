@@ -31,7 +31,7 @@ def run_sort_task(task_id: str, req: SortRequest):
                 except:
                     pass
         
-        # Recupera i pdf selezionati
+        # Recover selected pdfs
         scanned_files = [os.path.join(SCANS_DIR, f) for f in req.selected_scans]
         scanned_files = [f for f in scanned_files if os.path.exists(f)]
         if not scanned_files:
@@ -46,13 +46,13 @@ def run_sort_task(task_id: str, req: SortRequest):
         sorter = Sort(
             scanned=scanned_files,
             sorted=SORTED_DIR,
-            doublecheck=False, # TODO: eventualmente renderlo configurabile
+            doublecheck=False, # TODO: possibly make it configurable
             progress_callback=progress_callback
         )
         
         discarded_pages = sorter.sort(paper=req.paper.upper())
         
-        # Task completato con successo
+        # Task completed successfully
         task_manager.complete_task(task_id, result_data={"discarded_pages": discarded_pages})
         
     except Exception as e:

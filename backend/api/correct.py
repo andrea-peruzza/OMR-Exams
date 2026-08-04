@@ -22,10 +22,10 @@ def run_correct_task(task_id: str, req: CorrectRequest):
     try:
         task_manager.update_task(task_id, 0, 100, 'Inizializzazione correzione...')
         
-        # Usa il nome completo del file json selezionato
+        # Use the full name of the selected json file
         data_filename = os.path.join(DATA_DIR, req.datafile)
         
-        # Determina il file di output
+        # Determine the output file
         if req.produce_pdf and req.pdf_filename:
             pdf_name = req.pdf_filename
             if not pdf_name.endswith('.pdf'):
@@ -50,7 +50,7 @@ def run_correct_task(task_id: str, req: CorrectRequest):
         
         corrector.correct()
         
-        # Task completato con successo
+        # Task completed successfully
         result_data = {
             "manual_checks_needed": len(corrector.watch_results)
         }
