@@ -113,9 +113,10 @@ class Correct:
                     f.seek(0)
                     student_id = os.path.basename(filename).split("-")[0]
                     
-                    if student_id not in student_pages:
-                        student_pages[student_id] = []
-                    student_pages[student_id].append(i + 1)  # 1-indexed pages for react-pdf
+                    if "_wide.jpg" in filename:
+                        if student_id not in student_pages:
+                            student_pages[student_id] = []
+                        student_pages[student_id].append(i + 1)  # 1-indexed pages for react-pdf
                     
                     if student_id != old_student_id:                
                         output_pdf.append(PdfReader(f, strict=False), outline_item=f'Student {student_id}')
@@ -128,8 +129,9 @@ class Correct:
         click.secho("Writing pdf file", fg="green")
         with open(self.corrected, 'wb') as f:
             output_pdf.write(f)
-            
-        json_path = self.corrected + '.json'
+        json_dir = os.path.join(os.path.dirname(self.corrected), "sidecar")
+        os.makedirs(json_dir, exist_ok=True)
+        json_path = os.path.join(json_dir, os.path.basename(self.corrected) + '.json')
         with open(json_path, 'w') as f:
             json.dump(student_pages, f)
 
@@ -251,7 +253,7 @@ class Correct:
             image = cv2.rotate(image, cv2.ROTATE_180)
 
         if metadata['range'] == (0, 0): # no question and markers in current page
-            self.write(filename, image)
+            self.write(filename, image, is_wide=False)
             return [], []
         tl, br = metadata['top_left'], metadata['bottom_right']
         # prepare roi
@@ -358,12 +360,8 @@ class Correct:
         if masks[3] is not None:
              image = Correct.add_superimposed(image, masks[3], roi, p0, p1, 'Hough')
 
-        given_text = f"Given answers: {' '.join(','.join(a) for a in majority)}"
-        correct_text = f"Correct answers: {' '.join(','.join(a) for a in correct)}"
-        (width, height), _ =  cv2.getTextSize(given_text, cv2.FONT_HERSHEY_SIMPLEX, 1, 3)
-        cv2.putText(image, given_text, (metadata['bottom_right'][0] // 4, metadata['bottom_right'][1] - 4 * height), cv2.FONT_HERSHEY_SIMPLEX, 1, MAGENTA, 3)
-        cv2.putText(image, correct_text, (metadata['bottom_right'][0] // 4, metadata['bottom_right'][1] - height), cv2.FONT_HERSHEY_SIMPLEX, 1, BLUE, 3)
-        self.write(filename, image)
+        # Scritte given and correct answers rimosse come da richiesta
+        self.write(filename, image, is_wide=True)
 
         return majority, correct
         
@@ -504,9 +502,9 @@ class Correct:
             
         return image
 
-    def write(self, filename, image):
+    def write(self, filename, image, is_wide=False):
         filename = os.path.join('tmp', os.path.basename(filename))
-        filename = ".".join(filename.split(".")[:-1]) + ".jpg"
+        filename = ".".join(filename.split(".")[:-1]) + ("_wide.jpg" if is_wide else ".jpg")
         # rescale to 150 dpi to save space (previously 72 dpi)
         # Using 150 provides a good balance between readability and file size
         fx_fy = min(1.0, 150.0 / self.resolution)

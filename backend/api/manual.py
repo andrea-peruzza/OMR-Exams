@@ -27,7 +27,7 @@ async def get_corrected():
 @router.get("/corrected_mapping")
 async def get_corrected_mapping(pdf_name: str):
     import json
-    json_path = os.path.join(DATA_DIR, "corrected", pdf_name + ".json")
+    json_path = os.path.join(DATA_DIR, "corrected", "sidecar", pdf_name + ".json")
     if not os.path.exists(json_path):
         raise HTTPException(status_code=404, detail="Mapping JSON non trovato per questo PDF")
     with open(json_path, "r") as f:
