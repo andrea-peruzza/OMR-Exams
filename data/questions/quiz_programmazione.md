@@ -19,7 +19,8 @@
 - [ ] git fork
 - [ ] git status
 ---
-### Spiega brevemente la differenza tra stack e heap 
+### Spiega brevemente la differenza tra stack e heap
+\vspace{-0.3cm}
 {lines:3cm}
 
 ---
@@ -119,7 +120,7 @@
 
 - [ ] O(n)
 - [x] O(log n)
-- [ ] O(n²)
+- [ ] O($n^2$)
 - [ ] O(1)
 
 ---
@@ -152,6 +153,7 @@
 ---
 
 ### Spiega la differenza tra un ciclo `for` e un ciclo `while`, indicando quando conviene usare l'uno o l'altro.
+\vspace{-0.3cm}
 {lines:2cm}
 
 ---
