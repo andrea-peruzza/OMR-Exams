@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../api/client';
+import apiClient, { correctAPI } from '../api/client';
 import * as XLSX from 'xlsx';
 import { Save, Upload, AlertCircle, CheckCircle, RefreshCw, Search, Server, ScanText, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -76,12 +76,36 @@ export default function Associate() {
   const [examSearchId, setExamSearchId] = useState('');
   const [fetchingServerExcel, setFetchingServerExcel] = useState(false);
   const [hasSortedFiles, setHasSortedFiles] = useState(null);
+  const [dataFiles, setDataFiles] = useState([]);
+  const [selectedDatafile, setSelectedDatafile] = useState('');
 
   useEffect(() => {
     checkSortedFiles();
-    fetchExams();
+    loadStatus();
     fetchServerFiles();
   }, []);
+
+  const loadStatus = async () => {
+    try {
+      const status = await correctAPI.getStatus();
+      const files = status.data_files || [];
+      setDataFiles(files);
+      if (files.length > 0) {
+        setSelectedDatafile(files[0]);
+      } else {
+        setLoading(false);
+      }
+    } catch (e) {
+      console.error("Errore nel caricamento dei file JSON", e);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDatafile) {
+      fetchExams(selectedDatafile);
+    }
+  }, [selectedDatafile]);
 
   const checkSortedFiles = async () => {
     try {
@@ -105,10 +129,10 @@ export default function Associate() {
     }
   };
 
-  const fetchExams = async () => {
+  const fetchExams = async (datafile) => {
     try {
       setLoading(true);
-      const res = await apiClient.get('/api/associate/exams?datafile=esame_generato.json');
+      const res = await apiClient.get(`/api/associate/exams?datafile=${datafile}`);
       // Initialize state with fetched exams, mapping current student_id and fullname to editable fields
       const formattedExams = res.data.exams.map(ex => ({
         original_id: ex.student_id,
@@ -254,7 +278,7 @@ export default function Associate() {
     setSuccessMessage('');
     try {
       const payload = {
-        datafile: 'esame_generato.json',
+        datafile: selectedDatafile,
         associations: exams.map(e => ({
           original_id: e.original_id,
           new_student_id: e.new_student_id,
@@ -325,6 +349,20 @@ export default function Associate() {
               </p>
             </div>
           </HelpButton>
+          
+          {dataFiles.length > 0 && (
+            <div className="flex items-center gap-2 mr-2">
+              <span className="text-sm font-bold text-gray-700">Seleziona JSON:</span>
+              <select 
+                value={selectedDatafile} 
+                onChange={(e) => setSelectedDatafile(e.target.value)} 
+                className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white cursor-pointer"
+              >
+                {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
+              </select>
+            </div>
+          )}
+
           <label className="flex items-center gap-2 cursor-pointer bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
             <Upload size={20} />
             <span className="font-semibold">Carica Excel</span>
