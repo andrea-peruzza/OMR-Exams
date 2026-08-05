@@ -308,7 +308,7 @@ export default function ManualCorrection() {
               {selectedCorrected && selectedCorrectedStudent ? (
                 <div className="w-full overflow-x-auto bg-gray-50">
                   <CroppedPDFPreview 
-                    url={`/api/data/corrected/${selectedCorrected}`} 
+                    url={`/api/data/corrected/${encodeURIComponent(selectedCorrected)}`} 
                       pages={correctedMapping[selectedCorrectedStudent]} 
                       showAlgorithms={showAlgorithms}
                     />
