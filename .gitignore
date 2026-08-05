@@ -47,6 +47,7 @@ exam*.json
 *.tmp
 *.json.tmp
 config.yaml
+dist/
 
 # Excel sheets
 studenti*.xlsx
