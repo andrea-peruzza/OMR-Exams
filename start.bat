@@ -75,20 +75,27 @@ echo                  Avvio completato
 echo ==============================================
 echo L'applicazione e' ora in esecuzione nel browser.
 echo.
-echo PER SPEGNERE L'APPLICAZIONE E CHIUDERE DOCKER:
+echo PER SPEGNERE L'APPLICAZIONE:
 echo Premi un tasto qualsiasi all'interno di questa finestra...
 pause >nul
 
 echo.
 echo ==============================================
 echo [1/2] Spegnimento dei container in corso...
-docker-compose down
-
-echo [2/2] Chiusura del motore Docker Desktop...
-taskkill /IM "Docker Desktop.exe" /F >nul 2>&1
-taskkill /IM "com.docker.backend.exe" /F >nul 2>&1
+docker-compose stop
 
 echo.
-echo Applicazione e Docker spenti correttamente.
+set /p STOP_DOCKER="Vuoi spegnere anche il motore Docker Desktop per liberare memoria? (s/n): "
+if /i "%STOP_DOCKER%"=="s" (
+    echo [2/2] Chiusura del motore Docker Desktop...
+    taskkill /IM "Docker Desktop.exe" /F >nul 2>&1
+    taskkill /IM "com.docker.backend.exe" /F >nul 2>&1
+    echo Motore Docker spento.
+) else (
+    echo Motore Docker lasciato in esecuzione.
+)
+
+echo.
+echo Applicazione chiusa correttamente.
 echo Puoi chiudere il terminale.
 pause

@@ -86,7 +86,7 @@ echo "                 Avvio completato"
 echo "=============================================="
 echo "L'applicazione e' ora in esecuzione nel browser."
 echo ""
-echo "PER SPEGNERE L'APPLICAZIONE E CHIUDERE DOCKER:"
+echo "PER SPEGNERE L'APPLICAZIONE:"
 echo "Premi il tasto INVIO all'interno di questa finestra..."
 read -p ""
 
@@ -94,18 +94,24 @@ echo ""
 echo "=============================================="
 echo "[1/2] Spegnimento dei container in corso..."
 if docker compose version > /dev/null 2>&1; then
-    docker compose down
+    docker compose stop
 else
-    docker-compose down
-fi
-
-echo "[2/2] Chiusura del motore Docker..."
-if [ "$OS" = "Darwin" ]; then
-    osascript -e 'quit app "Docker"'
-elif [ "$OS" = "Linux" ]; then
-    sudo systemctl stop docker
+    docker-compose stop
 fi
 
 echo ""
-echo "Applicazione e Docker spenti correttamente."
-echo "Puoi chidere il terminale."
+read -p "Vuoi spegnere anche il motore Docker per liberare memoria? (s/n): " STOP_DOCKER
+if [ "$STOP_DOCKER" = "s" ] || [ "$STOP_DOCKER" = "S" ]; then
+    echo "[2/2] Chiusura del motore Docker..."
+    if [ "$OS" = "Darwin" ]; then
+        osascript -e 'quit app "Docker"'
+    elif [ "$OS" = "Linux" ]; then
+        sudo systemctl stop docker
+    fi
+    echo "Motore Docker spento."
+else
+    echo "Motore Docker lasciato in esecuzione."
+fi
+
+echo ""
+echo "Applicazione chiusa correttamente."
