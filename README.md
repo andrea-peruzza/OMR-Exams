@@ -5,32 +5,27 @@ Nato come evoluzione di un software OMR preesistente, questo progetto integra la
 
 ## Cosa fa il progetto
 
-- **Creazione Esami:** Genera fogli d'esame stampabili dotati di codici QR e bolle per le risposte multiple.
+- **Creazione Esami:** Genera fogli d'esame stampabili dotati di codici QR per domande a scelta multipla.
 - **Correzione Automatica:** Permette di caricare le scansioni dei fogli compilati e utilizza algoritmi OMR per rilevare automaticamente i segni, calcolare i punteggi e associarli agli studenti.
 - **Strumenti di ausilio:** Presenza di diversi strumenti secondari rispetto al flusso di generazione e correzione principale, che permettono una gestione completa del sistema.
-- **Interfaccia Web:** Un frontend moderno permette ai docenti e agli utenti di gestire l'intero flusso di lavoro direttamente dal browser, senza dover interagire con complesse interfacce a riga di comando.
-- **Distribuzione Isolata:** L'intero sistema è "containerizzato" tramite Docker. Questo significa che funziona allo stesso modo su qualsiasi sistema operativo senza interferire e senza richiedere l'installazione manuale di Python, Node.js o altre librerie.
+- **Interfaccia Web:** Il frontend permette agli utenti di gestire l'intero flusso di lavoro direttamente dal browser, senza dover interagire con interfacce a riga di comando.
+- **Distribuzione Isolata:** L'intero sistema è "containerizzato" tramite Docker. Ciò vuol dire che funziona allo stesso modo su qualsiasi sistema operativo senza interferire e senza richiedere l'installazione manuale di  librerie o dipedenze.
 
 ## Come utilizzare l'applicazione
 
-La suite è progettata per essere completamente plug-and-play. Gli unici due requisiti di base (che l'installer può configurare in automatico) sono Git e Docker Desktop.
+La suite è progettata per essere completamente plug-and-play. L'unico requisito di base è Docker Desktop installato nel PC.
 
-### Metodo 1: Tramite pacchetto di Setup
-Se hai ricevuto il pacchetto zip di distribuzione:
-1. Estrai i file sul tuo computer.
-2. Se usi Windows, fai doppio clic sul file `setup_omr.bat`.
-3. Se usi Mac/Linux, apri il terminale e lancia `bash setup_omr.sh`.
-4. Lo script si occuperà autonomamente di installare Git/Docker (se mancanti), scaricare l'ultima versione di questa repository, costruire l'app e aprire il browser.
-
-### Metodo 2: Avvio manuale
-Se hai già clonato questa repository sul tuo computer:
+### Avvio
+Dopo aver clonato questa repository sul tuo computer:
 1. Apri la cartella principale del progetto.
 2. Avvia lo script corrispondente al tuo sistema operativo:
    - Windows: Esegui `start.bat`
    - Mac/Linux: Esegui `./start.sh` da terminale
-3. Lo script controllerà che Docker sia acceso, effettuerà la build e l'attivazione dei container(la build dei container verrà effettuata solo la prima volta) e aprirà in automatico la pagina web corretta (`http://localhost:8080`) nel tuo browser, da dove sarà possibile utilizzare l'applicazione.
+3. Lo script controllerà che il motore Docker sia acceso, effettuerà la build e l'attivazione dei container (la build dei container verrà effettuata solo la prima volta) e aprirà in automatico la pagina web corretta (`http://localhost:8080`) nel tuo browser, da dove sarà possibile utilizzare l'applicazione.
+La prima volta la build dei container può perdurare diversi minuti.
+Le volte successive l'avvio sarà pressoché immediato.
 
-4. **Per spegnere l'app:** Ti basterà premere un tasto qualsiasi nella finestra del terminale rimasta aperta. Lo script si occuperà di spegnere in modo pulito i container e spegnere il Docker Engine.
+4. **Spegnimento dell'app:** Basterà premere un tasto qualsiasi nella finestra del terminale rimasta aperta. Lo script si occuperà di spegnere in modo pulito i container e spegnere il Docker Engine qualora richiesto.
 
 ## Parti Principali e Architettura
 
@@ -39,7 +34,7 @@ Il progetto è diviso in tre blocchi logici principali, orchestrati insieme da `
 - **Frontend (`/frontend`)**
    - Sviluppato in React e compilato con Vite.
    - Fornisce l'interfaccia grafica utente moderna, interattiva e reattiva.
-   - Messo in produzione e servito tramite un server web ultraleggero (**Nginx**).
+   - Messo in produzione e servito tramite un server web leggero (**Nginx**).
 
 - **Backend (`/backend`)**
    - Sviluppato in Python utilizzando il framework FastAPI.
