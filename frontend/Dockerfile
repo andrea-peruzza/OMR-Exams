@@ -1,46 +1,42 @@
-# ==========================================
-# FASE 1: Costruzione (Build) con Node.js
-# ==========================================
-# Usiamo Node 20 (la versione LTS attuale, ottima per Vite)
+
+# step 1: build with Node.js
+
+# use Node 20 (the current LTS version, correct for Vite)
 FROM node:20-alpine AS build
 
-# Impostiamo la cartella di lavoro nel container
+# set up the working folder in the container
 WORKDIR /app
 
-# Copiamo PRIMA solo i file delle dipendenze. 
-# Questo è un trucco Docker: se non cambi i pacchetti, Docker userà la cache 
-# e salterà questa fase lunghissima nei build successivi!
+# only copy the dependency files first
 COPY package*.json ./
 
-# Installiamo le librerie di React/Vite
+# install the React/Vite libraries
 RUN npm install
 
-# Ora copiamo tutto il resto del codice (componenti, css, asset)
+# copy all the rest of the code (components, css, assets)
 COPY . ./
 
-# Lancia il comando di build di Vite.
-# Attenzione: a differenza di Create React App (che crea la cartella 'build/'),
-# Vite per impostazione predefinita genera i file compilati nella cartella 'dist/'
+# run the command of Vite to start the build
 RUN npm run build
 
 
-# ==========================================
-# FASE 2: Produzione (Serve) con Nginx
-# ==========================================
-# Partiamo da un'immagine pulita di Nginx
+
+# step 2: production with Nginx
+
+# start from an Nginx image
 FROM nginx:alpine
 
-# Rimuoviamo la pagina di benvenuto di default di Nginx
+# remove the default Nginx welcome page
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copiamo i file compilati dalla Fase 1 (dist/) dentro la cartella pubblica di Nginx
+# copy the files compiled from Phase 1 (dist/) into the Nginx public folder
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copiamo la nostra configurazione personalizzata per il routing
+# copy the custom configuration for routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Esponiamo la porta 80 (standard per il traffico web HTTP)
+# expose port 80 (standard for HTTP web traffic)
 EXPOSE 80
 
-# Avviamo Nginx bloccandolo in foreground (richiesto da Docker)
+# Starting Nginx by locking it in the foreground (required by Docker)
 CMD ["nginx", "-g", "daemon off;"]

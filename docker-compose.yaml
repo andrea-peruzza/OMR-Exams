@@ -1,8 +1,8 @@
 services:
 
-  # ============================================================
-  # BACKEND — FastAPI + codice OMRExams + dipendenze di sistema
-  # ============================================================
+
+  # backend: FastAPI + OMRExams code + system dependencies
+  
   backend:
     build:
       context: ./backend
@@ -11,9 +11,9 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      # La cartella data/ sulla macchina dell'utente viene montata
-      # dentro il container: i file generati (esami, scansioni, risultati)
-      # persistono anche dopo il riavvio dei container
+      # The data/ folder on the user's machine is mounted
+      # inside the container, therefore the generated files (exams, scans, results)
+      # they persist even after the containers are restarted
       - ./data:/app/data
     environment:
       - PYTHONDONTWRITEBYTECODE=1
@@ -23,9 +23,9 @@ services:
     networks:
       - omrexams-network
 
-  # ============================================================
-  # FRONTEND — React compilato da Vite, servito da nginx
-  # ============================================================
+
+  # frontend: React compiled by Vite, served by nginx
+
   frontend:
     build:
       context: ./frontend
@@ -39,13 +39,13 @@ services:
     networks:
       - omrexams-network
 
-# ============================================================
-# RETE INTERNA tra i container
-# ============================================================
-# I due container comunicano tra loro tramite questa rete virtuale.
-# All'interno di essa, il frontend può raggiungere il backend
-# usando il nome del servizio come hostname: http://backend:5000
-# Questo nome va usato in nginx.conf per il proxy, NON localhost.
+
+# internal network between containers
+
+# The two containers communicate with each other via this virtual network.
+# Within it, the frontend can reach the backend
+# using the service name as the hostname: http://backend:5000
+# This name should be used in nginx.conf for the proxy, NOT localhost.
 networks:
   omrexams-network:
     driver: bridge

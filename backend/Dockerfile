@@ -1,15 +1,15 @@
-# 1. Partiamo da un'immagine Linux ufficiale con Python 3.10 già installato
+# starting from an official Linux image with Python 3.10 already installed
 FROM python:3.10-slim
 
-# 2. Impediamo a Python di creare i fastidiosi file .pyc
+# prevent Python from creating .pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# 3. Impostiamo la cartella di lavoro all'interno del container
+# set the working folder inside the container
 WORKDIR /app
 
-# 4. Installiamo i programmi di sistema (Ghostscript, ImageMagick, Perl, LaTeX)
-# Usiamo texlive-xetex e latexmk perché generate.py li richiede esplicitamente
+# install system programs (Ghostscript, ImageMagick, Perl, TeXLive)
+# use texlive-xetex and latexmk because generate.py explicitly requires them
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ghostscript \
     imagemagick \
@@ -26,35 +26,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzxing3 \
     && rm -rf /var/lib/apt/lists/*
 
-# corregge la policy di ImageMagick che blocca i PDF
+# fix the ImageMagick policy that blocks PDFs
 RUN find /etc/ImageMagick-* -name "policy.xml" -exec \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' {} \;
 
-# 4bis. Installiamo il font OpenDyslexic (necessario per xetex/fontspec)
-# fontconfig serve per registrare i font di sistema
+# install the OpenDyslexic font (necessary for xetex/fontspec)
+# fontconfig is used to register system fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
     fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
-# I file .otf devono trovarsi in ./fonts/ nel repo (stessa cartella del Dockerfile)
-# Copio la cartella su questo indirizzo perché fontconfig scansiona /usr/share/fonts/ e sottocartelle alla ricerca di font
+# The .otf files must be located in ./fonts/ in the repo (same folder as the Dockerfile)
+# copy the folder to this address because fontconfig scans /usr/share/fonts/ and subfolders for fonts
 COPY fonts/ /usr/share/fonts/truetype/opendyslexic/
 RUN fc-cache -f -v
 
-# 5. Copio prima le dipendenze python
+# copy the python dependencies
 COPY requirements.txt .
 
-# 6. Installiamo il progetto stesso!
-# Il punto "." dice a pip di leggere il pyproject.toml nella cartella corrente
-# e installare tutte le librerie elencate lì dentro.
+# install the project
 RUN pip install --no-cache-dir -r requirements.txt
 
-#e poi importo il codice
+#and then import the code
 COPY . /app
 
-# 7. Diciamo a Docker quale porta esporre (es. 5000 se usi Flask)
+# which door to expose
 EXPOSE 5000
 
-# 8. Il comando che verrà lanciato quando accendiamo il container
-# (Sostituisci "app.py" con il nome del file principale del tuo backend web)
+# The command that will be launched when the container is powered on
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
