@@ -28,7 +28,7 @@ if %errorlevel% neq 0 (
     echo In attesa di Docker...
     goto waitForDocker
 )
-echo Docker e' ora in esecuzione!
+echo Docker e' ora in esecuzione
 
 :DockerIsRunning
 
@@ -43,7 +43,7 @@ if not exist ".build_done" (
     if %errorlevel% neq 0 (
         echo.
         echo ==============================================
-        echo ERRORE: La fase di build e' fallita!
+        echo ERRORE: La fase di build e' fallita.
         echo Scorri in alto per leggere il messaggio d'errore
         echo ed individuare il problema.
         echo ==============================================
@@ -85,7 +85,7 @@ echo [1/2] Spegnimento dei container in corso...
 docker-compose stop
 
 echo.
-set /p STOP_DOCKER="Vuoi spegnere anche il motore Docker Desktop per liberare memoria? (s/n): "
+set /p STOP_DOCKER="Vuoi spegnere anche il motore Docker Desktop? (s/n): "
 if /i "%STOP_DOCKER%"=="s" (
     echo [2/2] Chiusura del motore Docker Desktop...
     taskkill /IM "Docker Desktop.exe" /F >nul 2>&1

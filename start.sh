@@ -20,7 +20,7 @@ if ! docker info > /dev/null 2>&1; then
         sleep 5
         echo "In attesa di Docker..."
     done
-    echo "Docker e' ora in esecuzione!"
+    echo "Docker e' ora in esecuzione"
 else
     echo "Il motore Docker e' gia' in esecuzione."
 fi
@@ -34,13 +34,13 @@ if [ ! -f ".build_done" ]; then
     if docker compose version > /dev/null 2>&1; then
         if ! docker compose build; then
             echo ""
-            echo "ERRORE: La fase di build e' fallita! Controlla i log qui sopra."
+            echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
             exit 1
         fi
     else
         if ! docker-compose build; then
             echo ""
-            echo "ERRORE: La fase di build e' fallita! Controlla i log qui sopra."
+            echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
             exit 1
         fi
     fi
@@ -100,7 +100,7 @@ else
 fi
 
 echo ""
-read -p "Vuoi spegnere anche il motore Docker per liberare memoria? (s/n): " STOP_DOCKER
+read -p "Vuoi spegnere anche il motore Docker? (s/n): " STOP_DOCKER
 if [ "$STOP_DOCKER" = "s" ] || [ "$STOP_DOCKER" = "S" ]; then
     echo "[2/2] Chiusura del motore Docker..."
     if [ "$OS" = "Darwin" ]; then
