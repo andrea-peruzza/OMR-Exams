@@ -352,7 +352,7 @@ export default function Associate() {
           
           {dataFiles.length > 0 && (
             <div className="flex items-center gap-2 mr-2">
-              <span className="text-sm font-bold text-gray-700">Seleziona JSON:</span>
+              <span className="text-sm font-bold text-gray-700">Seleziona datafile degli esami (JSON):</span>
               <select 
                 value={selectedDatafile} 
                 onChange={(e) => setSelectedDatafile(e.target.value)} 
@@ -435,8 +435,8 @@ export default function Associate() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Esame Scansionato</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Compila Dati</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Esame scansionato</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Compila dati</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seleziona da Excel</th>
               </tr>
             </thead>

@@ -202,9 +202,9 @@ export default function Mark() {
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all flex items-center gap-4">
           <div className={`w-4 h-4 rounded-full ${dataFiles.length > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`}></div>
           <div>
-            <h3 className="font-semibold text-gray-800">Stato database JSON</h3>
+            <h3 className="font-semibold text-gray-800">Stato datafile degli esami (JSON)</h3>
             <p className="text-sm text-gray-500">
-              {dataFiles.length > 0 ? `${dataFiles.length} file JSON trovati nella cartella data/.` : 'Nessun file JSON trovato. Esegui prima le fasi precedenti.'}
+              {dataFiles.length > 0 ? `${dataFiles.length} datafile degli esami (JSON) trovati nella cartella data/.` : 'Nessun file JSON trovato. Esegui prima le fasi precedenti.'}
             </p>
           </div>
         </section>
@@ -231,7 +231,7 @@ export default function Mark() {
               </h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona datafile degli esami (JSON):</label>
                   <select value={markDatafile} onChange={(e) => setMarkDatafile(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500">
                     {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
                   </select>
@@ -277,7 +277,7 @@ export default function Mark() {
               </h2>
               <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona datafile degli esami (JSON):</label>
                   <select value={reportDatafile} onChange={(e) => setReportDatafile(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-purple-500">
                     {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
                   </select>
@@ -291,7 +291,7 @@ export default function Mark() {
                   disabled={reportLoading}
                   className="px-4 py-2 bg-orange-500 text-white rounded shadow hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap"
                 >
-                  {reportLoading ? 'Generazione...' : 'Genera Report'}
+                  {reportLoading ? 'Generazione...' : 'Genera report'}
                 </button>
               </div>
               
@@ -318,7 +318,7 @@ export default function Mark() {
               </h2>
               <div className="flex flex-col md:flex-row gap-4 items-end bg-orange-50 p-4 rounded-lg">
                 <div className="flex-1 w-full">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona JSON:</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona datafile degli esami (JSON):</label>
                   <select value={analysisDatafile} onChange={(e) => setAnalysisDatafile(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500">
                     {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
                   </select>

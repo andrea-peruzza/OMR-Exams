@@ -453,7 +453,7 @@ export default function Generate() {
                 {availableFiles.configs && availableFiles.configs.length > 0 ? (
                   availableFiles.configs.map(c => <option key={c} value={c}>{c}</option>)
                 ) : (
-                  <option value="">Nessun config presente</option>
+                  <option value="">Nessuna configurazione presente</option>
                 )}
               </select>
             </div>
@@ -462,7 +462,7 @@ export default function Generate() {
               disabled={!selectedConfig}
               className="bg-white/80 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Precompila config
+              Precompila configurazione
             </button>
           </div>
         </header>
@@ -841,7 +841,7 @@ export default function Generate() {
         {/* Layout Test */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:border-blue-400 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-2 text-blue-900">Test del Layout</h2>
+            <h2 className="text-xl font-semibold mb-2 text-blue-900">Test del layout</h2>
             <p className="text-blue-700/80 mb-4 text-sm">
               Genera un singolo esame contenente tutte le domande selezionate per verificare rapidamente l'impaginazione e il formato senza generare l'intero set di esami.
             </p>
@@ -856,7 +856,7 @@ export default function Generate() {
                   Generazione test...
                 </>
               ) : (
-                'Esegui Test Layout'
+                'Esegui test layout'
               )}
             </button>
           </div>

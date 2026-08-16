@@ -67,7 +67,7 @@ export default function Backup() {
         </div>
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Backup e ripristino</h1>
-          <p className="text-gray-600 mt-1">Gestisci i backup dei file JSON degli esami (massimo 5 file conservati).</p>
+          <p className="text-gray-600 mt-1">Gestisci i backup dei datafile degli esami (JSON) (massimo 5 file conservati).</p>
         </div>
       </header>
 
@@ -92,10 +92,10 @@ export default function Backup() {
             <HelpButton title="Informazioni sui Backup">
               <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
                 <p>
-                  In questa pagina è possibile recuperare i file JSON contenenti le informazioni degli esami che sono stati erroneamente cancellati in precedenza.
+                  In questa pagina è possibile recuperare i datafile JSON contenenti le informazioni degli esami che sono stati erroneamente cancellati in precedenza.
                 </p>
                 <p>
-                  Per non occupare troppa memoria inutilmente sul disco, il sistema è configurato per mantenere la possibilità di ripristinare solamente gli <strong>ultimi 5 file JSON</strong> degli esami prodotti. I backup più vecchi vengono eliminati automaticamente.
+                  Per non occupare troppa memoria sul disco, il sistema è configurato per mantenere la possibilità di ripristinare solamente gli <strong>ultimi 5 datafile JSON</strong> degli esami generati. I backup più vecchi vengono eliminati automaticamente.
                 </p>
               </div>
             </HelpButton>

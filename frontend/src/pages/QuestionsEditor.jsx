@@ -425,7 +425,7 @@ export default function QuestionsEditor() {
               </button>
             </div>
             
-            <h3 className="text-lg font-bold mb-4 text-blue-900">Domanda {idx + 1} ({q.type === 'closed' ? 'Chiusa' : 'Aperta'})</h3>
+            <h3 className="text-lg font-bold mb-4 text-blue-900">Domanda {idx + 1} ({q.type === 'closed' ? 'chiusa' : 'aperta'})</h3>
             
             <div className="mb-4">
               <label className="flex justify-between items-end text-sm font-medium text-gray-700 mb-1">
@@ -513,13 +513,13 @@ export default function QuestionsEditor() {
             onClick={() => addQuestion('closed')}
             className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-semibold hover:bg-blue-200 transition-colors flex items-center gap-2"
           >
-            <Plus size={20} /> Domanda Chiusa
+            <Plus size={20} /> Domanda chiusa
           </button>
           <button 
             onClick={() => addQuestion('open')}
             className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg font-semibold hover:bg-indigo-200 transition-colors flex items-center gap-2"
           >
-            <Plus size={20} /> Domanda Aperta
+            <Plus size={20} /> Domanda aperta
           </button>
         </div>
 
@@ -536,7 +536,7 @@ export default function QuestionsEditor() {
               </label>
               {updateExams && (
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Seleziona il file JSON da aggiornare</label>
+                    <label className="block text-sm text-gray-600 mb-1">Seleziona il datafile degli esami (JSON) da aggiornare</label>
                     <select 
                       className="w-full border rounded-lg p-2"
                       value={selectedJsonFile}

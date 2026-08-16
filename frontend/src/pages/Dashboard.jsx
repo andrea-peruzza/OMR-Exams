@@ -11,7 +11,7 @@ export default function Dashboard() {
         </h1>
       </div>
       <p className="text-lg text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-        Benvenuto in OMRExams, una suite per la generazione, lo smistamento, la correzione automatica e la valutazione di esami cartacei tramite Optical Mark Recognition (OMR).Seleziona uno degli strumenti sottostanti per procedere con il flusso di lavoro.
+        Benvenuto in OMRExams, una suite per la generazione la correzione automatica e la valutazione di esami cartacei tramite Optical Mark Recognition (OMR). Seleziona uno degli strumenti sottostanti per procedere con il flusso di lavoro.
       </p>
 
       {/* Navigation Hub section */}
@@ -31,7 +31,7 @@ export default function Dashboard() {
             <div className="bg-emerald-50 text-emerald-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <CheckCircle size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Smista e Correggi</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Smista e correggi</h3>
             <p className="text-sm text-gray-500">Suddividi i PDF, rileva i QR code e analizza le risposte date per ogni studente.</p>
           </Link>
 
@@ -63,7 +63,7 @@ export default function Dashboard() {
             <div className="bg-blue-50 text-blue-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <FileEdit size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Editor Domande</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Editor domande</h3>
             <p className="text-sm text-gray-500">Aggiungi nuove domande ai file markdown in modo semplice e guidato.</p>
           </Link>
 
@@ -71,8 +71,8 @@ export default function Dashboard() {
             <div className="bg-purple-50 text-purple-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <ScanText size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Associa Studenti</h3>
-            <p className="text-sm text-gray-500">Associa gli esami anonimi ai nomi reali degli studenti.</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Associa studenti</h3>
+            <p className="text-sm text-gray-500">Associa gli esami anonimi ai rispettivi studenti.</p>
           </Link>
 
           <Link to="/moodle" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-400 hover:shadow-md transition-all flex flex-col items-center text-center">
@@ -87,15 +87,15 @@ export default function Dashboard() {
             <div className="bg-teal-50 text-teal-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <Archive size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Backup JSON</h3>
-            <p className="text-sm text-gray-500">Recupera i file di config degli esami eliminati per errore.</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Backup datafile esami</h3>
+            <p className="text-sm text-gray-500">Recupera i file con i dati degli esami eliminati per errore.</p>
           </Link>
 
           <Link to="/cleanup" className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-red-400 hover:shadow-md transition-all flex flex-col items-center text-center">
             <div className="bg-red-50 text-red-600 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
               <Trash2 size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Gestione Dati</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Gestione dati</h3>
             <p className="text-sm text-gray-500">Elimina i file vecchi o non più necessari.</p>
           </Link>
 

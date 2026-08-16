@@ -180,7 +180,7 @@ export default function ManualCorrection() {
         {/* DATAFILE SELECTION */}
         <section className="group bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-yellow-400 hover:shadow-md transition-all flex flex-col">
           <div className="flex items-center gap-2 mb-2">
-            <label className="font-semibold text-gray-700">Database JSON attivo:</label>
+            <label className="font-semibold text-gray-700">Datafile degli esami (JSON) attivo:</label>
             <HelpButton title="Revisione e verifica manuale">
               <div className="text-sm text-gray-700 space-y-3">
                 <p>
@@ -271,7 +271,7 @@ export default function ManualCorrection() {
                       onClick={() => setShowFullPdf(true)}
                       className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition-colors"
                     >
-                      Visualizza PDF Intero
+                      Visualizza PDF intero
                     </button>
                     <button
                       onClick={() => setShowAlgorithms(!showAlgorithms)}
@@ -364,7 +364,7 @@ export default function ManualCorrection() {
                 />
               ))}
               {missingList[currentMissingIndex].images.length === 0 && (
-                <p className="text-gray-500 italic p-4">Nessuna immagine trovata in sorted per questo studente.</p>
+                <p className="text-gray-500 italic p-4">Nessuna immagine trovata in sorted/ per questo studente.</p>
               )}
             </div>
           </section>

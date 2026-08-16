@@ -18,14 +18,14 @@ export default function Cleanup() {
   const categories = [
     { id: 'all', label: 'Tutti i file' },
     { id: 'generated_pdfs', label: 'PDF degli esami generati' },
-    { id: 'generated_jsons', label: 'JSON degli esami generati' },
-    { id: 'scans', label: 'Esami scansionati (scans)' },
-    { id: 'sorted', label: 'Esami ordinati (sorted)' },
-    { id: 'corrected', label: 'PDF degli esami corretti (con JSON supportativi)' },
+    { id: 'generated_jsons', label: 'Datafile degli esami generati (JSON)' },
+    { id: 'scans', label: 'Esami scansionati' },
+    { id: 'sorted', label: 'Esami ordinati' },
+    { id: 'corrected', label: 'PDF degli esami corretti (con file JSON supportativi)' },
     { id: 'reports', label: 'File Excel/Markdown (voti e report)' },
     { id: 'config', label: 'File di configurazione YAML' },
-    { id: 'students', label: 'Excel degli studenti (students)' },
-    { id: 'questions', label: 'Markdown delle domande (questions)' }
+    { id: 'students', label: 'File Excel degli studenti' },
+    { id: 'questions', label: 'File Markdown delle domande' }
   ];
 
   const fetchData = async () => {
@@ -149,7 +149,7 @@ export default function Cleanup() {
         <div className="w-full md:w-2/3 flex flex-col">
           {category === 'generated_jsons' && (
             <div className="bg-yellow-50 text-yellow-800 p-3 text-sm border-b border-yellow-200">
-              Nel caso ci si accorga che il file JSON appena cancellato serva ancora, si può ripristinare alla seguente <Link to="/backup" className="font-semibold underline hover:text-yellow-900">pagina</Link>.
+              Nel caso ci si accorga che il datafile JSON appena cancellato serva ancora, si può ripristinare alla seguente <Link to="/backup" className="font-semibold underline hover:text-yellow-900">pagina</Link>.
             </div>
           )}
           <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-white">

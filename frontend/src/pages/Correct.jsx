@@ -289,7 +289,7 @@ function Correct() {
             <CheckCircle size={32} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Smista e Correggi</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Smista e correggi</h1>
             <p className="text-gray-600 mt-1">Smista i PDF scansionati per studente, e successivamente esegui la correzione ottica automatica.</p>
           </div>
         </header>
@@ -298,7 +298,7 @@ function Correct() {
         <div className="border-2 border-purple-200 rounded-2xl p-6 bg-purple-50/30">
           <h2 className="text-2xl font-bold text-purple-800 mb-6 flex items-center gap-3">
             <span className="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">1</span>
-            Fase 1: Smistamento Scansioni
+            Fase 1: Smistamento scansioni
           </h2>
           
           {sortError && (
@@ -381,7 +381,7 @@ function Correct() {
             
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">File dati Json (Datafile)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Datafile degli esami (JSON)</label>
                   <select 
                     className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-purple-500"
                     value={sortConfig.datafile}
@@ -451,12 +451,12 @@ function Correct() {
           <div className="flex justify-between items-start mb-6">
             <h2 className={`text-2xl font-bold flex items-center gap-3 ${isFase2Ready ? 'text-emerald-800' : 'text-gray-500'}`}>
               <span className={`${isFase2Ready ? 'bg-emerald-600' : 'bg-gray-400'} text-white w-8 h-8 rounded-full flex items-center justify-center text-lg`}>2</span>
-              Fase 2: Correzione Automatica
+              Fase 2: Correzione automatica
             </h2>
             {!isFase2Ready && (
               <span className="bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                Bloccata (Richiede smistamento)
+                Bloccata (richiede smistamento)
               </span>
             )}
           </div>
@@ -475,8 +475,8 @@ function Correct() {
                 <div className={`w-4 h-4 rounded-full ${status.has_datafile ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span className="text-gray-700 font-medium">
                   {status.has_datafile 
-                    ? `File dati JSON presenti nella cartella (data/)` 
-                    : 'Nessun file dati JSON presente. Genera prima gli esami.'}
+                    ? `Datafile JSON presenti nella cartella data/` 
+                    : 'Nessun datafile JSON presente. Genera prima gli esami.'}
                 </span>
               </div>
               
@@ -484,8 +484,8 @@ function Correct() {
                 <div className={`w-4 h-4 rounded-full ${status.has_sorted_scans ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span className="text-gray-700 font-medium">
                   {status.has_sorted_scans 
-                    ? 'Esami scannerizzati e smistati presenti (data/sorted/)' 
-                    : 'Esami non ancora smistati (Completa la Fase 1).'}
+                    ? 'Esami scannerizzati e smistati presenti in data/sorted/' 
+                    : 'Esami non ancora smistati (completa la Fase 1).'}
                 </span>
               </div>
             </div>
@@ -499,7 +499,7 @@ function Correct() {
                   Impostazioni correzione
                   <HelpButton title="Fase di correzione ottica">
                     <p className="mb-3">In questa fase il sistema analizza otticamente gli esami smistati per tutti gli studenti.</p>
-                    <p className="mb-3">Il file JSON selezionato verrà ampliato aggiungendo i dati reali appena acquisiti, ovvero calcolando esattamente quali risposte sono state date, omesse o sbagliate da ciascuno studente, in modo da procedere successivamente alla fase di assegnazione dei voti.</p>
+                    <p className="mb-3">Il datafile degli esami (JSON) selezionato verrà ampliato aggiungendo i dati reali appena acquisiti, ovvero calcolando esattamente quali risposte sono state date, omesse o sbagliate da ciascuno studente, in modo da procedere successivamente alla fase di assegnazione dei voti.</p>
                     <div className="bg-emerald-50 border border-emerald-100 p-3 rounded mt-4">
                       <p className="text-sm text-emerald-800">Selezionando l'apposita spunta, il sistema genererà un file PDF visivo di riepilogo (nella cartella data/corrected) che mostra graficamente i segni rilevati e le correzioni.</p>
                     </div>
@@ -508,7 +508,7 @@ function Correct() {
             
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona file JSON</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Seleziona datafile degli esami (JSON)</label>
                     <select 
                       className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-emerald-500"
                       value={correctConfig.datafile}
@@ -611,7 +611,7 @@ function Correct() {
                         onClick={() => navigate('/manual_correction')}
                         className="px-6 py-3 bg-yellow-500 text-white rounded-lg shadow font-bold hover:bg-yellow-600 transition-colors"
                       >
-                        Vai alla Verifica Manuale
+                        Vai alla Verifica manuale
                       </button>
                     ) : (
                       <button 
