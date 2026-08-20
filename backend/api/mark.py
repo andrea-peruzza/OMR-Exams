@@ -7,7 +7,7 @@ import numpy as np
 from tabulate import tabulate
 
 from schemas.mark import CalculateRequest, ReportRequest
-from core.mark import Mark, custom_correction
+from core.mark import Mark, custom_correction, configurable_correction
 
 router = APIRouter()
 DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))
@@ -36,7 +36,11 @@ async def calculate_mark(req: CalculateRequest):
         
     try:
         marker = Mark(data_filename, output_filename)
-        marker.mark(marking_function=custom_correction, include_missing=True)
+        if req.use_custom_weights:
+            marking_func = configurable_correction(req.weight_correct, req.weight_wrong, req.weight_missing)
+            marker.mark(marking_function=marking_func, include_missing=True)
+        else:
+            marker.mark(marking_function=custom_correction, include_missing=True)
         return {"status": "success", "message": f"Calcolo dei voti completato", "file": req.outputfile, "path": DATA_DIR}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

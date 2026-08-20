@@ -17,6 +17,10 @@ export default function Mark() {
   // Calculation of votes
   const [markDatafile, setMarkDatafile] = useState('');
   const [markOutput, setMarkOutput] = useState('voti.xlsx');
+  const [useCustomWeights, setUseCustomWeights] = useState(false);
+  const [weightCorrect, setWeightCorrect] = useState(1.0);
+  const [weightWrong, setWeightWrong] = useState(-0.33);
+  const [weightMissing, setWeightMissing] = useState(0.0);
   const [markResult, setMarkResult] = useState(null);
   const [markLoading, setMarkLoading] = useState(false);
   const [markError, setMarkError] = useState(null);
@@ -99,7 +103,14 @@ export default function Mark() {
     setMarkError(null);
     setMarkResult(null);
     try {
-      const res = await markAPI.calculateMark({ datafile: markDatafile, outputfile: currentOutput });
+      const payload = { datafile: markDatafile, outputfile: currentOutput };
+      if (useCustomWeights) {
+        payload.use_custom_weights = true;
+        payload.weight_correct = parseFloat(weightCorrect) || 0;
+        payload.weight_wrong = parseFloat(weightWrong) || 0;
+        payload.weight_missing = parseFloat(weightMissing) || 0;
+      }
+      const res = await markAPI.calculateMark(payload);
       setMarkResult(res);
       await loadStatus();
     } catch (e) {
@@ -227,26 +238,54 @@ export default function Mark() {
                     <li>Punti totali dello studente</li>
                     <li>Voto proposto (calcolato)</li>
                   </ul>
+                  <p className="mb-3">Viene data la possibilità di impostare i pesi da aggiungere o togliere per le varie risposte corrette, sbagliate e omesse.</p>
+                  <p className="mb-3">Nel caso invece non venga selezionata l'opzione viene applicata in automatica una funzione che assegna il peso in base al numero di soluzioni di una domanda. Se ad esempio una domanda ha una risposta giusta la risposta corretta avrà peso 1.0, mentre se la domanda ha due risposte corrette ogni risposta corretta peserà 0.5.</p>
                 </HelpButton>
               </h2>
-              <div className="flex gap-4 items-end bg-orange-50 p-4 rounded-lg">
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona datafile degli esami (JSON):</label>
-                  <select value={markDatafile} onChange={(e) => setMarkDatafile(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500">
-                    {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
-                  </select>
+              <div className="flex flex-col gap-4 bg-orange-50 p-4 rounded-lg">
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Seleziona datafile degli esami (JSON):</label>
+                    <select value={markDatafile} onChange={(e) => setMarkDatafile(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500">
+                      {dataFiles.map(df => <option key={df} value={df}>{df}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Nome file output (.xlsx):</label>
+                    <input type="text" value={markOutput} onChange={(e) => setMarkOutput(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <button 
+                    onClick={handleCalculateMark} 
+                    disabled={markLoading}
+                    className="px-4 py-2 bg-orange-500 text-white rounded shadow hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {markLoading ? 'Calcolo in corso...' : 'Calcolo Voti'}
+                  </button>
                 </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Nome file output (.xlsx):</label>
-                  <input type="text" value={markOutput} onChange={(e) => setMarkOutput(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" />
+                
+                <div className="mt-1 border-t border-orange-200 pt-3">
+                  <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                    <input type="checkbox" checked={useCustomWeights} onChange={(e) => setUseCustomWeights(e.target.checked)} className="w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" />
+                    <span className="text-sm font-bold text-gray-700">Usa pesi personalizzati (sovrascrive il calcolo standard)</span>
+                  </label>
+                  
+                  {useCustomWeights && (
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-xs font-bold text-gray-600 mb-1">Punti Risposta Esatta:</label>
+                        <input type="number" step="0.01" value={weightCorrect} onChange={(e) => setWeightCorrect(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 text-sm bg-white" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-xs font-bold text-gray-600 mb-1">Punti Risposta Errata (es. -0.33):</label>
+                        <input type="number" step="0.01" value={weightWrong} onChange={(e) => setWeightWrong(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 text-sm bg-white" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-xs font-bold text-gray-600 mb-1">Punti Risposta Omessa:</label>
+                        <input type="number" step="0.01" value={weightMissing} onChange={(e) => setWeightMissing(e.target.value)} className="w-full border p-2 rounded focus:ring-2 focus:ring-orange-500 text-sm bg-white" />
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button 
-                  onClick={handleCalculateMark} 
-                  disabled={markLoading}
-                  className="px-4 py-2 bg-orange-500 text-white rounded shadow hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap"
-                >
-                  {markLoading ? 'Calcolo in corso...' : 'Calcolo Voti'}
-                </button>
               </div>
               
               {markError && <div className="text-red-600 bg-red-50 p-3 rounded">{markError}</div>}

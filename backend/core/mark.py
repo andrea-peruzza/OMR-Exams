@@ -31,6 +31,13 @@ def custom_correction(correct, marked, missing, wrong, size):
         penalty = (len(wrong) / (size - len(correct) - 1))
     return np.array([max(0.0, len(correct) / (len(correct) + len(missing)) - penalty), 1.0])
 
+def configurable_correction(points_correct=1.0, points_wrong=-0.25, points_missing=0.0):
+    def _correction(correct, marked, missing, wrong, size):
+        points = (len(correct) * points_correct) + (len(wrong) * points_wrong) + (len(missing) * points_missing)
+        max_points = (len(correct) + len(missing)) * points_correct
+        return np.array([max(0.0, float(points)), float(max_points) if max_points > 0 else 1.0])
+    return _correction
+
 class Mark:
     def __init__(self, datafile, outputfile):
         self.datafile = datafile
