@@ -20,10 +20,19 @@ def _allow_deletion(filepath):
     if os.name == 'nt':
         subprocess.run(['icacls', filepath, '/remove:d', 'Everyone'], capture_output=True)
 
+def _safe_chmod(filepath, readonly=True):
+    try:
+        if readonly:
+            os.chmod(filepath, stat.S_IREAD)
+        else:
+            os.chmod(filepath, stat.S_IWRITE | stat.S_IREAD)
+    except Exception:
+        pass
+
 def backup_exam_json(filepath):
-    """
-    Copia il file JSON in data/backup/, lo rende in sola lettura e mantiene al massimo 5 file.
-    """
+    
+    # Copy the JSON file in data/backup/, make it only read and mantain maximum 5 file.
+    
     _ensure_backup_dir()
     
     if not os.path.exists(filepath):
@@ -35,14 +44,17 @@ def backup_exam_json(filepath):
     # Remove any existing file in backup to avoid overwrite permission errors
     if os.path.exists(backup_path):
         _allow_deletion(backup_path)
-        os.chmod(backup_path, stat.S_IWRITE)
-        os.remove(backup_path)
+        _safe_chmod(backup_path, readonly=False)
+        try:
+            os.remove(backup_path)
+        except Exception:
+            pass
         
     # Copy the file
     shutil.copy2(filepath, backup_path)
     
     # Set read-only and deny deletion
-    os.chmod(backup_path, stat.S_IREAD)
+    _safe_chmod(backup_path, readonly=True)
     _deny_deletion(backup_path)
     
     # Manage 5 file limit
@@ -65,9 +77,11 @@ def _enforce_backup_limit(limit=5):
         try:
             # Remove NTFS and read-only blocks before deleting
             _allow_deletion(file)
-            os.chmod(file, stat.S_IWRITE)
+            _safe_chmod(file, readonly=False)
             os.remove(file)
         except Exception as e:
+            with open(os.path.join(DATA_DIR, "debug_backup_delete.txt"), "a") as f:
+                f.write(f"Errore eliminazione {file}: {str(e)}\n")
             print(f"Errore durante l'eliminazione del backup vecchio {file}: {e}")
 
 def list_backups():
@@ -110,6 +124,6 @@ def restore_backup(filename):
         _deny_deletion(backup_path)
     
     # Remove the read-only flag from the restored file, so that it is normally usable
-    os.chmod(target_path, stat.S_IWRITE)
+    _safe_chmod(target_path, readonly=False)
     
     return True
