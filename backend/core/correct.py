@@ -149,7 +149,15 @@ class Correct:
         # with open(self.corrected, 'wb') as f:
         #     output_pdf.write(f)
         # TODO: remove tmp file
-        if (click.prompt("Remove temporary image files and directory tmp?", type=bool, default='y' if delete_default else 'n')):
+        remove_tmp = delete_default
+        try:
+            import sys
+            if sys.stdin and sys.stdin.isatty():
+                remove_tmp = click.prompt("Remove temporary image files and directory tmp?", type=bool, default='y' if delete_default else 'n')
+        except EOFError:
+            pass
+        
+        if remove_tmp:
             for filename in files:
                 os.remove(filename)
             os.rmdir('tmp')
@@ -163,12 +171,16 @@ class Correct:
                 students.add(item['student_id'])
             Correction = Query()
             for student in students:
-                data[student] = { 'correct_answers': [], 'given_answers': [] }
+                data[student] = { 'correct_answers': [], 'given_answers': [], 'doubtful': [] }
                 results = table.search(Correction.student_id == student)
                 results = sorted(results, key=lambda r: int(r['page']))
                 for page in results:
                     data[student]['correct_answers'] += list(map(list, page['correct_answers']))
                     data[student]['given_answers'] += list(map(list, page['detected_answers']))
+                    if 'doubtful' in page:
+                        data[student]['doubtful'] += page['doubtful']
+                    else:
+                        data[student]['doubtful'] += [False] * len(page['detected_answers'])
             if 'correction' in db2.tables():
                 db2.drop_table('correction')
             table = db2.table('correction')
@@ -227,13 +239,13 @@ class Correct:
             if filename is None:
                 break
             try:
-                detected_answers, correct_answers = self.process(filename)
+                detected_answers, correct_answers, doubtful = self.process(filename)
                 if correct_answers: # probably no question in current file
                     *student, page = ".".join(os.path.basename(filename).split(".")[:-1]).split("-")
                     # this is due to old-style matriculation numbers
                     student = "-".join(student)
                     self.results_mutex.acquire()
-                    self.append_correction(student, page, list(map(list, detected_answers)), list(map(list, correct_answers)))
+                    self.append_correction(student, page, list(map(list, detected_answers)), list(map(list, correct_answers)), doubtful)
                     self.results_mutex.release()
             except Exception as e:
                 click.secho(f"\nIn file {filename}\n" + str(e), fg="yellow")
@@ -347,7 +359,7 @@ class Correct:
         #         y = y + p0[1]
         #         cv2.rectangle(image, (x, y), (x + w, y + h), RED, 1, cv2.LINE_AA)
 
-        majority, correct, stats, num_algorithms = self.majority_correction(filename, correction)  
+        majority, correct, stats, num_algorithms, doubtful = self.majority_correction(filename, correction)  
         
         image = Correct.add_stats_panel(image, stats, majority, correct, num_algorithms, p0, p1)
         
@@ -363,7 +375,7 @@ class Correct:
         # Written given and correct answers removed as per request
         self.write(filename, image, is_wide=True)
 
-        return majority, correct
+        return majority, correct, doubtful
         
     def majority_correction(self, filename, correction):
         correction = list(filter(lambda c: c is not None, correction))
@@ -371,6 +383,7 @@ class Correct:
         
         majority = []
         stats = []
+        doubtful = []
         span = len(correct_answers)
         num_algos = len(correction)
         
@@ -401,9 +414,12 @@ class Correct:
                     tmp.append(a)
             if all(c1[i][0] != c2[i][0] for c1, c2 in combinations(correction, 2)):
                 self.watch_queue.put((filename, i))
+                doubtful.append(True)
+            else:
+                doubtful.append(False)
             majority.append(set(tmp))
             
-        return majority, correct_answers, stats, num_algos
+        return majority, correct_answers, stats, num_algos, doubtful
 
     @staticmethod
     def add_superimposed(image, mask, roi, p0, p1, method):
@@ -512,14 +528,15 @@ class Correct:
         cv2.imwrite(filename, image, [cv2.IMWRITE_JPEG_QUALITY, self.compression])
 
 
-    def append_correction(self, student, page, detected_answers, correct_answers):
+    def append_correction(self, student, page, detected_answers, correct_answers, doubtful):
         with TinyDB(f"{self.data_filename}.tmp") as db:
             table = db.table('correction')
             data = { 
                 "student_id": student, 
                 "page": page, 
                 "detected_answers": detected_answers,
-                "correct_answers": correct_answers
+                "correct_answers": correct_answers,
+                "doubtful": doubtful
             }
             table.insert(data)
 

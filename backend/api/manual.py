@@ -53,14 +53,23 @@ async def get_missing(datafile: str):
             student_id = str(exam['student_id'])
             # Check to see if there is a fix
             corr = correction_table.get(Correction.student_id == student_id)
-            if not corr:
+            
+            is_doubtful = False
+            if corr:
+                # Check if there are doubtful answers
+                doubtful_arr = corr.get('doubtful', [])
+                if any(doubtful_arr):
+                    is_doubtful = True
+
+            if not corr or is_doubtful:
                 # Find NPCs in data/sorted
                 sorted_dir = os.path.join(DATA_DIR, "sorted")
                 pngs = glob.glob(os.path.join(sorted_dir, f"{student_id}-*.png"))
-                pngs = [os.path.basename(p) for p in pngs]
+                pngs = [f"{os.path.basename(p)}?t={int(os.path.getmtime(p))}" for p in pngs]
                 missing_students.append({
                     "student_id": student_id,
-                    "images": pngs
+                    "images": pngs,
+                    "is_doubtful": is_doubtful
                 })
                 
     return {"missing": missing_students}
@@ -86,6 +95,7 @@ async def get_student_data(datafile: str, student_id: str):
         
         answers_status = []
         if correction:
+            doubtful_arr = correction.get('doubtful', [])
             for i, (q, reference_correct, given) in enumerate(zip(exam['questions'], correction['correct_answers'], correction['given_answers'])): 
                 q_size = len(q[3])
                 marked = set(given)
@@ -93,6 +103,7 @@ async def get_student_data(datafile: str, student_id: str):
                 missing = set(reference_correct) - set(given)
                 wrong = set(given) - set(reference_correct)
                 c = custom_correction(correct, marked, missing, wrong, q_size) 
+                is_doubtful = doubtful_arr[i] if i < len(doubtful_arr) else False
                 answers_status.append({
                     "question": i + 1,
                     "file": q[0],
@@ -101,7 +112,8 @@ async def get_student_data(datafile: str, student_id: str):
                     "marked": list(marked),
                     "correct": list(correct),
                     "missing": list(missing),
-                    "wrong": list(wrong)
+                    "wrong": list(wrong),
+                    "is_doubtful": is_doubtful
                 })
         else:
             for i, q in enumerate(exam['questions']):
@@ -113,7 +125,8 @@ async def get_student_data(datafile: str, student_id: str):
                     "marked": [],
                     "correct": [],
                     "missing": list(exam['answers'][i]),
-                    "wrong": []
+                    "wrong": [],
+                    "is_doubtful": False
                 })
                 
         return {

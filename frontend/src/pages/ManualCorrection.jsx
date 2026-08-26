@@ -434,8 +434,11 @@ export default function ManualCorrection() {
                     </thead>
                     <tbody>
                       {studentData.answers_status.map((ans, idx) => (
-                        <tr key={idx} className="border-b">
-                          <td className="p-2 border font-mono">{ans.question}</td>
+                        <tr key={idx} className={`border-b ${ans.is_doubtful ? 'bg-orange-100 border-orange-300' : ''}`}>
+                          <td className="p-2 border font-mono">
+                            {ans.question}
+                            {ans.is_doubtful && <span className="ml-2 text-xs bg-orange-500 text-white px-1 py-0.5 rounded" title="Dubbio segnalato">Dubbio</span>}
+                          </td>
                           <td className="p-2 border text-emerald-600">{Array.isArray(ans.correct_ref) ? ans.correct_ref.join(', ') : ans.correct_ref}</td>
                           <td className="p-2 border text-orange-600 font-bold">{Array.isArray(ans.marked) ? ans.marked.join(', ') : ans.marked || '-'}</td>
                           <td className="p-2 border">{ans.marking}</td>
