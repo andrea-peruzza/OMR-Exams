@@ -28,7 +28,11 @@ async def get_exams(datafile: str):
             # Find the first sorted page for this student (e.g. 1-1.png)
             first_image = f"{student_id}-1.png"
             image_path = os.path.join(sorted_dir, first_image)
-            image_url = f"/api/data/sorted/{first_image}" if os.path.exists(image_path) else None
+            if os.path.exists(image_path):
+                mtime = os.path.getmtime(image_path)
+                image_url = f"/api/data/sorted/{first_image}?t={int(mtime)}"
+            else:
+                image_url = None
             
             exams_list.append({
                 "student_id": student_id,
