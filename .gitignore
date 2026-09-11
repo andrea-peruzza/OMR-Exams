@@ -48,6 +48,7 @@ exam*.json
 *.json.tmp
 config.yaml
 dist/
+.build_done
 
 # Excel sheets
 studenti*.xlsx

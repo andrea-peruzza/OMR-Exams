@@ -85,7 +85,7 @@ DECLARED_VERSION="$(node -p 'require("./frontend/package.json").version')"
 [[ "$DECLARED_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
     || die "versione non valida in frontend/package.json: '$DECLARED_VERSION'"
 
-LATEST_TAG="$(git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1 || true)"
+LATEST_TAG="$(git tag --list 'v*' --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)"
 if [[ -n "$LATEST_TAG" && "${LATEST_TAG#v}" != "$DECLARED_VERSION" ]]; then
     die "frontend/package.json dichiara $DECLARED_VERSION ma l'ultimo tag e' $LATEST_TAG"
 fi
@@ -113,7 +113,7 @@ if git ls-remote --exit-code --tags origin "refs/tags/$NEW_TAG" >/dev/null 2>&1;
     die "il tag remoto '$NEW_TAG' esiste gia'"
 fi
 
-[[ -f CHANGELOG.md ]] || printf '# Changelog\n' > CHANGELOG.md
+[[ -f CHANGELOG.md ]] || die "CHANGELOG.md non trovato"
 TODAY="$(date +%Y-%m-%d)"
 
 if grep -Eq "^## ${NEW_VERSION}([[:space:]]|$)" CHANGELOG.md; then
@@ -175,16 +175,6 @@ fi
 
 [[ -s "$ENTRY" ]] || die "voce di changelog vuota: release annullata"
 
-TMPFILE="$(mktemp)"
-{
-    IFS= read -r first_line || true
-    printf '%s\n\n## %s - %s\n\n' "$first_line" "$NEW_VERSION" "$TODAY"
-    cat "$ENTRY"
-    printf '\n'
-    cat
-} < CHANGELOG.md > "$TMPFILE"
-mv "$TMPFILE" CHANGELOG.md
-
 echo
 echo "OMR-Exams release"
 echo "-----------------"
@@ -205,6 +195,16 @@ if [[ "$ASSUME_YES" -eq 0 ]]; then
             ;;
     esac
 fi
+
+TMPFILE="$(mktemp)"
+{
+    IFS= read -r first_line || true
+    printf '%s\n\n## %s - %s\n\n' "$first_line" "$NEW_VERSION" "$TODAY"
+    cat "$ENTRY"
+    printf '\n'
+    cat
+} < CHANGELOG.md > "$TMPFILE"
+mv "$TMPFILE" CHANGELOG.md
 
 node - "$NEW_VERSION" <<'NODE'
 const fs = require("fs");

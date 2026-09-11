@@ -18,6 +18,7 @@ Nato come evoluzione di un software OMR preesistente, questo progetto integra la
 La suite è progettata per essere completamente plug-and-play. L'unico requisito di base è Docker Desktop installato nel PC.
 
 ### Avvio
+
 Clona questa repository includendo il core OMRExams:
 
 ```sh
@@ -30,9 +31,8 @@ Se hai già clonato il progetto, inizializza il submodule con `git submodule upd
 2. Avvia lo script corrispondente al tuo sistema operativo:
    - Windows: Esegui `start.bat`
    - Mac/Linux: Esegui `./start.sh` da terminale
-3. Lo script controllerà che il motore Docker sia acceso, effettuerà la build e l'attivazione dei container (la build dei container verrà effettuata solo la prima volta) e aprirà in automatico la pagina web corretta (`http://localhost:8080`) nel tuo browser, da dove sarà possibile utilizzare l'applicazione.
-La prima volta la build dei container può perdurare diversi minuti.
-Le volte successive l'avvio sarà pressoché immediato.
+3. Lo script controllerà che il motore Docker sia acceso, aggiornerà in modo incrementale le immagini, attiverà i container e aprirà in automatico la pagina web corretta (`http://localhost:8080`) nel tuo browser, da dove sarà possibile utilizzare l'applicazione.
+La prima build può richiedere diversi minuti; negli avvii successivi Docker riutilizzerà i layer invariati dalla cache.
 
 4. **Spegnimento dell'app:** Basterà premere un tasto qualsiasi nella finestra del terminale rimasta aperta. Lo script si occuperà di spegnere in modo pulito i container e spegnere il Docker Engine qualora richiesto.
 
@@ -79,7 +79,7 @@ Il progetto è diviso in tre blocchi logici principali, orchestrati insieme da `
 
 - **Frontend (`/frontend`)**
    È sviluppato in React e compilato con Vite. Fornisce l'interfaccia grafica utente moderna, interattiva e reattiva.
-   
+
    Viene messo in produzione e servito tramite un server web leggero (**Nginx**).
 
 - **Backend (`/backend`)**

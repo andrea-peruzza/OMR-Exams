@@ -43,28 +43,21 @@ else
 fi
 
 echo ""
-if [ ! -f ".build_done" ]; then
-    echo "[2/4] Costruzione dei container Docker (Build)..."
-    echo "(NOTA: La primissima volta questa operazione potrebbe richiedere"
-    echo "diversi minuti per scaricare le immagini base e compilare il codice)"
-    # Separando la "build" dall'"up", tutti i passaggi sono visibili chiaramente a schermo
-    if docker compose version > /dev/null 2>&1; then
-        if ! docker compose build; then
-            echo ""
-            echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
-            exit 1
-        fi
-    else
-        if ! docker-compose build; then
-            echo ""
-            echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
-            exit 1
-        fi
+echo "[2/4] Aggiornamento incrementale dei container Docker..."
+echo "(NOTA: La primissima volta questa operazione potrebbe richiedere"
+echo "diversi minuti per scaricare le immagini base e compilare il codice)"
+if docker compose version > /dev/null 2>&1; then
+    if ! docker compose build; then
+        echo ""
+        echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
+        exit 1
     fi
-    # Crea un file nascosto come "segnalibro" per ricordare che la build e' fatta
-    touch .build_done
 else
-    echo "[2/4] Costruzione dei container Docker saltata (Gia' effettuata in passato)."
+    if ! docker-compose build; then
+        echo ""
+        echo "ERRORE: La fase di build e' fallita. Controlla i log qui sopra."
+        exit 1
+    fi
 fi
 
 echo ""
