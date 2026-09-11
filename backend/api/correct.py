@@ -2,7 +2,7 @@ import os
 import glob
 from fastapi import APIRouter, BackgroundTasks
 from typing import List, Dict, Any
-from core.correct import Correct
+from omrexams.correct import Correct
 from schemas.correct import CorrectRequest
 from api.sse import task_manager
 

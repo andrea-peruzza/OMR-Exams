@@ -1,8 +1,26 @@
 @echo off
+cd /d "%~dp0"
+
 echo ==============================================
 echo       Avvio del progetto OMR Exams in corso
 echo ==============================================
 echo.
+
+if exist ".git" (
+    echo Aggiornamento del core OMRExams...
+    git submodule update --init --recursive
+    if errorlevel 1 (
+        echo ERRORE: Impossibile inizializzare il submodule OMRExams.
+        exit /b 1
+    )
+)
+
+if not exist "backend\omrexams\pyproject.toml" (
+    echo ERRORE: Il core OMRExams non e' disponibile.
+    echo Clona il repository con --recurse-submodules oppure esegui:
+    echo git submodule update --init --recursive
+    exit /b 1
+)
 
 echo [1/4] Controllo stato del motore Docker...
 docker info >nul 2>&1

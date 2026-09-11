@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from schemas.generate import GenerateRequest
 from pydantic import BaseModel
 from state.manager import task_manager
-from core.generate import Generate
+from omrexams.generate import Generate
 
 class QuestionSaveRequest(BaseModel):
     filename: str
@@ -110,7 +110,7 @@ def read_question(filename: str):
 @router.post("/questions/update-corrected")
 def update_corrected_endpoint(req: UpdateCorrectedRequest):
     try:
-        from core.update_corrected import UpdateCorrected
+        from omrexams.update_corrected import UpdateCorrected
         # question_files are relative to DATA_DIR, like "questions/filename.md"
         # datafile is relative to DATA_DIR, like "exam.json"
         # wait, req.question_files might just be filenames if we assume they're all in questions/
@@ -223,7 +223,7 @@ def run_generate_task(task_id: str, req: GenerateRequest):
         
         generator.process()
         
-        from core.backup import backup_exam_json
+        from services.backup import backup_exam_json
         backup_exam_json(os.path.join(DATA_DIR, f"{req.output_prefix}.json"))
         
         task_manager.complete_task(task_id)

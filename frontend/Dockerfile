@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 
 # step 1: build with Node.js
 
@@ -8,13 +9,14 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # only copy the dependency files first
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # install the React/Vite libraries
-RUN npm install
+RUN --mount=type=cache,target=/root/.npm npm ci
 
-# copy all the rest of the code (components, css, assets)
-COPY . ./
+# copy application sources after dependencies
+COPY index.html vite.config.js ./
+COPY src/ ./src/
 
 # run the command of Vite to start the build
 RUN npm run build

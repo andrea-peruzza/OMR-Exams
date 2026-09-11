@@ -3,7 +3,7 @@ import glob
 import shutil
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from typing import List, Dict, Any
-from core.sort import Sort
+from omrexams.sort import Sort
 from schemas.sort import SortRequest
 from api.sse import task_manager
 

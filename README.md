@@ -1,5 +1,7 @@
 # OMR-Exams
 
+[![Docker images](https://github.com/iolab-uniud/omrexams-ui/actions/workflows/publish-images.yml/badge.svg)](https://github.com/iolab-uniud/omrexams-ui/actions/workflows/publish-images.yml)
+
 OMR-Exams è un'applicazione web completa progettata per creare, gestire e correggere automaticamente esami a risposta multipla utilizzando la tecnologia OMR (Optical Mark Recognition).
 Nato come evoluzione di un software OMR preesistente, questo progetto integra la logica di correzione all'interno di un'interfaccia web  facile da usare anche per gli utenti senza competenze informatiche, offrendo un metodo di distribuzione completamente automatizzato.
 
@@ -16,7 +18,14 @@ Nato come evoluzione di un software OMR preesistente, questo progetto integra la
 La suite è progettata per essere completamente plug-and-play. L'unico requisito di base è Docker Desktop installato nel PC.
 
 ### Avvio
-Dopo aver clonato questa repository sul tuo computer:
+Clona questa repository includendo il core OMRExams:
+
+```sh
+git clone --recurse-submodules https://github.com/iolab-uniud/omrexams-ui.git
+```
+
+Se hai già clonato il progetto, inizializza il submodule con `git submodule update --init --recursive`. Gli script di avvio eseguono comunque questo controllo automaticamente.
+
 1. Apri la cartella principale del progetto.
 2. Avvia lo script corrispondente al tuo sistema operativo:
    - Windows: Esegui `start.bat`
@@ -29,19 +38,14 @@ Le volte successive l'avvio sarà pressoché immediato.
 
 ### Avvio dalle immagini Docker pubblicate
 
-Ogni release contrassegnata da un tag `v*` pubblica immagini multi-architettura per sistemi AMD64 e ARM64, incluse le macchine Mac con Apple Silicon. Per scaricare una versione specifica, sostituisci `v0.2.1` con il tag della release desiderata:
+Ogni release contrassegnata da un tag `v*` pubblica immagini multi-architettura per sistemi AMD64 e ARM64, incluse le macchine Mac con Apple Silicon. Il tag `latest` identifica la release più recente.
 
-```sh
-docker pull ghcr.io/iolab-uniud/omrexams-backend:v0.2.1
-docker pull ghcr.io/iolab-uniud/omrexams-frontend:v0.2.1
-```
-
-Crea un file `docker-compose.yaml` in una cartella vuota con questo contenuto:
+Crea un file `compose.yaml` in una cartella vuota con questo contenuto:
 
 ```yaml
 services:
    backend:
-      image: ghcr.io/iolab-uniud/omrexams-backend:v0.2.1
+      image: ghcr.io/iolab-uniud/omrexams-backend:latest
       environment:
          DATA_DIR: /app/data
       volumes:
@@ -49,7 +53,7 @@ services:
       restart: unless-stopped
 
    frontend:
-      image: ghcr.io/iolab-uniud/omrexams-frontend:v0.2.1
+      image: ghcr.io/iolab-uniud/omrexams-frontend:latest
       ports:
          - "8080:80"
       depends_on:
@@ -67,7 +71,7 @@ Dopo aver committato tutte le modifiche della release, usa lo script per increme
 ./scripts/release.sh patch
 ```
 
-Sono disponibili anche gli incrementi `minor` e `major`, oppure puoi indicare direttamente una versione, ad esempio `./scripts/release.sh vX.Y.Z`. `frontend/package.json` e' la fonte di verita della versione: lo script la incrementa, aggiorna il lockfile, aggiorna i riferimenti alla release in questo README, genera una voce in `CHANGELOG.md`, crea il commit di release e poi pubblica il tag. Se disponibile, `claude -p` prepara la bozza dai commit dall'ultimo tag; altrimenti lo script apre nell'editor l'elenco dei commit, da completare manualmente. Usa `--no-llm` per non usare Claude e `--no-edit` per non aprire l'editor. Lo script controlla inoltre che l'albero di lavoro sia pulito, che l'ultimo tag sia allineato alla versione dichiarata e che il nuovo tag non esista gia'; con `--yes` salta la conferma.
+Sono disponibili anche gli incrementi `minor` e `major`, oppure puoi indicare direttamente una versione, ad esempio `./scripts/release.sh vX.Y.Z`. `frontend/package.json` e' la fonte di verita della versione: lo script la incrementa, aggiorna il lockfile, genera una voce in `CHANGELOG.md`, crea il commit di release e poi pubblica il tag. Se disponibile, `claude -p` prepara la bozza dai commit dall'ultimo tag; altrimenti lo script apre nell'editor l'elenco dei commit, da completare manualmente. Usa `--no-llm` per non usare Claude e `--no-edit` per non aprire l'editor. Lo script controlla inoltre che l'albero di lavoro sia pulito, che l'ultimo tag sia allineato alla versione dichiarata e che il nuovo tag non esista gia'; con `--yes` salta la conferma.
 
 ## Parti principali e architettura
 

@@ -4,8 +4,8 @@ import glob
 from typing import List
 
 from schemas.moodle import MoodleExportRequest, MoodleImportRequest
-from core.moodle_converter import MoodleConverter
-from core.markdown_converter import MarkdownConverter
+from omrexams.moodle_converter import MoodleConverter
+from omrexams.markdown_converter import MarkdownConverter
 
 router = APIRouter()
 

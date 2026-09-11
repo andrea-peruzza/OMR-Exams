@@ -7,7 +7,7 @@ import numpy as np
 from tabulate import tabulate
 
 from schemas.mark import CalculateRequest, ReportRequest
-from core.mark import Mark, custom_correction, configurable_correction
+from omrexams.mark import Mark, custom_correction, configurable_correction
 
 router = APIRouter()
 DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))

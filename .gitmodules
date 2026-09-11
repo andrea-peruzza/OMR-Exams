@@ -1,0 +1,3 @@
+[submodule "backend/omrexams"]
+	path = backend/omrexams
+	url = https://github.com/iolab-uniud/omrexams.git

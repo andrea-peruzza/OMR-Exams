@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 #  MOCK CLICK BLOCKERS
-# Must be BEFORE any import from core/
+# Must be BEFORE any import from omrexams
 # Prevents click.prompt() and click.confirm() from crashing the server
 # waiting for input from the user which in an API context will never arrive
 import click

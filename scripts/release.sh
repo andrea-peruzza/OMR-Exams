@@ -64,7 +64,6 @@ cd "$(dirname "$0")/.."
 [[ -d .git ]] || die "questo script va eseguito dentro il repository"
 [[ -f frontend/package.json ]] || die "frontend/package.json non trovato"
 [[ -f frontend/package-lock.json ]] || die "frontend/package-lock.json non trovato"
-[[ -f README.md ]] || die "README.md non trovato"
 command -v git >/dev/null 2>&1 || die "git non trovato nel PATH"
 command -v node >/dev/null 2>&1 || die "node non trovato nel PATH"
 
@@ -207,11 +206,10 @@ if [[ "$ASSUME_YES" -eq 0 ]]; then
     esac
 fi
 
-node - "$CURRENT_VERSION" "$NEW_VERSION" <<'NODE'
+node - "$NEW_VERSION" <<'NODE'
 const fs = require("fs");
 
-const currentVersion = process.argv[2];
-const version = process.argv[3];
+const version = process.argv[2];
 for (const path of ["frontend/package.json", "frontend/package-lock.json"]) {
     const manifest = JSON.parse(fs.readFileSync(path, "utf8"));
     manifest.version = version;
@@ -220,18 +218,9 @@ for (const path of ["frontend/package.json", "frontend/package-lock.json"]) {
     }
     fs.writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
 }
-
-const readmePath = "README.md";
-const currentTag = `v${currentVersion}`;
-const newTag = `v${version}`;
-const readme = fs.readFileSync(readmePath, "utf8");
-if (!readme.includes(currentTag)) {
-    throw new Error(`README.md non contiene il riferimento alla release ${currentTag}`);
-}
-fs.writeFileSync(readmePath, readme.replaceAll(currentTag, newTag));
 NODE
 
-git add frontend/package.json frontend/package-lock.json README.md
+git add frontend/package.json frontend/package-lock.json
 git add CHANGELOG.md
 git commit -m "Release $NEW_TAG"
 git push origin "$CURRENT_BRANCH"

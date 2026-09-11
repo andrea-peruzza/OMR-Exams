@@ -3,7 +3,7 @@ import os
 import glob
 from tinydb import TinyDB, Query, where
 from schemas.manual import ForceAnswerRequest, ForceAnswersRequest
-from core.mark import custom_correction
+from omrexams.mark import custom_correction
 
 router = APIRouter()
 DATA_DIR = os.environ.get("DATA_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data")))

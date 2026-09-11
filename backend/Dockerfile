@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # starting from an official Linux image with Python 3.10 already installed
 FROM python:3.10-slim
 
@@ -22,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-pstricks \
     lmodern \
     latexmk \
+    fontconfig \
     libzbar0 \
     libzxing3 \
     && rm -rf /var/lib/apt/lists/*
@@ -29,12 +32,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # fix the ImageMagick policy that blocks PDFs
 RUN find /etc/ImageMagick-* -name "policy.xml" -exec \
     sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' {} \;
-
-# install the OpenDyslexic font (necessary for xetex/fontspec)
-# fontconfig is used to register system fonts
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    fontconfig \
-    && rm -rf /var/lib/apt/lists/*
 
 # The .otf files must be located in ./fonts/ in the repo (same folder as the Dockerfile)
 # copy the folder to this address because fontconfig scans /usr/share/fonts/ and subfolders for fonts
@@ -45,10 +42,20 @@ RUN fc-cache -f -v
 COPY requirements.txt .
 
 # install the project
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
 
-#and then import the code
-COPY . /app
+# install the shared OMRExams core from the pinned submodule commit
+COPY omrexams/ /opt/omrexams/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-deps /opt/omrexams
+
+# copy application code last so API changes reuse all dependency layers
+COPY api/ ./api/
+COPY schemas/ ./schemas/
+COPY services/ ./services/
+COPY state/ ./state/
+COPY main.py ./main.py
 
 # which door to expose
 EXPOSE 5000

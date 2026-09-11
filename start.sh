@@ -1,9 +1,26 @@
 #!/bin/bash
 
+cd "$(dirname "$0")" || exit 1
+
 echo "=============================================="
 echo "      Avvio del progetto OMR Exams in corso"
 echo "=============================================="
 echo ""
+
+if [ -d ".git" ]; then
+    echo "Aggiornamento del core OMRExams..."
+    if ! git submodule update --init --recursive; then
+        echo "ERRORE: Impossibile inizializzare il submodule OMRExams."
+        exit 1
+    fi
+fi
+
+if [ ! -f "backend/omrexams/pyproject.toml" ]; then
+    echo "ERRORE: Il core OMRExams non e' disponibile."
+    echo "Clona il repository con --recurse-submodules oppure esegui:"
+    echo "git submodule update --init --recursive"
+    exit 1
+fi
 
 echo "[1/4] Controllo stato del motore Docker..."
 if ! docker info > /dev/null 2>&1; then

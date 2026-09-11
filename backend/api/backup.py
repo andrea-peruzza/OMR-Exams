@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from core.backup import list_backups, restore_backup
+from services.backup import list_backups, restore_backup
 
 router = APIRouter()
 
