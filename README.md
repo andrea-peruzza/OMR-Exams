@@ -27,6 +27,48 @@ Le volte successive l'avvio sarà pressoché immediato.
 
 4. **Spegnimento dell'app:** Basterà premere un tasto qualsiasi nella finestra del terminale rimasta aperta. Lo script si occuperà di spegnere in modo pulito i container e spegnere il Docker Engine qualora richiesto.
 
+### Avvio dalle immagini Docker pubblicate
+
+Ogni release contrassegnata da un tag `v*` pubblica immagini multi-architettura per sistemi AMD64 e ARM64, incluse le macchine Mac con Apple Silicon. Per scaricare una versione specifica, sostituisci `v0.1.0` con il tag della release desiderata:
+
+```sh
+docker pull ghcr.io/iolab-uniud/omrexams-backend:v0.1.0
+docker pull ghcr.io/iolab-uniud/omrexams-frontend:v0.1.0
+```
+
+Crea un file `docker-compose.yaml` in una cartella vuota con questo contenuto:
+
+```yaml
+services:
+   backend:
+      image: ghcr.io/iolab-uniud/omrexams-backend:v0.1.0
+      environment:
+         DATA_DIR: /app/data
+      volumes:
+         - ./data:/app/data
+      restart: unless-stopped
+
+   frontend:
+      image: ghcr.io/iolab-uniud/omrexams-frontend:v0.1.0
+      ports:
+         - "8080:80"
+      depends_on:
+         - backend
+      restart: unless-stopped
+```
+
+Avvia quindi l'applicazione con `docker compose up -d` e apri `http://localhost:8080`. La directory locale `data/` viene creata automaticamente da Docker e conserva esami, scansioni e risultati anche dopo l'arresto dei container. Per fermare l'applicazione, usa `docker compose down`.
+
+### Creazione di una release
+
+Dopo aver committato tutte le modifiche della release, usa lo script per incrementare la versione e pubblicare il tag che avvia il workflow GHCR:
+
+```sh
+./scripts/release.sh patch
+```
+
+Sono disponibili anche gli incrementi `minor` e `major`, oppure puoi indicare direttamente una versione, ad esempio `./scripts/release.sh v0.2.0`. `frontend/package.json` e' la fonte di verita della versione: lo script la incrementa, aggiorna il lockfile, genera una voce in `CHANGELOG.md`, crea il commit di release e poi pubblica il tag. Se disponibile, `claude -p` prepara la bozza dai commit dall'ultimo tag; altrimenti lo script apre nell'editor l'elenco dei commit, da completare manualmente. Usa `--no-llm` per non usare Claude e `--no-edit` per non aprire l'editor. Lo script controlla inoltre che l'albero di lavoro sia pulito, che l'ultimo tag sia allineato alla versione dichiarata e che il nuovo tag non esista gia'; con `--yes` salta la conferma.
+
 ## Parti principali e architettura
 
 Il progetto è diviso in tre blocchi logici principali, orchestrati insieme da `docker-compose`:
