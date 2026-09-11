@@ -29,11 +29,11 @@ Le volte successive l'avvio sarà pressoché immediato.
 
 ### Avvio dalle immagini Docker pubblicate
 
-Ogni release contrassegnata da un tag `v*` pubblica immagini multi-architettura per sistemi AMD64 e ARM64, incluse le macchine Mac con Apple Silicon. Per scaricare una versione specifica, sostituisci `v0.2.0` con il tag della release desiderata:
+Ogni release contrassegnata da un tag `v*` pubblica immagini multi-architettura per sistemi AMD64 e ARM64, incluse le macchine Mac con Apple Silicon. Per scaricare una versione specifica, sostituisci `v0.2.1` con il tag della release desiderata:
 
 ```sh
-docker pull ghcr.io/iolab-uniud/omrexams-backend:v0.2.0
-docker pull ghcr.io/iolab-uniud/omrexams-frontend:v0.2.0
+docker pull ghcr.io/iolab-uniud/omrexams-backend:v0.2.1
+docker pull ghcr.io/iolab-uniud/omrexams-frontend:v0.2.1
 ```
 
 Crea un file `docker-compose.yaml` in una cartella vuota con questo contenuto:
@@ -41,7 +41,7 @@ Crea un file `docker-compose.yaml` in una cartella vuota con questo contenuto:
 ```yaml
 services:
    backend:
-      image: ghcr.io/iolab-uniud/omrexams-backend:v0.2.0
+      image: ghcr.io/iolab-uniud/omrexams-backend:v0.2.1
       environment:
          DATA_DIR: /app/data
       volumes:
@@ -49,7 +49,7 @@ services:
       restart: unless-stopped
 
    frontend:
-      image: ghcr.io/iolab-uniud/omrexams-frontend:v0.2.0
+      image: ghcr.io/iolab-uniud/omrexams-frontend:v0.2.1
       ports:
          - "8080:80"
       depends_on:
