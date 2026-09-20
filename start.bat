@@ -39,7 +39,7 @@ if not exist ".build_done" (
     echo diversi minuti per scaricare le immagini base e compilare il codice^)
     
     :: In questo modo la procedura di build e' ben visibile a schermo passo-passo
-    docker-compose build
+    docker-compose build --no-cache
     if %errorlevel% neq 0 (
         echo.
         echo ==============================================
