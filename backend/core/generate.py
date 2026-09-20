@@ -93,24 +93,52 @@ class Generate:
             self.split = split
 
     def load_rules(self):
-        rules = self.config.get('questions', [{ "from": "*.md", "use": 1 }])
-        rules_expanded = {}
+        rules = self.config.get('questions', [{ "from": "*.md", "draw": 1 }])
+        rules_expanded = []
         # first expand the generic rules, then the more specific ones
         for rule in filter(lambda r: re.search(r'[\*\?]', r['from']), rules):
             for filename in glob.glob(os.path.join(self.questions_path, rule['from'])):
-                rules_expanded[filename] = rule['draw']
+                rules_expanded.append((filename, rule))
         for rule in filter(lambda r: not re.search(r'[\*\?]', r['from']), rules):
-            rules_expanded[os.path.join(self.questions_path, rule['from'])] = rule['draw']
+            rules_expanded.append((os.path.join(self.questions_path, rule['from']), rule))
         return rules_expanded
 
-    def load_questions(self, filename):
+    def load_questions(self, filename, rule=None):
         with open(filename, 'r', encoding='utf-8') as f:
-            questions = list(filter(lambda q: not TITLE_RE.match(q) and not OPEN_QUESTION_RE.match(q), QUESTION_MARKER_RE.split(f.read())))
+            all_q = list(filter(lambda q: not TITLE_RE.match(q) and q.strip() != '', QUESTION_MARKER_RE.split(f.read())))
+            if rule and 'range' in rule and rule['range'] is not None and len(rule['range']) == 2:
+                start, end = rule['range']
+                print(f"DEBUG: Applying range {start} to {end} on {len(all_q)} questions")
+                try:
+                    start = int(start) if start else 1
+                except ValueError:
+                    start = 1
+                try:
+                    end = int(end) if end else len(all_q)
+                except ValueError:
+                    end = len(all_q)
+                all_q = all_q[max(0, start-1):end]
+                print(f"DEBUG: Sliced questions: {len(all_q)}")
+            questions = list(filter(lambda q: not OPEN_QUESTION_RE.match(q), all_q))
             return questions
 
-    def load_open_questions(self, filename):
+    def load_open_questions(self, filename, rule=None):
         with open(filename, 'r', encoding='utf-8') as f:
-            questions = list(filter(lambda q: OPEN_QUESTION_RE.match(q), QUESTION_MARKER_RE.split(f.read())))
+            all_q = list(filter(lambda q: not TITLE_RE.match(q) and q.strip() != '', QUESTION_MARKER_RE.split(f.read())))
+            if rule and 'range' in rule and rule['range'] is not None and len(rule['range']) == 2:
+                start, end = rule['range']
+                print(f"DEBUG: Applying range {start} to {end} on {len(all_q)} open questions")
+                try:
+                    start = int(start) if start else 1
+                except ValueError:
+                    start = 1
+                try:
+                    end = int(end) if end else len(all_q)
+                except ValueError:
+                    end = len(all_q)
+                all_q = all_q[max(0, start-1):end]
+                print(f"DEBUG: Sliced open questions: {len(all_q)}")
+            questions = list(filter(lambda q: OPEN_QUESTION_RE.match(q), all_q))
             return questions
     
     def load_topics(self, filename):
@@ -131,9 +159,12 @@ class Generate:
         rules = self.load_rules()
         self.questions = {}
         self.open_questions = {}
-        for r in sorted(rules.keys()):
-            self.questions[os.path.basename(r)] = { 'content': self.load_questions(r), 'draw': rules[r] }
-            self.open_questions[os.path.basename(r)] = { 'content': self.load_open_questions(r), 'draw': rules[r] }
+        for i, (r, rule_data) in enumerate(rules):
+            draw = rule_data.get('draw', rule_data.get('use', 1))
+            # Use unique key so multiple rules for the same file don't overwrite each other
+            key = f"{os.path.basename(r)}___rule{i}"
+            self.questions[key] = { 'content': self.load_questions(r, rule_data), 'draw': draw }
+            self.open_questions[key] = { 'content': self.load_open_questions(r, rule_data), 'draw': draw }
         logger.info('Creating and preparing tmp directory')
         if self.open_questions:
             logger.info('There are open questions')
@@ -501,7 +532,7 @@ class Generate:
     def generate_test(self):
         rules = self.load_rules()
         self.topics = {}
-        for r in sorted(rules.keys()):
+        for r, rule_data in rules:
             self.topics[os.path.basename(r)] = self.load_topics(r)
         for n, t in self.topics.items():
             click.secho(f"Topics of {n} {len(t)}")
@@ -522,7 +553,7 @@ class Generate:
             footer = ''
 
         questions = ""
-        for r in sorted(rules.keys()):
+        for r, rule_data in rules:
             click.secho(f'Testing {os.path.basename(r)}', fg='cyan')
             with open(r, 'r', encoding='utf-8') as f:
                 current_questions = f.read()

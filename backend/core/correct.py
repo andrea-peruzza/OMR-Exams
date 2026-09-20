@@ -379,6 +379,9 @@ class Correct:
         
     def majority_correction(self, filename, correction):
         correction = list(filter(lambda c: c is not None, correction))
+        if not correction:
+            self.watch_queue.put((filename, -1))
+            return [], [], [], 0, []
         correct_answers = list(map(lambda c: c[1], correction[0]))
         
         majority = []
